@@ -1,0 +1,7 @@
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans Variable", sans-serif;
+}

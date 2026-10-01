@@ -1,0 +1,26 @@
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "printWidth": 80,
+  "trailingComma": "all",
+  "bracketSpacing": true,
+  "arrowParens": "always",
+
+  "overrides": [
+    {
+      "files": "*.js",
+      "options": {
+        "singleQuote": false,
+        "semi": true
+      }
+    },
+    {
+      "files": "*.vue",
+      "options": {
+        "singleQuote": false,
+        "semi": true,
+        "vueIndentScriptAndStyle": false
+      }
+    }
+  ]
+}
