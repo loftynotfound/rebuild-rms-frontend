@@ -22,6 +22,10 @@ export function usePODetailModals(detail) {
     isPaid,
     unitOptions,
     fetchUnitOptions,
+    fetchQuotationPRs,
+    fetchCandidates,
+    linkQuotation,
+    unlinkQuotation,
   } = detail;
 
   const PRODUCT_OPTIONS = [
@@ -192,6 +196,50 @@ export function usePODetailModals(detail) {
     }
   }
 
+  const showPRsModal = ref(false);
+  const selectedQuotation = ref(null);
+
+  async function openPRsModal(quotation) {
+    selectedQuotation.value = quotation;
+    showPRsModal.value = true;
+    await fetchQuotationPRs(quotation.quotation_id);
+  }
+
+  const showLinkModal = ref(false);
+  const candidateKeyword = ref("");
+
+  async function openLinkModal() {
+    candidateKeyword.value = "";
+    showLinkModal.value = true;
+    await fetchCandidates();
+  }
+
+  function searchCandidates() {
+    return fetchCandidates(candidateKeyword.value.trim());
+  }
+
+  async function submitLink(candidate) {
+    if (await linkQuotation(candidate.quotation_id)) showLinkModal.value = false;
+  }
+
+  const showUnlinkModal = ref(false);
+  const unlinkTarget = ref(null);
+  const unlinkNotes = ref("");
+
+  function openUnlinkModal(quotation) {
+    unlinkTarget.value = quotation;
+    unlinkNotes.value = "";
+    showUnlinkModal.value = true;
+  }
+
+  async function submitUnlink() {
+    const notes = unlinkNotes.value.trim();
+    if (!notes || !unlinkTarget.value) return;
+    if (await unlinkQuotation(unlinkTarget.value.quotation_id, notes)) {
+      showUnlinkModal.value = false;
+    }
+  }
+
   return {
     PRODUCT_OPTIONS,
     showNotesModal,
@@ -224,5 +272,18 @@ export function usePODetailModals(detail) {
     getFileExt,
     onFileChange,
     submitUpload,
+    showPRsModal,
+    selectedQuotation,
+    openPRsModal,
+    showLinkModal,
+    candidateKeyword,
+    openLinkModal,
+    searchCandidates,
+    submitLink,
+    showUnlinkModal,
+    unlinkTarget,
+    unlinkNotes,
+    openUnlinkModal,
+    submitUnlink,
   };
 }
