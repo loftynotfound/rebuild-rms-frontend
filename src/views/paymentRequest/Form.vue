@@ -102,6 +102,10 @@ let costControlFile = null;
 
 const isEditing = computed(() => Boolean(editingId.value));
 
+const isCostControlRequired = computed(
+  () => Number(form.totalAmount || 0) >= COST_CONTROL_LIMIT,
+);
+
 const responsibleDropdownOptions = computed(() =>
   responsibleOptions.value.map((item) => ({
     value: item.responsible,
@@ -240,8 +244,9 @@ const validate = (isSubmit) => {
       next.cogs = "COGS amount required.";
     }
 
-    if (Number(form.totalAmount) > COST_CONTROL_LIMIT && !form.costControl) {
-      next.costControl = "Cost control is required above Rp 50.000.000.";
+    if (isCostControlRequired.value && !form.costControl) {
+      next.costControl =
+        "Cost control file is required.";
     }
 
     if (!form.checker) {
@@ -391,6 +396,10 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener("mousedown", onOutsideClick);
+});
+
+watch(isCostControlRequired, (required) => {
+  if (!required) errors.value.costControl = "";
 });
 
 watch(
@@ -794,17 +803,21 @@ watch(
                 class="mb-1 flex items-center gap-1 text-sm font-medium text-slate-600"
               >
                 Cost Control
+                <span v-if="isCostControlRequired" class="text-red-500">*</span>
               </span>
               <div class="relative">
                 <input
+                  id="costControlInput"
                   ref="costControlInput"
                   type="file"
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  class="peer absolute inset-0 h-full w-full cursor-pointer opacity-0 outline-none"
+                  class="peer sr-only"
                   @change="handleCostControl"
                 />
-                <div
-                  class="pointer-events-none flex w-full items-center rounded-sm border border-slate-200 px-3 py-2 pr-9 text-sm font-medium peer-hover:border-teal-400 peer-focus:border-teal-400"
+
+                <label
+                  for="costControlInput"
+                  class="cursor-pointer flex w-full items-center rounded-sm border border-slate-200 px-3 py-2 pr-9 text-sm font-medium hover:border-teal-400 peer-focus:border-teal-400"
                 >
                   <span
                     :class="
@@ -815,25 +828,27 @@ watch(
                   >
                     {{ costControlFileName || "Choose A File" }}
                   </span>
-                </div>
+                </label>
+
                 <button
                   v-if="form.costControl"
                   type="button"
                   class="absolute right-2.5 top-1/2 flex h-4 w-4 -translate-y-1/2 shrink-0 cursor-pointer items-center justify-center rounded-sm text-slate-600 hover:bg-slate-100"
-                  @click="removeCostControl"
+                  @click.prevent="removeCostControl"
                 >
                   <Icon icon="boxicons:x" class="size-5" />
                 </button>
               </div>
+
+              <span class="text-[11px] text-slate-500">
+                PDF, Word, JPG or PNG. Maximum file size is 10 MB.
+              </span>
               <span
                 v-if="errors.costControl"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
+                class="mt-1 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
               >
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.costControl }}
-              </span>
-              <span class="text-[11px] text-slate-500">
-                PDF, Word, JPG or PNG. Maximum file size is 10 MB.
               </span>
             </div>
 
@@ -841,6 +856,7 @@ watch(
             <div>
               <span class="mb-1 block text-sm font-medium text-slate-600">
                 Checker
+                <span class="text-red-500">*</span>
               </span>
               <div ref="checkerDropdown" class="relative w-full">
                 <button
