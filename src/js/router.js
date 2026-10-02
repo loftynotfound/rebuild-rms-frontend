@@ -101,9 +101,9 @@ const routes = [
         component: () => import("@/views/paymentRequest/Overview.vue"),
       },
       {
-        path: "/payment-request/report",
-        name: "payment-request-report",
-        component: () => import("@/views/paymentRequest/Report.vue"),
+        path: "/payment-request/summary",
+        name: "payment-request-summary",
+        component: () => import("@/views/paymentRequest/Summary.vue"),
       },
       {
         path: "/payment-request/form",
