@@ -12,17 +12,17 @@ const emit = defineEmits(["action"]);
 
 const ACTION_ICONS = {
   view: "hugeicons:file-view",
-  submit: "hugeicons:file-input",
-  resubmit: "hugeicons:file-upload",
   edit: "hugeicons:file-edit",
-  review: "hugeicons:file-verified",
+  submit: "hugeicons:file-input",
   approve: "hugeicons:file-security",
-  date: "hugeicons:file-management",
-  paid: "hugeicons:file-dollar",
-  complete: "hugeicons:file-validation",
+  revise: "hugeicons:file-exclamation-point",
   reject: "hugeicons:file-remove",
   cancel: "hugeicons:file-block",
-  delete: "hugeicons:file-shredder",
+
+  // Let this three alone for the next development of 3 level approvals based on their account roles
+  complete: "hugeicons:file-validation",
+  paid: "hugeicons:file-dollar",
+  date: "hugeicons:file-management",
 };
 
 const open = ref(false);
