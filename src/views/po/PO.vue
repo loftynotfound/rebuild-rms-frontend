@@ -183,8 +183,8 @@ onMounted(() => {
 
 <template>
   <div>
-    <div>
-      <h1 class="mb-6 text-2xl font-semibold text-slate-800">Purchase Order</h1>
+    <div class="space-y-4">
+      <h1 class="text-2xl font-bold text-slate-800">Purchase Order</h1>
 
       <div class="rounded-md bg-white shadow-sm">
         <!-- Header actions -->

@@ -120,12 +120,11 @@ onMounted(fetchAll);
 
     <template v-else-if="po">
       <!-- Header -->
-      <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div class="space-y-4 flex flex-wrap items-center justify-between">
         <div>
-          <h1 class="text-2xl font-semibold text-slate-900 sm:text-3xl">
-            Purchase Order Detail
+          <h1 class="text-2xl font-bold text-slate-800">
+            {{ po.po_id }}
           </h1>
-          <p class="mt-1 text-sm text-slate-500">{{ po.po_id }}</p>
         </div>
         <span
           class="rounded-full px-3 py-1 text-md font-semibold"

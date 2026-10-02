@@ -46,8 +46,8 @@ onMounted(fetchUnits);
 </script>
 
 <template>
-  <div>
-    <h1 class="mb-4 sm:mb-6 text-xl sm:text-2xl font-semibold text-slate-800">
+  <div class="space-y-4">
+    <h1 class="text-2xl font-bold text-slate-800">
       Unit List
     </h1>
 
@@ -207,6 +207,7 @@ onMounted(fetchUnits);
       </div>
 
       <Pagination
+        class="p-4"
         v-if="!loading && !error && totalData > 0"
         :page="page"
         :total-page="totalPage"

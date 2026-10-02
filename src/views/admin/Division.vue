@@ -46,10 +46,8 @@ onMounted(fetchDivisions);
 </script>
 
 <template>
-  <div>
-    <h1 class="mb-4 sm:mb-6 text-xl sm:text-2xl font-semibold text-slate-800">
-      Admin Division
-    </h1>
+  <div class="space-y-4">
+    <h1 class="text-2xl font-bold text-slate-800">Admin Division</h1>
 
     <div class="rounded-md bg-white shadow-sm">
       <div class="flex justify-end px-4 sm:px-6 pt-4 sm:pt-6">
@@ -207,6 +205,7 @@ onMounted(fetchDivisions);
       </div>
 
       <Pagination
+        class="p-4"
         v-if="!loading && !error && totalData > 0"
         :page="page"
         :total-page="totalPage"

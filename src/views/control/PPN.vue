@@ -57,8 +57,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
-    <h1 class="text-xl sm:text-2xl font-semibold text-slate-800 mb-4 sm:mb-6">
+  <div class="space-y-4">
+    <h1 class="text-2xl font-bold text-slate-800">
       PPN (Pajak Pertambahan Nilai)
     </h1>
 
