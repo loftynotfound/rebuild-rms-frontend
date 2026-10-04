@@ -238,9 +238,7 @@ onMounted(fetchAll);
 
 <template>
   <div class="space-y-4">
-    <h1 class="text-2xl font-bold text-slate-800">
-      Report Purchase Order
-    </h1>
+    <h1 class="text-2xl font-bold text-slate-800">Report Purchase Order</h1>
 
     <!-- Summary + Trend Chart -->
     <div class="rounded-md bg-white p-4 shadow-sm sm:p-6">

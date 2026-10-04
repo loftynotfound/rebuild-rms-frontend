@@ -53,9 +53,7 @@ onMounted(fetchClients);
 
 <template>
   <div class="space-y-4">
-    <h1 class="text-2xl font-bold text-slate-800">
-      Client List
-    </h1>
+    <h1 class="text-2xl font-bold text-slate-800">Client List</h1>
 
     <div class="rounded-md bg-white shadow-sm">
       <div class="flex justify-end px-4 sm:px-6 pt-4 sm:pt-6">
@@ -94,7 +92,7 @@ onMounted(fetchClients);
         >
           <template #default="{ row }">
             <div class="mb-3 flex items-start justify-between gap-2">
-              <p class="break-words text-lg font-semibold text-slate-800">
+              <p class="wrap-break-word text-lg font-semibold text-slate-800">
                 {{ row.client_name }}
               </p>
               <span
@@ -109,10 +107,10 @@ onMounted(fetchClients);
               </span>
             </div>
 
-            <p class="mb-1 break-words text-sm text-slate-600">
+            <p class="mb-1 wrap-break-word text-sm text-slate-600">
               {{ row.client_phone }}
             </p>
-            <p class="mb-3 break-words text-sm text-slate-600">
+            <p class="mb-3 wrap-break-word text-sm text-slate-600">
               {{ row.client_email }}
             </p>
 

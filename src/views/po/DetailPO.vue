@@ -285,7 +285,7 @@ onMounted(fetchAll);
                 <span class="text-sm font-medium text-slate-800">{{
                   item.item_product
                 }}</span>
-                <span class="flex-shrink-0 text-xs text-slate-400"
+                <span class="shrink-0 text-xs text-slate-400"
                   >#{{ index + 1 }}</span
                 >
               </div>
@@ -401,7 +401,7 @@ onMounted(fetchAll);
                 class="flex gap-3 text-sm"
               >
                 <span
-                  class="mt-1 h-2 w-2 flex-shrink-0 rounded-full bg-teal-400"
+                  class="mt-1 h-2 w-2 shrink-0 rounded-full bg-teal-400"
                 ></span>
                 <div>
                   <p class="text-slate-700">
@@ -779,7 +779,7 @@ onMounted(fetchAll);
                 <span class="text-sm font-medium text-slate-800">{{
                   item.product
                 }}</span>
-                <span class="flex-shrink-0 text-xs text-slate-400"
+                <span class="shrink-0 text-xs text-slate-400"
                   >#{{ index + 1 }}</span
                 >
               </div>
@@ -1008,7 +1008,7 @@ onMounted(fetchAll);
               class="flex gap-3 border-b border-slate-50 pb-4 text-sm last:border-0"
             >
               <span
-                class="mt-1 h-2.5 w-2.5 flex-shrink-0 rounded-full bg-teal-400"
+                class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-teal-400"
               ></span>
               <div>
                 <p class="text-slate-700">
@@ -1109,7 +1109,7 @@ onMounted(fetchAll);
                   doc.document_title ?? doc.document_name
                 }}</span>
                 <span
-                  class="flex-shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase text-slate-500"
+                  class="shrink-0 rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold uppercase text-slate-500"
                 >
                   {{ getFileExt(doc) }}
                 </span>

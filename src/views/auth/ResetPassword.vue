@@ -25,7 +25,7 @@ const showConfirmPassword = ref(false);
 
 <template>
   <div
-    class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#17BDAF] to-[#119E92]"
+    class="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-[#17BDAF] to-[#119E92]"
   >
     <div class="w-full max-w-md bg-white rounded-md shadow-xl p-8">
       <!-- Logo -->

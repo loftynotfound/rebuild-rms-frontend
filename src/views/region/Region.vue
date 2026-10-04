@@ -47,9 +47,7 @@ onMounted(fetchRegions);
 
 <template>
   <div class="space-y-4">
-    <h1 class="text-2xl font-bold text-slate-800">
-      Region List
-    </h1>
+    <h1 class="text-2xl font-bold text-slate-800">Region List</h1>
 
     <div class="rounded-md bg-white shadow-sm">
       <div class="flex justify-end px-4 sm:px-6 pt-4 sm:pt-6">
@@ -87,7 +85,7 @@ onMounted(fetchRegions);
           empty-message="Belum ada region"
         >
           <template #default="{ row }">
-            <p class="mb-3 break-words text-lg font-semibold text-slate-800">
+            <p class="mb-3 wrap-break-word text-lg font-semibold text-slate-800">
               {{ row.region_title }}
             </p>
 

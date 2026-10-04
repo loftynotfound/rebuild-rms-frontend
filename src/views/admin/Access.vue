@@ -49,9 +49,7 @@ onMounted(fetchAccess);
 
 <template>
   <div class="space-y-4">
-    <h1 class="text-2xl font-bold text-slate-800">
-      Role Access
-    </h1>
+    <h1 class="text-2xl font-bold text-slate-800">Role Access</h1>
 
     <div class="rounded-md bg-white shadow-sm">
       <div class="flex justify-end px-4 sm:px-6 pt-4 sm:pt-6">
@@ -89,7 +87,7 @@ onMounted(fetchAccess);
           empty-message="Belum ada access"
         >
           <template #default="{ row }">
-            <p class="mb-1 break-words text-lg font-semibold text-slate-800">
+            <p class="mb-1 wrap-break-word text-lg font-semibold text-slate-800">
               {{ row.access_title }}
             </p>
             <p class="mb-1 text-sm text-slate-500">

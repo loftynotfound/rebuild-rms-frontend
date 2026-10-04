@@ -49,9 +49,7 @@ onMounted(fetchAdmins);
 
 <template>
   <div class="space-y-4">
-    <h1 class="text-2xl font-bold text-slate-800">
-      Admin List
-    </h1>
+    <h1 class="text-2xl font-bold text-slate-800">Admin List</h1>
 
     <div class="rounded-md bg-white shadow-sm">
       <div class="flex justify-end px-4 sm:px-6 pt-4 sm:pt-6">

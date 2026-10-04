@@ -250,7 +250,7 @@ const recentPOColumns = [
                 >
                   #{{ index + 1 }} &middot; {{ formatDate(row.po_date) }}
                 </p>
-                <p class="break-words text-sm font-semibold text-slate-800">
+                <p class="wrap-break-word text-sm font-semibold text-slate-800">
                   {{ row.po_order_num ?? row.po_id }}
                 </p>
               </div>
@@ -258,7 +258,7 @@ const recentPOColumns = [
 
             <p
               v-if="row.client_name"
-              class="mb-2 break-words text-sm text-slate-600"
+              class="mb-2 wrap-break-word text-sm text-slate-600"
             >
               {{ row.client_name }}
             </p>

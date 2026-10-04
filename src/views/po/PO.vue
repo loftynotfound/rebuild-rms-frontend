@@ -335,12 +335,12 @@ onMounted(() => {
                     }}
                     &middot; {{ formatDate(row.po_date) }}
                   </p>
-                  <p class="break-words text-sm font-semibold text-slate-800">
+                  <p class="wrap-break-word text-sm font-semibold text-slate-800">
                     {{ row.po_order_num ?? row.po_id }}
                   </p>
                 </div>
                 <span
-                  class="inline-flex flex-shrink-0 items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold capitalize text-slate-600"
+                  class="inline-flex shrink-0 items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold capitalize text-slate-600"
                 >
                   {{ row.po_status }}
                 </span>
@@ -348,12 +348,12 @@ onMounted(() => {
 
               <p
                 v-if="row.client_name"
-                class="mb-2 break-words text-sm text-slate-600"
+                class="mb-2 wrap-break-word text-sm text-slate-600"
               >
                 {{ row.client_name }}
               </p>
 
-              <p class="mb-3 break-words text-xs text-slate-500">
+              <p class="mb-3 wrap-break-word text-xs text-slate-500">
                 {{ formatProductNames(row.product_names) }}
               </p>
 
@@ -416,7 +416,7 @@ onMounted(() => {
             fits 100% without overflow/scrolling, and stays proportional as the sidebar
             opens/closes. Headers may wrap (not truncated with "...") so labels stay fully readable. -->
         <div
-          class="hidden sm:block [&_table]:table-fixed [&_td]:!px-3 [&_td]:!py-3 [&_td]:text-xs [&_td]:break-words [&_th]:!px-2 [&_th]:!py-3 [&_th]:text-[11px] [&_th]:break-words"
+          class="hidden sm:block [&_table]:table-fixed [&_td]:px-3! [&_td]:py-3! [&_td]:text-xs [&_td]:wrap-break-word [&_th]:px-2! [&_th]:py-3! [&_th]:text-[11px] [&_th]:wrap-break-word"
         >
           <Table
             :columns="columns"

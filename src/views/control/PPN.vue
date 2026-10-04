@@ -63,7 +63,6 @@ onMounted(async () => {
     </h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-      <!-- Form PPN Default -->
       <div class="bg-white rounded-md shadow-sm p-4 sm:p-6">
         <div class="flex items-center gap-2 mb-4 sm:mb-6">
           <span class="text-base font-medium text-slate-800"
@@ -140,7 +139,6 @@ onMounted(async () => {
         </template>
       </div>
 
-      <!-- Calculation Preview (statis, client-side) -->
       <div class="bg-white rounded-md shadow-sm p-4 sm:p-6">
         <h2 class="text-base font-medium text-slate-800 mb-1">
           Calculation Preview

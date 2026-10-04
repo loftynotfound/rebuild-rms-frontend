@@ -85,7 +85,7 @@ onMounted(fetchDivisions);
           empty-message="Belum ada division"
         >
           <template #default="{ row }">
-            <p class="mb-3 break-words text-lg font-semibold text-slate-800">
+            <p class="mb-3 wrap-break-word text-lg font-semibold text-slate-800">
               {{ row.division_title }}
             </p>
 

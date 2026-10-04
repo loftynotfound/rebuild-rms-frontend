@@ -281,7 +281,7 @@ async function handlePasswordReset() {
               >
                 <canvas
                   ref="canvas"
-                  class="block h-[180px] w-full touch-none cursor-crosshair"
+                  class="block h-45 w-full touch-none cursor-crosshair"
                   @mousedown="startDraw"
                   @mousemove="draw"
                   @mouseup="stopDraw"
