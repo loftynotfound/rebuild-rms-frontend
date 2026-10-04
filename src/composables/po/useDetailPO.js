@@ -6,6 +6,10 @@ import { formatCurrency, formatDate } from "./usePO";
 import { usePOFormOptions } from "./useFormOptionsPO";
 
 // Urutan status linear untuk menentukan tombol "lanjut ke status berikutnya"
+const LINKABLE_STATUSES = ["prepared", "progress", "complete"];
+const QUOTATION_TAB_STATUSES = [...LINKABLE_STATUSES, "cancel"];
+const UNLINK_DISABLED_STATUSES = []; //fill later
+
 const STATUS_FLOW = ["open", "prepared", "progress", "complete"];
 
 const STATUS_LABEL = {
@@ -53,6 +57,14 @@ export function usePODetail(poId) {
   );
   const showDocumentTab = computed(() =>
     ["progress", "complete"].includes(po.value?.po_status),
+  );
+  const showQuotationTab = computed(() =>
+    QUOTATION_TAB_STATUSES.includes(po.value?.po_status),
+  );
+  const canLinkQuotation = computed(
+    () =>
+      authStore.hasAccess("link_pr_po") &&
+      LINKABLE_STATUSES.includes(po.value?.po_status),
   );
 
   const showInvoiceInPreview = computed(() => {
@@ -139,9 +151,118 @@ export function usePODetail(poId) {
     await fetchDocuments();
   }
 
+  const linkedQuotations = ref([]);
+  const quotationsLoading = ref(false);
+  const quotationsLoaded = ref(false);
+  const quotationError = ref("");
+  const quotationPRs = ref([]);
+  const prsLoading = ref(false);
+  const candidates = ref([]);
+  const candidatesLoading = ref(false);
+
+  async function fetchLinkedQuotations() {
+    quotationsLoading.value = true;
+    quotationError.value = "";
+    try {
+      const res = await api.get(`/po/${poId}/linked-quotations`);
+      linkedQuotations.value = res.data ?? [];
+    } catch (err) {
+      linkedQuotations.value = [];
+      quotationError.value =
+        err.response?.data?.message || "Failed to load linked quotations";
+    } finally {
+      quotationsLoading.value = false;
+    }
+  }
+
+  async function ensureQuotationsLoaded() {
+    if (quotationsLoaded.value) return;
+    quotationsLoaded.value = true;
+    await fetchLinkedQuotations();
+  }
+
+  async function fetchQuotationPRs(quotationId) {
+    prsLoading.value = true;
+    quotationError.value = "";
+    quotationPRs.value = [];
+    try {
+      const res = await api.get(
+        `/po/${poId}/linked-quotations/${quotationId}/prs`,
+      );
+      quotationPRs.value = res.data ?? [];
+    } catch (err) {
+      quotationError.value =
+        err.response?.data?.message || "Failed to load purchase requests";
+    } finally {
+      prsLoading.value = false;
+    }
+  }
+
+  async function fetchCandidates(keyword = "") {
+    candidatesLoading.value = true;
+    quotationError.value = "";
+    try {
+      const params = keyword ? { keyword } : {};
+      const res = await api.get(`/po/${poId}/quotation-candidates`, { params });
+      candidates.value = res.data ?? [];
+    } catch (err) {
+      candidates.value = [];
+      quotationError.value =
+        err.response?.data?.message || "Failed to load quotation candidates";
+    } finally {
+      candidatesLoading.value = false;
+    }
+  }
+
+  async function linkQuotation(quotationId) {
+    actionLoading.value = true;
+    quotationError.value = "";
+    try {
+      await api.post(`/po/${poId}/link-quotation`, {
+        quotation_id: quotationId,
+      });
+      await Promise.all([fetchLinkedQuotations(), fetchActivities()]);
+      return true;
+    } catch (err) {
+      quotationError.value =
+        err.response?.data?.message || "Failed to link quotation";
+      return false;
+    } finally {
+      actionLoading.value = false;
+    }
+  }
+
+
+  const canUnlinkQuotation = computed(() =>
+    authStore.hasAccess("unlink_pr_po"),
+  );
+  const unlinkDisabledByStatus = computed(() =>
+    UNLINK_DISABLED_STATUSES.includes(po.value?.po_status),
+  );
+
+   async function unlinkQuotation(quotationId, notes) {
+    actionLoading.value = true;
+    quotationError.value = "";
+    try {
+      await api.post(`/po/${poId}/unlink-quotation`, {
+        quotation_id: quotationId,
+        notes,
+      });
+      await Promise.all([fetchLinkedQuotations(), fetchActivities()]);
+      return true;
+    } catch (err) {
+      quotationError.value =
+        err.response?.data?.message || "Failed to unlink quotation";
+      return false;
+    } finally {
+      actionLoading.value = false;
+    }
+  }
+
   watch(activeTab, (tab) => {
     if (tab === "activity") ensureActivitiesLoaded();
     if (tab === "document") ensureDocumentsLoaded();
+    if (tab === "quotation") ensureQuotationsLoaded();
   });
 
   // ── Status actions ─────────────────────────────────
@@ -536,5 +657,20 @@ export function usePODetail(poId) {
     unitLabel,
     formatCurrency,
     formatDate,
+    showQuotationTab,
+    canLinkQuotation,
+    linkedQuotations,
+    quotationsLoading,
+    quotationError,
+    quotationPRs,
+    prsLoading,
+    candidates,
+    candidatesLoading,
+    fetchQuotationPRs,
+    fetchCandidates,
+    linkQuotation,
+    canUnlinkQuotation,
+    unlinkDisabledByStatus,
+    unlinkQuotation,
   };
 }
