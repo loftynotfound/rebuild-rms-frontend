@@ -1,9 +1,13 @@
 <script setup>
-import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
+import { computed, onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
-import { STATUS, PAYMENT_STATUS } from "@/composables/paymentRequest/useStore";
+import {
+  useStore,
+  STATUS,
+  PAYMENT_STATUS,
+} from "@/composables/paymentRequest/useStore";
 
 import Create from "@/components/paymentRequest/button/Create.vue";
 import ExportExcel from "@/components/paymentRequest/button/ExportExcel.vue";
@@ -20,16 +24,18 @@ import Data from "@/components/paymentRequest/display/Data.vue";
 import DateRange from "@/components/ui/DateRange.vue";
 import Pagination from "@/components/ui/Pagination.vue";
 
+// Props & Router
 defineProps({ user: { type: Object, default: null } });
 
+const route = useRoute();
 const router = useRouter();
 
+// Payment Request & Store
+const { requests, money, date } = useStore();
+
 const {
-  requests,
-  money,
-  date,
   cancelRequest,
-  createCard,
+  useCard,
   submitMany,
   approve,
   reject,
@@ -37,8 +43,7 @@ const {
   confirmPayment,
 } = usePaymentRequest();
 
-const status = ref("All");
-
+// Modal state
 const showCancelModal = ref(false);
 const cancelTarget = ref(null);
 
@@ -52,8 +57,15 @@ const getStatus = (item) => item.prStatus;
 
 const statusOptions = ["All", ...Object.values(STATUS)];
 
+const status = ref(
+  statusOptions.includes(route.query.status) ? route.query.status : "All",
+);
+
 const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
+// Data utama mengikuti status yang sedang dipilih.
+// Setelah difilter, data diurutkan berdasarkan ID agar urutannya konsisten.
+// createCard menangani search, date range, sorting, dan pagination untuk data ini.
 const source = computed(() => {
   const list =
     status.value === "All"
@@ -63,8 +75,32 @@ const source = computed(() => {
   return [...list].sort((a, b) => a.prId - b.prId);
 });
 
-const data = createCard(source);
+const data = useCard(source);
 
+onMounted(data.fetchCards);
+
+// State kosong: tampil saat tidak ada data (dan tidak sedang loading / error)
+const isEmpty = computed(
+  () =>
+    !data.loading.value &&
+    !data.error.value &&
+    data.filteredCard.value.length === 0,
+);
+
+// Kalau user sedang mencari / memfilter tanggal, pesannya beda dengan "memang belum ada data"
+const hasFilter = computed(() =>
+  Boolean(data.search.value.trim() || data.dateFrom.value || data.dateTo.value),
+);
+
+const emptyMessage = computed(() => {
+  if (hasFilter.value) return "No requests match your search or date filter.";
+  if (status.value === "All") return "There are no payment requests yet.";
+  return `There are no ${status.value} requests yet.`;
+});
+
+// DateRange menggunakan satu object untuk menghubungkan start dan end
+// dengan state dateFrom dan dateTo yang digunakan oleh composable.
+// Setter juga menangani kondisi ketika nilai date range dikosongkan.
 const dateRangeModel = computed({
   get: () =>
     data.dateFrom.value || data.dateTo.value
@@ -80,6 +116,7 @@ const dateRangeModel = computed({
   },
 });
 
+// Tab Status
 const countByStatus = computed(() => {
   const map = {};
 
@@ -100,7 +137,6 @@ const tabs = computed(() =>
   })),
 );
 
-// Tab
 const switchStatus = (value) => {
   status.value = value;
   data.page.value = 1;
@@ -115,10 +151,12 @@ const edit = (item) => {
   router.push(`/payment-request/form?id=${item.prId}`);
 };
 
+// Submission
 const submit = (id) => {
   submitMany([id]);
 };
 
+// Approval & Rejection
 const openConfirm = (id) => {
   activeId.value = id;
   modal.value = "confirm";
@@ -147,10 +185,11 @@ const closeModal = () => {
 const rejectAction = (note) => {
   if (modal.value === "revise") revise(activeId.value, note);
   else reject(activeId.value, note);
+
   closeModal();
 };
 
-// Cancel
+// Cancellation
 const openCancel = (item) => {
   cancelTarget.value = item;
   showCancelModal.value = true;
@@ -172,10 +211,15 @@ const firstPendingPayment = (item) =>
 
 const payFirst = (item) => {
   const payment = firstPendingPayment(item);
-  if (payment) confirmPayment(item.prId, payment.paymentId);
+
+  if (payment) {
+    confirmPayment(item.prId, payment.paymentId);
+  }
 };
 
-// Actions by status
+// Actions berdasarkan status menentukan action apa yang tersedia pada setiap data.
+// Mapping ini memisahkan aturan action dari component Data sehingga template tetap sederhana.
+// Status yang belum memiliki aturan khusus hanya mendapatkan action default.
 const ACTIONS_BY_STATUS = {
   draft: [
     { key: "view", label: "View" },
@@ -183,6 +227,7 @@ const ACTIONS_BY_STATUS = {
     { key: "submit", label: "Submit" },
     { key: "cancel", label: "Cancel" },
   ],
+
   submitted: [
     { key: "view", label: "View" },
     { key: "approve", label: "Mark As Approved" },
@@ -190,15 +235,17 @@ const ACTIONS_BY_STATUS = {
     { key: "reject", label: "Reject" },
     { key: "cancel", label: "Cancel" },
   ],
+
   revision: [
     { key: "view", label: "View" },
     { key: "edit", label: "Edit" },
     { key: "submit", label: "Submit" },
     { key: "cancel", label: "Cancel" },
   ],
+
   approved: [
     { key: "view", label: "View" },
-    { key: "pay", label: "Confirm Payment" },
+    { key: "paid", label: "Confirm Payment" },
   ],
 };
 
@@ -211,18 +258,25 @@ const handleAction = (item, key) => {
   switch (key) {
     case "view":
       return view(item);
+
     case "edit":
       return edit(item);
+
     case "submit":
       return submit(item.prId);
+
     case "approve":
       return openConfirm(item.prId);
+
     case "reject":
       return openReject(item);
+
     case "revise":
       return openRevise(item);
+
     case "cancel":
       return openCancel(item);
+
     case "pay":
       return payFirst(item);
   }
@@ -268,25 +322,35 @@ const handleAction = (item, key) => {
       </div>
 
       <section>
-        <Data
-          :rows="data.card.value"
-          :money="money"
-          :date="date"
-          :status="getStatus"
-          :get-actions="getActions"
-          @action="handleAction"
-        />
-
-        <div>
-          <Pagination
-            class="pt-4"
-            :page="data.page.value"
-            :total-page="data.totalPages.value"
-            :total-data="data.filteredCard.value.length"
-            :per-page="data.perPage.value"
-            @change="data.goToPage"
-          />
+        <div
+          v-if="isEmpty"
+          class="flex flex-col items-center justify-center gap-2 py-16 text-center"
+        >
+          <Icon icon="hugeicons:invoice-01" class="size-10 text-slate-400" />
+          <p class="text-sm font-medium text-slate-800">{{ emptyMessage }}</p>
         </div>
+
+        <template v-else>
+          <Data
+            :rows="data.card.value"
+            :money="money"
+            :date="date"
+            :status="getStatus"
+            :get-actions="getActions"
+            @action="handleAction"
+          />
+
+          <div>
+            <Pagination
+              class="pt-4"
+              :page="data.page.value"
+              :total-page="data.totalPages.value"
+              :total-data="data.filteredCard.value.length"
+              :per-page="data.perPage.value"
+              @change="data.goToPage"
+            />
+          </div>
+        </template>
       </section>
     </div>
   </div>
