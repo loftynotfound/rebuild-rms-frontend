@@ -212,7 +212,7 @@ watch(
 </script>
 
 <template>
-  <div ref="pickerEl" class="relative block-w-full">
+  <div ref="pickerEl" class="relative block w-full">
     <button
       ref="triggerEl"
       type="button"

@@ -10,7 +10,8 @@ import {
 } from "@/composables/paymentRequest/useStore";
 
 import Create from "@/components/paymentRequest/button/Create.vue";
-import ExportExcel from "@/components/paymentRequest/button/ExportExcel.vue";
+import ExportExcelButton from "@/components/paymentRequest/button/ExportExcel.vue";
+import ExportExcelModal from "@/components/paymentRequest/modal/ExportExcel.vue";
 import Sort from "@/components/paymentRequest/button/Sort.vue";
 
 import Reject from "@/components/paymentRequest/modal/Reject.vue";
@@ -45,6 +46,7 @@ const {
 
 // Modal state
 const showCancelModal = ref(false);
+const showExportModal = ref(false);
 const cancelTarget = ref(null);
 
 const modal = ref(null);
@@ -315,7 +317,7 @@ const handleAction = (item, key) => {
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <ExportExcel :export-rows="data.filteredCard.value" />
+          <ExportExcelButton @click="showExportModal = true" />
 
           <Create />
         </div>
@@ -354,6 +356,13 @@ const handleAction = (item, key) => {
       </section>
     </div>
   </div>
+
+  <ExportExcelModal
+    v-if="showExportModal"
+    :start-date="data.dateFrom.value"
+    :end-date="data.dateTo.value"
+    @close="showExportModal = false"
+  />
 
   <Cancel
     v-if="showCancelModal"
