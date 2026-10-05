@@ -7,10 +7,13 @@ import {
   ref,
   watch,
 } from "vue";
+
 import { useRoute, useRouter } from "vue-router";
 
+import api from "@/js/api";
 import { useAuthStore } from "@/stores/auth";
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
+import { useRequestLookup } from "@/composables/paymentRequest/useRequestLookup";
 
 import Submit from "@/components/paymentRequest/button/Submit.vue";
 import Draft from "@/components/paymentRequest/button/Draft.vue";
@@ -23,21 +26,28 @@ import Label from "@/components/paymentRequest/badge/Label.vue";
 
 import Handler from "@/components/paymentRequest/modal/Handler.vue";
 import Dropdown from "@/components/paymentRequest/modal/Dropdown.vue";
+import SubmitPR from "@/components/paymentRequest/modal/SubmitPR.vue";
 
 const router = useRouter();
 const route = useRoute();
 
 const {
-  save,
-  submit,
-  requests,
-  getRequest,
   money,
-  responsibleOptions,
-  addResponsible,
 } = usePaymentRequest();
 
 const authStore = useAuthStore();
+
+const {
+  responsibles,
+  checkers,
+  signatureId,
+  preparedBy,
+  load: loadLookups,
+  addResponsible,
+} = useRequestLookup();
+
+const showSubmit = ref(false);
+const submitTarget = ref(null);
 
 const COST_CONTROL_LIMIT = 50000000;
 const COST_CONTROL_MAX_SIZE = 10 * 1024 * 1024;
@@ -47,12 +57,6 @@ const COST_CONTROL_TYPES = [
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
   "image/png",
   "image/jpeg",
-];
-
-const checkerList = [
-  { value: "ADM-001", label: "Budi" },
-  { value: "ADM-002", label: "Sari" },
-  { value: "ADM-003", label: "Hendra" },
 ];
 
 const form = reactive({
@@ -75,17 +79,33 @@ const form = reactive({
   targetInvoiceDate: "",
 
   responsible: "",
-  coa: "",
   costControl: "",
   checker: "",
-
-  preparedBy: "",
-  signature: "",
 });
 
 const errors = ref({});
 const saving = ref(false);
 const editingId = ref(null);
+const refPrevious = ref(null);
+const serverError = ref("");
+const linkCheck = ref(null);
+const lockedQuotation = ref(false);
+const lockedPo = ref(false);
+const restPayments = ref([]); // draft payment ke-2 dst, dipertahankan saat update
+const firstAmount = ref(null);
+
+const linkLocksResponsible = computed(() =>
+  Boolean(linkCheck.value?.responsible?.locked),
+);
+const responsibleLocked = computed(
+  () => isFollowUp.value || linkLocksResponsible.value,
+);
+const poLocked = computed(
+  () =>
+    lockedPo.value ||
+    ["quotation_linked", "linked_match"].includes(linkCheck.value?.code),
+);
+const isFollowUp = computed(() => Boolean(refPrevious.value));
 
 const showResponsibleModal = ref(false);
 
@@ -103,27 +123,34 @@ let costControlFile = null;
 const isEditing = computed(() => Boolean(editingId.value));
 
 const isCostControlRequired = computed(
-  () => Number(form.totalAmount || 0) >= COST_CONTROL_LIMIT,
+  () => Number(form.totalAmount || 0) > COST_CONTROL_LIMIT,
 );
 
 const responsibleDropdownOptions = computed(() =>
-  responsibleOptions.value.map((item) => ({
-    value: item.responsible,
-    label: `${item.responsible} ${item.coa}`,
-  })),
+  responsibles.value.map(({ value, label }) => ({ value, label })),
 );
-
-const checkerDropdownOptions = computed(() =>
-  checkerList.filter((item) => item.label !== form.preparedBy),
+const selectedResponsible = computed(() =>
+  responsibles.value.find((r) => r.value === form.responsible),
 );
+const checkerDropdownOptions = computed(() => checkers.value);
 
 const selectedChecker = computed(() =>
-  checkerList.find((item) => item.value === form.checker),
+  checkers.value.find((c) => c.value === form.checker),
 );
 
 const selectResponsible = (value) => {
+  if (responsibleLocked.value) return;
   form.responsible = value;
   responsibleDropdownOpen.value = false;
+};
+
+const handleAddResponsible = async (payload) => {
+  try {
+    form.responsible = await addResponsible(payload);
+  } catch (e) {
+    errors.value.responsible =
+      e.response?.data?.message ?? "Failed to add responsible.";
+  }
 };
 
 const selectChecker = (value) => {
@@ -156,17 +183,6 @@ const marginPct = computed(() => {
   return ((margin.value / poAmount) * 100).toFixed(2);
 });
 
-const loadProfileSignature = () => {
-  if (isEditing.value) return;
-
-  form.signature =
-    localStorage.getItem("rms_profile_signature") ||
-    authStore.admin?.signature ||
-    "";
-
-  form.preparedBy =
-    authStore.admin?.admin_name || authStore.admin?.username || "";
-};
 
 const handleCostControl = (event) => {
   const file = event.target.files?.[0];
@@ -203,12 +219,41 @@ const openResponsibleModal = () => {
   showResponsibleModal.value = true;
 };
 
-const handleAddResponsible = ({ responsible, coa }) => {
-  addResponsible({ responsible, coa });
+let linkTimer;
 
-  form.responsible = responsible;
-  form.coa = coa;
+const checkLink = async () => {
+  const qout = form.quotationNumber.trim();
+  const po = form.poNumber.trim();
+  if (!qout && !po) {
+    linkCheck.value = null;
+    return;
+  }
+  try {
+    const res = await api.get("/pr/link-check", {
+      params: { qout_no: qout, po_no: po, exclude_pr_id: editingId.value ?? 0 },
+    });
+    linkCheck.value = res.data;
+
+    const lock = res.data.responsible;
+    if (lock?.locked && lock.responsible) {
+      form.responsible = String(lock.responsible.responsible_id);
+    }
+    if (res.data.code === "quotation_linked") {
+      form.poNumber = res.data.po_no_display;
+    }
+  } catch {
+    linkCheck.value = null;
+  }
 };
+
+watch(
+  () => [form.quotationNumber, form.poNumber],
+  () => {
+    clearTimeout(linkTimer);
+    linkTimer = setTimeout(checkLink, 400);
+  },
+);
+onBeforeUnmount(() => clearTimeout(linkTimer));
 
 const validate = (isSubmit) => {
   const next = {};
@@ -220,6 +265,10 @@ const validate = (isSubmit) => {
 
   if (!form.description) {
     next.description = "Description required.";
+  }
+
+  if (linkCheck.value?.level === "error") {
+    next.link = linkCheck.value.message;
   }
 
   // Tambahan wajib hanya untuk Submit
@@ -249,12 +298,8 @@ const validate = (isSubmit) => {
         "Cost control file is required.";
     }
 
-    if (!form.checker) {
-      next.checker = "Checker required.";
-    }
-
-    if (!form.signature) {
-      next.signature = "Set your signature first in your profile.";
+    if (!form.paymentStage) {
+      next.paymentStage = "Payment stage required.";
     }
   }
 
@@ -263,134 +308,194 @@ const validate = (isSubmit) => {
   return !Object.keys(next).length;
 };
 
-const nextPaymentId = () =>
-  Math.max(
-    0,
-    ...requests.value.flatMap((r) => r.payments.map((p) => p.paymentId)),
-  ) + 1;
-
-const hasPaymentData = () =>
-  Boolean(form.paymentType) && Number(form.totalAmount) > 0;
-
-const buildPayments = (existingPayments = []) => {
-  if (!hasPaymentData()) return existingPayments;
-
-  const [first = {}, ...rest] = existingPayments;
-
-  return [
-    {
-      ...first,
-      paymentId: first.paymentId ?? nextPaymentId(),
-      paymentStage: form.paymentStage,
-      paymentAmount: rest.length
-        ? first.paymentAmount
-        : Number(form.totalAmount || 0),
-      paymentType: form.paymentType,
-      paymentBank: form.bankName,
-      paymentBankAccountNumber: form.bankAccountNumber,
-      paymentBankAccountName: form.bankAccount,
-      paymentStatus: first.paymentStatus || "draft",
-    },
-    ...rest,
-  ];
+const buildPayments = () => {
+  const hasFirst =
+    form.paymentStage && form.paymentType && Number(form.totalAmount) > 0;
+  const first = hasFirst
+    ? [
+        {
+          stage: form.paymentStage,
+          type: form.paymentType,
+          amount: restPayments.value.length
+            ? (firstAmount.value ?? Number(form.totalAmount))
+            : Number(form.totalAmount),
+          bank: form.bankName,
+          bank_account_no: form.bankAccountNumber,
+          bank_account_name: form.bankAccount,
+        },
+      ]
+    : [];
+  return [...first, ...restPayments.value];
 };
 
-const buildApprovers = () => [
-  { adminName: selectedChecker.value?.label ?? "", approvalLevel: 1 },
-  { adminName: "Director", approvalLevel: 2 },
-  { adminName: "Finance", approvalLevel: 3 },
-];
-
-const toPayload = () => ({
-  prRfpNumber: form.rfpNumber,
-  prQoutNumber: form.quotationNumber,
-  prPoNumber: form.poNumber,
-  prVendor: form.vendor,
-  prDescriptionItem: form.description,
-  prRequestedAmount: Number(form.totalAmount || 0),
-  prPoAmount: Number(form.poAmount || 0),
-  prCogs: Number(form.cogs || 0),
-  prTargetInvoiceDate: form.targetInvoiceDate,
-  responsibleName: form.responsible,
-  adminName: form.preparedBy,
-  costControl: form.costControl,
-  payments: buildPayments(getRequest(editingId.value)?.payments),
-});
-
-const fillForm = (item) => {
-  const payment = item.payments?.[0] ?? {};
-
-  Object.assign(form, {
-    rfpNumber: item.prRfpNumber,
-    quotationNumber: item.prQoutNumber ?? "",
-    poNumber: item.prPoNumber ?? "",
-    paymentType: capitalize(payment.paymentType),
-    paymentType: payment.paymentType ?? "",
-    vendor: item.prVendor ?? "",
-    bankName: payment.paymentBank ?? "",
-    bankAccountNumber: payment.paymentBankAccountNumber ?? "",
-    bankAccount: payment.paymentBankAccountName ?? "",
-    description: item.prDescriptionItem ?? "",
-    totalAmount: item.prRequestedAmount ?? "",
-    poAmount: item.prPoAmount ?? "",
-    cogs: item.prCogs ?? "",
-    targetInvoiceDate: item.prTargetInvoiceDate ?? "",
-    responsible: item.responsibleName ?? "",
-    costControl: item.costControl ?? "",
-    preparedBy:
-      item.adminName ||
-      authStore.admin?.admin_name ||
-      authStore.admin?.username ||
-      "",
-    signature:
-      localStorage.getItem("rms_profile_signature") ||
-      authStore.admin?.signature ||
-      "",
-  });
+const toPayload = () => {
+  const body = {
+    ref_responsible: Number(form.responsible),
+    description_item: form.description,
+    requested_amount: Number(form.totalAmount || 0),
+    po_amount: Number(form.poAmount || 0),
+    hpp: Number(form.cogs || 0),
+    qout_no: form.quotationNumber,
+    po_no: form.poNumber,
+    target_invoice_date: form.targetInvoiceDate || "",
+    ref_previous_pr: refPrevious.value,
+    confirm_join_quotation: false,
+  };
+  const payments = buildPayments();
+  // update: selalu kirim (mengganti draft payment); create: hanya bila ada
+  if (editingId.value || payments.length) body.payments = payments;
+  return body;
 };
 
-const persist = (isSubmit) => {
+const send = (body) =>
+  editingId.value
+    ? api.put(`/pr/${editingId.value}`, body)
+    : api.post("/pr", body);
+
+const sendWithJoinConfirm = async (body) => {
+  try {
+    return await send(body);
+  } catch (e) {
+    const conflict = e.response?.status === 409 ? e.response.data?.data : null;
+    if (!conflict?.quotation_id) throw e;
+
+    const members = conflict.members.map((m) => m.rfp_no).join(", ");
+    const ok = window.confirm(
+      `Quotation ${conflict.quotation_no} sudah dipakai oleh: ${members}.\nGabung ke grup ini?`,
+    );
+    if (!ok) return null;
+    return send({ ...body, confirm_join_quotation: true });
+  }
+};
+
+const persist = async (isSubmit) => {
   if (!validate(isSubmit)) return;
 
   saving.value = true;
+  serverError.value = "";
+  try {
+    const res = await sendWithJoinConfirm(toPayload());
+    if (!res) return;
 
-  const item = save(toPayload(), editingId.value);
+    const prId = editingId.value ?? res.data.pr_id;
+    editingId.value = prId; // retry setelah gagal di langkah berikut = update, bukan duplikat
 
-  if (isSubmit) submit(item.prId, buildApprovers());
+    if (costControlFile) {
+      const fd = new FormData();
+      fd.append("document_type", "cost_control");
+      fd.append("file", costControlFile);
+      await api.post(`/pr/${prId}/documents`, fd);
+      costControlFile = null;
+    }
 
-  saving.value = false;
-
-  if (!isSubmit) {
-    router.push({
-      name: "payment-request-overview",
-      query: { status: "draft" },
-    });
-    return;
+    if (isSubmit) {
+      submitTarget.value = {
+        prId,
+        prRfpNumber: form.rfpNumber,
+        prDescriptionItem: form.description,
+      };
+      showSubmit.value = true;
+      return;
+    }
+    router.push({ name: "payment-request-overview", query: { status: "draft" } });
+  } catch (e) {
+    serverError.value =
+      e.response?.data?.message ?? "Failed to save the payment request.";
+  } finally {
+    saving.value = false;
   }
-
-  router.push(`/payment-request/${item.prId}`);
 };
 
-const loadRequest = () => {
+const goOverview = () => router.replace({ name: "payment-request-overview" });
+
+const loadFollowUp = async () => {
+  try {
+    const ref = route.query.ref;
+    const [prRes, payRes] = await Promise.all([
+      api.get(`/pr/${ref}`),
+      api.get(`/pr/${ref}/payments`),
+    ]);
+    const prev = prRes.data;
+    if (!["approved", "completed"].includes(prev.pr_status)) return goOverview();
+
+    const pay = (payRes.data ?? []).at(-1) ?? {};
+    refPrevious.value = prev.pr_id;
+    lockedQuotation.value = Boolean(prev.quotation_no || prev.pr_qout_no);
+    lockedPo.value = Boolean(prev.pr_po_no);
+
+    Object.assign(form, {
+      responsible: String(prev.pr_ref_responsible),
+      quotationNumber: prev.quotation_no || prev.pr_qout_no || "",
+      poNumber: prev.pr_po_no || "",
+      bankName: pay.payment_bank ?? "",
+      bankAccountNumber: pay.payment_bank_account_no ?? "",
+      bankAccount: pay.payment_bank_account_name ?? "",
+    });
+  } catch {
+    goOverview();
+  }
+};
+
+const loadRequest = async () => {
+  if (route.query.ref && !route.query.id) return loadFollowUp();
   if (!route.query.id) return;
 
-  const item = getRequest(route.query.id);
+  try {
+    const id = route.query.id;
+    const [prRes, payRes, docRes] = await Promise.all([
+      api.get(`/pr/${id}`),
+      api.get(`/pr/${id}/payments`),
+      api.get(`/pr/${id}/documents`),
+    ]);
+    const pr = prRes.data;
+    if (!["draft", "revision"].includes(pr.pr_status)) return goOverview();
 
-  if (!item) {
-    router.replace({ name: "payment-request-overview" });
-    return;
+    const drafts = (payRes.data ?? []).filter((p) => p.payment_status === "draft");
+    const [first = {}, ...rest] = drafts;
+
+    editingId.value = pr.pr_id;
+    refPrevious.value = pr.pr_ref_previous_pr ?? null;
+    lockedQuotation.value = Boolean(pr.quotation_no);
+    firstAmount.value = first.payment_amount ?? null;
+    restPayments.value = rest.map((p) => ({
+      stage: p.payment_stage,
+      type: p.payment_type,
+      amount: p.payment_amount,
+      bank: p.payment_bank ?? "",
+      bank_account_no: p.payment_bank_account_no ?? "",
+      bank_account_name: p.payment_bank_account_name ?? "",
+    }));
+
+    Object.assign(form, {
+      rfpNumber: pr.pr_rfp_no,
+      rfpDate: (pr.pr_rfp_date || form.rfpDate).slice(0, 10),
+      quotationNumber: pr.quotation_no || pr.pr_qout_no || "",
+      poNumber: pr.pr_po_no || "",
+      paymentStage: first.payment_stage ?? "",
+      paymentType: first.payment_type ?? "",
+      bankName: first.payment_bank ?? "",
+      bankAccountNumber: first.payment_bank_account_no ?? "",
+      bankAccount: first.payment_bank_account_name ?? "",
+      description: pr.pr_description_item ?? "",
+      totalAmount: pr.pr_requested_amount ?? "",
+      poAmount: pr.pr_po_amount ?? "",
+      cogs: pr.pr_hpp ?? "",
+      targetInvoiceDate: pr.pr_target_invoice_date || null,
+      responsible: String(pr.pr_ref_responsible),
+    });
+
+    if ((docRes.data ?? []).some((d) => d.document_type === "cost_control")) {
+      costControlFileName.value = "Current file";
+      form.costControl = "Current file";
+    }
+  } catch {
+    goOverview();
   }
-
-  editingId.value = item.prId;
-  fillForm(item);
-
-  costControlFileName.value = item.costControl ? "Current file" : "";
 };
 
 onMounted(() => {
-  loadProfileSignature();
+  loadLookups();
   loadRequest();
-
   document.addEventListener("mousedown", onOutsideClick);
 });
 
@@ -402,18 +507,6 @@ watch(isCostControlRequired, (required) => {
   if (!required) errors.value.costControl = "";
 });
 
-watch(
-  () => form.responsible,
-  (value) => {
-    const selected = responsibleOptions.value.find(
-      (item) => item.responsible === value,
-    );
-
-    if (selected) {
-      form.coa = selected.coa;
-    }
-  },
-);
 </script>
 
 <template>
@@ -421,8 +514,12 @@ watch(
     <!-- Title -->
     <div>
       <h1 class="text-2xl font-bold text-slate-800">
-        {{ isEditing ? "Modify Request Details" : "Create New Request" }}
+        {{ isEditing ? "Modify Request Details" : isFollowUp ? "Create Follow-up Request" : "Create New Request" }}
       </h1>
+      <p v-if="isFollowUp" class="mt-1 text-sm text-slate-500">
+        Follow-up of request #{{ refPrevious }}. Responsible, quotation, and
+        purchase order number follow the previous request.
+      </p>
     </div>
 
     <form class="space-y-4" @submit.prevent="persist(true)">
@@ -486,6 +583,8 @@ watch(
               </span>
               <input
                 v-model="form.quotationNumber"
+                :disabled="lockedQuotation"
+                :class="lockedQuotation && 'cursor-not-allowed bg-slate-50'"
                 placeholder="Quotation Number"
                 class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
               />
@@ -498,9 +597,23 @@ watch(
               </span>
               <input
                 v-model="form.poNumber"
+                :disabled="poLocked"
+                :class="poLocked && 'cursor-not-allowed bg-slate-50'"
                 placeholder="Purchase Order Number"
                 class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
               />
+              <span
+                v-if="linkCheck && linkCheck.code !== 'empty'"
+                class="mt-1 block text-[11px]"
+                :class="{
+                  'text-red-500': linkCheck.level === 'error',
+                  'text-amber-600': linkCheck.level === 'warning',
+                  'text-teal-600': linkCheck.level === 'ok',
+                  'text-slate-500': linkCheck.level === 'info',
+                }"
+              >
+                {{ linkCheck.message }}
+              </span>
             </div>
           </div>
         </div>
@@ -533,6 +646,13 @@ watch(
             <!-- Payment Stage -->
             <div>
               <PaymentStage v-model="form.paymentStage" />
+              <span
+                v-if="errors.paymentStage"
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
+              >
+                <Icon icon="hugeicons:alert-02" class="size-4" />
+                {{ errors.paymentStage }}
+              </span>
             </div>
 
             <!-- Vendor Name -->
@@ -746,21 +866,19 @@ watch(
                 <div ref="responsibleDropdown" class="relative w-full">
                   <button
                     type="button"
+                    :disabled="responsibleLocked"
+                    :class="responsibleLocked && 'cursor-not-allowed bg-slate-50'"
                     class="block w-full cursor-pointer rounded-sm border font-medium border-slate-200 px-3 py-2 pr-8 text-left text-sm text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
                     @click="responsibleDropdownOpen = !responsibleDropdownOpen"
                   >
                     <span
                       :class="
-                        form.responsible
+                        selectedResponsible
                           ? 'text-slate-600 tracking-tight'
                           : 'text-slate-400 tracking-normal'
                       "
                     >
-                      {{
-                        form.responsible
-                          ? `${form.responsible} ${form.coa}`
-                          : "Responsible & COA"
-                      }}
+                      {{ selectedResponsible ? selectedResponsible.label : "Responsible & COA" }}
                     </span>
                   </button>
                   <Icon
@@ -778,7 +896,10 @@ watch(
                   />
                 </div>
 
-                <Label label="Add Responsible & COA">
+                <Label
+                  v-if="!responsibleLocked && authStore.hasAccess('create_responsible')"
+                  label="Add Responsible & COA"
+                >
                   <button
                     type="button"
                     class="flex py-2 w-9 shrink-0 cursor-pointer items-center justify-center rounded-sm bg-teal-500 text-lg font-medium text-white hover:bg-teal-600"
@@ -852,78 +973,27 @@ watch(
               </span>
             </div>
 
-            <!-- Checker -->
-            <div>
-              <span class="mb-1 block text-sm font-medium text-slate-600">
-                Checker
-                <span class="text-red-500">*</span>
-              </span>
-              <div ref="checkerDropdown" class="relative w-full">
-                <button
-                  type="button"
-                  class="block w-full cursor-pointer rounded-sm border font-medium border-slate-200 px-3 py-2 pr-8 text-left text-sm text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
-                  @click="checkerDropdownOpen = !checkerDropdownOpen"
-                >
-                  <span
-                    :class="
-                      selectedChecker
-                        ? 'text-slate-600 tracking-tight'
-                        : 'text-slate-400 tracking-normal'
-                    "
-                  >
-                    {{ selectedChecker ? selectedChecker.label : "Checker" }}
-                  </span>
-                </button>
-                <Icon
-                  icon="hugeicons:arrow-down-01"
-                  class="pointer-events-none absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-slate-600"
-                />
-                <Dropdown
-                  v-if="checkerDropdownOpen"
-                  :options="checkerDropdownOptions"
-                  :model-value="form.checker"
-                  width-class="w-full"
-                  placement="up"
-                  max-height-class="max-h-30"
-                  @select="selectChecker"
-                />
-              </div>
-              <span class="text-[11px] text-slate-500">
-                The person who checks this request.
-              </span>
-              <span
-                v-if="errors.checker"
-                class="mt-1 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
-                <Icon icon="hugeicons:alert-02" class="size-4" />
-                {{ errors.checker }}
-              </span>
-            </div>
-
             <!-- Prepared By -->
             <div>
               <span class="mb-1 block text-sm font-medium text-slate-600">
                 Prepared By
               </span>
               <input
-                :value="form.signature ? form.preparedBy : 'None'"
+                :value="preparedBy || 'None'"
                 readonly
                 disabled
                 class="w-full cursor-not-allowed select-none rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 outline-none selection:bg-transparent selection:text-slate-600"
               />
-              <span class="text-[11px] text-slate-500">
-                Set your signature in your profile so your name appeared
-              </span>
-              <span
-                v-if="errors.signature"
-                class="mt-1 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
-                <Icon icon="hugeicons:alert-02" class="size-4" />
-                {{ errors.signature }}
-              </span>
             </div>
           </div>
         </div>
+
+        <p v-if="serverError" class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
+          {{ serverError }}
+        </p>
+        <p v-if="errors.link" class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
+          {{ errors.link }}
+        </p>
 
         <!-- Components -->
         <div class="flex flex-col gap-2">
@@ -935,8 +1005,14 @@ watch(
 
     <Handler
       v-model="showResponsibleModal"
-      :responsible-options="responsibleOptions"
+      :responsible-options="responsibles.map((r) => ({ responsible: r.name, coa: r.coa }))"
       @add="handleAddResponsible"
+    />
+    <SubmitPR
+      v-if="showSubmit"
+      :target="submitTarget"
+      @close="showSubmit = false"
+      @done="router.push(`/payment-request/${submitTarget.prId}`)"
     />
   </div>
 </template>
