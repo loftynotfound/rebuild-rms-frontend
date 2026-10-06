@@ -13,6 +13,9 @@ import Attachments from "@/components/paymentRequest/display/Attachments.vue";
 import Comments from "@/components/paymentRequest/display/Comments.vue";
 import StatusHistory from "@/components/paymentRequest/display/StatusHistory.vue";
 
+import PaymentsPanel from "@/components/paymentRequest/display/PaymentsPanel.vue";
+import EditAmounts from "@/components/paymentRequest/modal/EditAmounts.vue";
+
 import { useAuthStore } from "@/stores/auth";
 import ExportWord from "@/components/paymentRequest/button/ExportWord.vue";
 
@@ -25,6 +28,13 @@ const approvals = ref([]);
 const payments = ref([]);
 const detailLoading = ref(false);
 const loadError = ref("");
+
+const showEditAmounts = ref(false);
+const canEditAmounts = computed(
+  () =>
+    authStore.hasAccess("update_pr_amounts") &&
+    ["submitted", "approved", "completed"].includes(item.value?.status),
+);
 
 const dateOrDash = (value) => (value ? date(value) : "-");
 
@@ -52,12 +62,13 @@ const viewCancelDoc = async (c) => {
   }
 };
 
-const loadDetail = async () => {
+const loadDetail = async (silent = false) => {
   const id = route.params.id;
   detailLoading.value = true;
   loadError.value = "";
-  item.value = null;
   cancelRequests.value = [];
+
+  if (!silent) item.value = null;
 
   try {
     const pr = (await api.get(`/pr/${id}`)).data;
@@ -110,6 +121,7 @@ const loadDetail = async () => {
       rfpDate: pr.pr_create_date, // pr_rfp_date belum diisi oleh backend
       quotationNumber: pr.quotation_no || pr.pr_qout_no || "",
       poNumber: pr.pr_po_no || "PO BELUM RELEASE",
+      poNoRaw: pr.pr_po_no || "",
 
       paymentType: humanize(latest.payment_type),
       bankName: latest.payment_bank ?? "",
@@ -142,8 +154,9 @@ const loadDetail = async () => {
   }
 };
 
-onMounted(loadDetail);
-watch(() => route.params.id, loadDetail);
+onMounted(() => loadDetail());
+watch(() => route.params.id, () => loadDetail());
+
 </script>
 
 <template>
@@ -154,7 +167,17 @@ watch(() => route.params.id, loadDetail);
         <Status :status="item.status" />
       </div>
 
-      <ExportWord v-if="authStore.hasAccess('export_pr')" :item="item" />
+      <div class="flex items-center gap-2">
+        <button
+          v-if="canEditAmounts"
+          type="button"
+          class="flex h-10 items-center rounded-sm border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 hover:bg-slate-100"
+          @click="showEditAmounts = true"
+        >
+          Edit Amounts
+        </button>
+        <ExportWord v-if="authStore.hasAccess('export_pr')" :item="item" />
+      </div>
     </div>
 
     <div class="flex flex-col gap-4 px-6 py-6 bg-white border border-slate-200">
@@ -363,35 +386,19 @@ watch(() => route.params.id, loadDetail);
         </ul>
       </div>
 
-      <div class="rounded-sm border border-slate-200 bg-white px-6 py-4">
-        <h2 class="mb-2 text-sm font-semibold text-slate-900">Payments</h2>
-        <p v-if="!payments.length" class="text-sm text-slate-400">
-          No payment recorded.
-        </p>
-        <ul v-else class="divide-y divide-slate-200 text-sm">
-          <li
-            v-for="p in payments"
-            :key="p.payment_id"
-            class="flex items-center justify-between gap-2 py-2"
-          >
-            <span class="text-slate-600">
-              {{ p.payment_stage.replace("_", " ") }}
-              <span
-                v-if="p.payment_priority_date"
-                class="text-xs text-slate-400"
-              >
-                · priority {{ date(p.payment_priority_date) }}
-              </span>
-            </span>
-            <span class="text-slate-900">
-              {{ money(p.payment_amount) }}
-              <span class="ml-1 text-xs capitalize text-slate-500">
-                {{ p.payment_status }}
-              </span>
-            </span>
-          </li>
-        </ul>
-      </div>
+      <PaymentsPanel
+        :pr="{
+          prId: item.prId,
+          rfpNumber: item.rfpNumber,
+          description: item.description,
+          status: item.status,
+          totalAmount: item.totalAmount,
+        }"
+        :payments="payments"
+        :money="money"
+        :date="date"
+        @changed="loadDetail(true)"
+      />
     </div>
 
     <div
@@ -443,6 +450,21 @@ watch(() => route.params.id, loadDetail);
     <Comments :pr-id="item.prId" :date="date" />
 
     <Document :item="item" :money="money" :date="date" />
+
+    <EditAmounts
+      v-if="showEditAmounts"
+      :target="{
+        prId: item.prId,
+        poAmount: item.poAmount,
+        cogs: item.cogs,
+        poNoRaw: item.poNoRaw,
+      }"
+      @close="showEditAmounts = false"
+      @done="
+        showEditAmounts = false;
+        loadDetail(true);
+      "
+    />
   </div>
 
   <div

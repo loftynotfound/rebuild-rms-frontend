@@ -20,6 +20,7 @@ import Draft from "@/components/paymentRequest/button/Draft.vue";
 
 import PaymentMethod from "@/components/paymentRequest/input/PaymentMethod.vue";
 import PaymentStage from "@/components/paymentRequest/input/PaymentStage.vue";
+import Suggest from "@/components/paymentRequest/input/Suggest.vue";
 import DateInput from "@/components/paymentRequest/input/Date.vue";
 
 import Label from "@/components/paymentRequest/badge/Label.vue";
@@ -48,6 +49,28 @@ const {
 
 const showSubmit = ref(false);
 const submitTarget = ref(null);
+
+const inputClass ="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400";
+
+const searchQuotations = async (keyword) => {
+  const res = await api.get("/pr/quotations", { params: { keyword } });
+  return (res.data ?? []).map((q) => ({
+    key: q.quotation_id,
+    value: q.quotation_no,
+    title: q.quotation_no,
+    subtitle: `${q.members.length} PR${q.linked_po_no ? ` · PO ${q.linked_po_no}` : ""}`,
+  }));
+};
+
+const searchPOs = async (keyword) => {
+  const res = await api.get("/pr/po-options", { params: { keyword, limit: 10 } });
+  return (res.data ?? []).map((p) => ({
+    key: p.po_id,
+    value: p.po_order_num,
+    title: p.po_order_num,
+    subtitle: [p.po_status, p.client_name].filter(Boolean).join(" · "),
+  }));
+};
 
 const COST_CONTROL_LIMIT = 50000000;
 const COST_CONTROL_MAX_SIZE = 10 * 1024 * 1024;
@@ -581,12 +604,12 @@ watch(isCostControlRequired, (required) => {
               <span class="mb-1 block text-sm font-medium text-slate-600">
                 Quotation Number
               </span>
-              <input
+              <Suggest
                 v-model="form.quotationNumber"
+                :fetcher="searchQuotations"
                 :disabled="lockedQuotation"
-                :class="lockedQuotation && 'cursor-not-allowed bg-slate-50'"
                 placeholder="Quotation Number"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
+                :class="[inputClass, lockedQuotation && 'cursor-not-allowed bg-slate-50']"
               />
             </div>
 
@@ -595,12 +618,12 @@ watch(isCostControlRequired, (required) => {
               <span class="mb-1 block text-sm font-medium text-slate-600">
                 Purchase Order Number
               </span>
-              <input
+              <Suggest
                 v-model="form.poNumber"
+                :fetcher="searchPOs"
                 :disabled="poLocked"
-                :class="poLocked && 'cursor-not-allowed bg-slate-50'"
                 placeholder="Purchase Order Number"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
+                :class="[inputClass, poLocked && 'cursor-not-allowed bg-slate-50']"
               />
               <span
                 v-if="linkCheck && linkCheck.code !== 'empty'"

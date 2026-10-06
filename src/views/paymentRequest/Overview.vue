@@ -27,6 +27,7 @@ import api from "@/js/api";
 import CancelRequest from "@/components/paymentRequest/modal/CancelRequest.vue";
 import Assign from "@/components/paymentRequest/modal/Assign.vue";
 import SubmitPR from "@/components/paymentRequest/modal/SubmitPR.vue";
+import BulkResult from "@/components/paymentRequest/modal/BulkResult.vue";
 
 // Props & Router
 defineProps({ user: { type: Object, default: null } });
@@ -94,19 +95,6 @@ const historyItems = ref([]);
 const actionError = ref("");
 const activeItem = ref(null);
 
-// Samakan shape API dengan shape kartu yang dipakai Data.vue
-// const cardFromPR = (pr, extra = {}) => ({
-//   prId: pr.pr_id,
-//   prRfpNumber: pr.pr_rfp_no,
-//   prDescriptionItem: pr.pr_description_item,
-//   prRequestedAmount: pr.pr_requested_amount,
-//   responsibleName: pr.responsible_name,
-//   adminName: pr.admin_name,
-//   prCreateDate: pr.pr_create_date,
-//   prStatus: pr.pr_status,
-//   ...extra,
-// });
-
 const fetchApproverData = async () => {
   if (!isApprover.value) return;
   if (isFinance.value) {
@@ -124,15 +112,12 @@ const fetchApproverData = async () => {
          const pending = (payRes?.data ?? []).find(
            (p) => p.payment_status === "pending",
          );
-         return pending
-           ? cardFromPR(pr, {
-               pendingPayment: pending,
-               // nama field yang dibaca Assign.vue
-               rfpNumber: pr.pr_rfp_no,
-               description: pr.pr_description_item,
-               priorityDate: pending.payment_priority_date ?? "",
-             })
-           : null;
+          return cardFromPR(pr, {
+            pendingPayment: pending ?? null,
+            rfpNumber: pr.pr_rfp_no,
+            description: pr.pr_description_item,
+            priorityDate: pending?.payment_priority_date ?? "",
+          });
        }),
      );
      paymentItems.value = rows.filter(Boolean);
@@ -181,15 +166,11 @@ const fetchApproverData = async () => {
   }
 };
 
-// direct = checker belum memutuskan, wait = menunggu director, request = menunggu finance/approved
-const cancelPhase = (item) =>
-  approvalOf(item, 1)?.approvalStatus === "approved" ? "request" : "direct";
-
 const payFirst = async (item) => {
   actionError.value = "";
   try {
     await api.post(`/pr/payments/${item.pendingPayment.payment_id}/confirm`);
-    await Promise.all([fetchApproverData(), refresh()]);
+    await Promise.all([fetchApproverData(), refresh(), ]);
   } catch (e) {
     actionError.value =
       e.response?.data?.message ?? "Failed to confirm the payment.";
@@ -208,6 +189,47 @@ const savePriorityDate = async (date) => {
     actionError.value =
       e.response?.data?.message ?? "Failed to set the priority date.";
   }
+};
+
+const MAX_BULK = 50;
+const selectedIds = ref([]);
+const bulkResult = ref(null);
+
+const isSelectable = (item) =>
+  isApprover.value
+    ? status.value === "waiting" && Boolean(item.approvalId)
+    : ["draft", "revision"].includes(getStatus(item));
+
+const selectableItems = computed(() =>
+  data.filteredCard.value.filter(isSelectable),
+);
+const selectedItems = computed(() =>
+  source.value.filter((i) => selectedIds.value.includes(i.prId)),
+);
+
+const toggleSelect = (row) => {
+  const idx = selectedIds.value.indexOf(row.prId);
+  if (idx >= 0) selectedIds.value.splice(idx, 1);
+  else if (selectedIds.value.length < MAX_BULK) selectedIds.value.push(row.prId);
+  else actionError.value = `Maximum ${MAX_BULK} requests per batch.`;
+};
+
+const selectAll = () => {
+  selectedIds.value = selectableItems.value.slice(0, MAX_BULK).map((i) => i.prId);
+  if (selectableItems.value.length > MAX_BULK)
+    actionError.value = `Only the first ${MAX_BULK} requests were selected.`;
+};
+
+const showFailures = (title, results, labels, idKey) => {
+  if (!results.some((r) => !r.success)) return;
+  bulkResult.value = {
+    title,
+    rows: results.map((r) => ({
+      label: labels[r[idKey]] ?? `#${r[idKey]}`,
+      success: r.success,
+      error: r.error,
+    })),
+  };
 };
 
 const source = computed(() => {
@@ -243,6 +265,7 @@ const loadRequests = () =>
 
 const refresh = async () => {
   await Promise.all([loadRequests(), fetchApproverData()]);
+  selectedIds.value = [];
 };
 
 onMounted(refresh);
@@ -320,6 +343,7 @@ const tabs = computed(() => {
 const switchStatus = (value) => {
   status.value = value;
   data.page.value = 1;
+  selectedIds.value = [];
 };
 
 // Navigation
@@ -334,16 +358,28 @@ const edit = (item) => {
 // Submission
 // Submission
 const showSubmit = ref(false);
-const submitTarget = ref(null);
+const submitTargets = ref([]);
 
 const submit = (item) => {
   submitTarget.value = item;
+  submitTargets.value = [];
   showSubmit.value = true;
 };
 
-const onSubmitted = async () => {
+const bulkSubmit = () => {
+  submitTarget.value = null;
+  submitTargets.value = selectedItems.value;
+  showSubmit.value = true;
+};
+
+const onSubmitted = async (results) => {
+  const labels = Object.fromEntries(
+    submitTargets.value.map((i) => [i.prId, i.prRfpNumber]),
+  );
   showSubmit.value = false;
   submitTarget.value = null;
+  if (Array.isArray(results)) showFailures("Bulk Submit", results, labels, "pr_id");
+  submitTargets.value = [];
   await refresh();
 };
 
@@ -357,6 +393,39 @@ const runDecision = async (kind, item, notes = "") => {
     actionError.value =
       e.response?.data?.message ?? "Failed to process the decision.";
   }
+};
+
+const runBulkDecision = async (decision, notes = "") => {
+  const picked = selectedItems.value;
+  if (!picked.length) return;
+  actionError.value = "";
+  try {
+    const res = await api.post("/pr/approvals/bulk-decide", {
+      decision,
+      items: picked.map((i) => ({ approval_id: i.approvalId, notes })),
+    });
+    const labels = Object.fromEntries(picked.map((i) => [i.approvalId, i.prRfpNumber]));
+    showFailures(
+      decision === "approved" ? "Bulk Approve" : "Bulk Reject",
+      res.data ?? [],
+      labels,
+      "approval_id",
+    );
+    await refresh();
+  } catch (e) {
+    actionError.value =
+      e.response?.data?.message ?? "Failed to process the decisions.";
+  }
+};
+
+const bulkApprove = () => {
+  if (window.confirm(`Approve ${selectedItems.value.length} requests?`)) {
+    runBulkDecision("approved");
+  }
+};
+
+const bulkReject = () => {
+  modal.value = "bulk-reject";
 };
 
 const openConfirm = (item) => {
@@ -381,13 +450,21 @@ const closeModal = () => {
 };
 
 const rejectAction = async (note) => {
-  await runDecision(
-    modal.value === "revise" ? "request-revision" : "reject",
-    activeItem.value,
-    note,
-  );
+  if (modal.value === "bulk-reject") await runBulkDecision("rejected", note);
+  else
+    await runDecision(
+      modal.value === "revise" ? "request-revision" : "reject",
+      activeItem.value,
+      note,
+    );
   closeModal();
 };
+
+const rejectTitle = computed(() => {
+  if (modal.value === "revise") return "Request Revision";
+  if (modal.value === "bulk-reject") return `Reject ${selectedItems.value.length} Requests`;
+  return "Reject Payment Request";
+});
 
 // Cancellation
 const openCancel = (item) => {
@@ -515,12 +592,13 @@ const approverActions = (item) => {
     if (lvl === 3 && isFinance.value) return [VIEW, approve];
   }
   if (status.value === "payment" && isFinance.value)
-    return [
-      VIEW,
-      { key: "date", label: "Set Priority Date" },
-      { key: "paid", label: "Mark As Paid" },
-    ];
-  return [VIEW];
+    return item.pendingPayment
+      ? [
+          VIEW,
+          { key: "date", label: "Set Priority Date" },
+          { key: "paid", label: "Mark As Paid" },
+        ]
+      : [VIEW];
 };
 
 const getActions = (item) =>
@@ -609,7 +687,49 @@ const handleAction = (item, key) => {
         </div>
 
         <template v-else>
-          <Data :rows="data.card.value" :money="money" :date="date" :status="getStatus" :get-actions="getActions"
+          <div
+            v-if="selectableItems.length"
+            class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
+          >
+            <div class="flex items-center gap-3 text-slate-600">
+              <button type="button" class="font-medium text-teal-600 hover:text-teal-700" @click="selectAll">
+                Select all ({{ selectableItems.length }})
+              </button>
+              <button v-if="selectedIds.length" type="button" class="font-medium hover:text-slate-800" @click="selectedIds = []">
+                Clear
+              </button>
+              <span v-if="selectedIds.length">{{ selectedIds.length }} selected</span>
+            </div>
+
+            <div v-if="selectedIds.length" class="flex gap-2">
+              <button
+                v-if="!isApprover"
+                type="button"
+                class="rounded-sm bg-teal-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-600"
+                @click="bulkSubmit"
+              >
+                Submit Selected
+              </button>
+              <template v-else>
+                <button
+                  v-if="isChecker"
+                  type="button"
+                  class="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50"
+                  @click="bulkReject"
+                >
+                  Reject Selected
+                </button>
+                <button
+                  type="button"
+                  class="rounded-sm bg-teal-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-600"
+                  @click="bulkApprove"
+                >
+                  Approve Selected
+                </button>
+              </template>
+            </div>
+          </div>
+          <Data :selectable="isSelectable" :selected="selectedIds" @toggle="toggleSelect" :rows="data.card.value" :money="money" :date="date" :status="getStatus" :get-actions="getActions"
             @action="handleAction" />
 
           <div>
@@ -625,7 +745,7 @@ const handleAction = (item, key) => {
         :date="date"
         @changed="fetchApproverData"
       />
-      
+
     </div>
   </div>
 
@@ -641,15 +761,26 @@ const handleAction = (item, key) => {
   <Signature v-if="modal === 'confirm'" title="Confirm Payment Request" role-label="Confirmed By" submit-label="Confirm"
     @close="closeModal" @submit="confirmAction" />
 
-  <Reject v-if="modal === 'reject' || modal === 'revise'"
-    :title="modal === 'revise' ? 'Request Revision' : 'Reject Payment Request'" @close="closeModal"
-    @submit="rejectAction" />
+  <Reject
+    v-if="['reject', 'revise', 'bulk-reject'].includes(modal)"
+    :title="rejectTitle"
+    @close="closeModal"
+    @submit="rejectAction"
+  />
 
-  <SubmitPR
+    <SubmitPR
     v-if="showSubmit"
     :target="submitTarget"
+    :targets="submitTargets"
     @close="showSubmit = false"
     @done="onSubmitted"
+  />
+
+  <BulkResult
+    v-if="bulkResult"
+    :title="bulkResult.title"
+    :rows="bulkResult.rows"
+    @close="bulkResult = null"
   />
 
   <CancelRequest v-if="showCancelRequest" :target="cancelRequestTarget" :loading="cancelRequestLoading"

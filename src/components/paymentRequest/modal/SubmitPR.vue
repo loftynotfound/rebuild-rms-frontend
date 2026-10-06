@@ -1,10 +1,16 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, computed } from "vue";
 import api from "@/js/api";
 import { useAuthStore } from "@/stores/auth";
 import Modal from "@/components/ui/Modal.vue";
 
-const props = defineProps({ target: { type: Object, required: true } });
+const props = defineProps({ 
+  target: { type: Object, default: null},
+  targets: {type: Array, default: ()=>[]}
+ });
+const list = computed(() => 
+  props.targets.length ? props.targets : props.target ? [props.target] : [],)
+const isBulk = computed(() => list.value.length > 1)
 const emit = defineEmits(["close", "done"]);
 const adminName = ref("");
 
@@ -161,11 +167,20 @@ const submit = async () => {
   try {
     if (!signatureId.value) await registerSignature();
 
-    await api.post(`/pr/${props.target.prId ?? props.target.pr_id}/submit`, {
-      checker_id: checker.value,
-      signature_id: signatureId.value,
+    if (isBulk.value){
+      const res = await api.post("/pr/bulk-submit", {
+        signature_id : signatureId.value,
+        default_checker_id : checker.value,
+        items : list.value.map((i) => ({pr_id: i.prId ?? i.pr_id}))
+      });
+      emit("done", res.data ?? []);
+    }
+    const t = list.value[0];
+    await api.post(`/pr/${t.prId ?? t.pr_id}/submit`, {
+      checker_id : checker.value,
+      signature_id : signatureId.value,
     });
-    emit("done");
+    emit("done")
   } catch (e) {
     error.value =
       e.response?.data?.message ?? e.message ?? "Failed to submit request.";
@@ -176,18 +191,24 @@ const submit = async () => {
 </script>
 
 <template>
-  <Modal title="Submit Payment Request" @close="emit('close')">
+  <Modal :title="isBulk ? `submit ${list.length} payment Request` : 'Submit Payment Request'" @close="emit('close')">
     <div v-if="loading" class="py-8 text-center text-sm text-slate-400">
       Loading...
     </div>
 
     <div v-else class="space-y-4">
-      <div class="rounded-sm bg-slate-50 p-3 text-sm">
+      <div v-if="!isBulk" class="rounded-sm bg-slate-50 p-3 text-sm">
         <p class="font-semibold text-slate-800">
-          {{ target.prRfpNumber ?? target.pr_rfp_no }}
+          {{ list[0]?.prRfpNumber ?? list[0]?.pr_rfp_no }}
         </p>
         <p class="mt-1 text-slate-500">
-          {{ target.prDescriptionItem ?? target.pr_description_item }}
+          {{ list[0]?.prDescriptionItem ?? list[0]?.pr_description_item }}
+        </p>
+      </div>
+      <div v-else class="rounded-sm bg-slate-50 p-3 text-sm">
+        <p class="font-semibold text-slate-800">{{ list.length }} requests selected</p>
+        <p class="mt-1 max-h-24 overflow-y-auto text-xs text-slate-500">
+          {{ list.map((i) => i.prRfpNumber).join(", ") }}
         </p>
       </div>
 

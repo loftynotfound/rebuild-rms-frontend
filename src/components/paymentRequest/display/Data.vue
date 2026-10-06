@@ -2,10 +2,10 @@
 import Status from "@/components/paymentRequest/badge/Status.vue";
 import Action from "@/components/paymentRequest/button/Action.vue";
 
-defineProps({
+const props = defineProps({
   rows: {
     type: Array,
-    default: () => [],
+    required: true,
   },
   money: {
     type: Function,
@@ -23,16 +23,24 @@ defineProps({
     type: Function,
     required: true,
   },
+  selectable: {
+    type: Function,
+    default: () => false,
+  },
+  selected: {
+    type: Array,
+    default: () => [],
+  },
 });
-
-defineEmits(["action"]);
+const emit = defineEmits(["action","toggle"]);
 </script>
 
 <template>
   <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
     <div
-      v-for="row in rows"
+      v-for="row in props.rows"
       :key="row.prId"
+      :class="props.selected.includes(row.prId) && 'ring-1 ring-teal-400'"
       class="flex flex-col gap-3 rounded-sm border border-slate-200 bg-white p-4 shadow-xs"
     >
       <div class="flex items-center justify-between gap-2">
@@ -40,12 +48,19 @@ defineEmits(["action"]);
           <span
             class="flex items-center gap-2 text-sm font-semibold text-slate-800 leading-none"
           >
+          <input 
+          v-if="props.selectable(row)"
+          type="checkbox" 
+          class="size-4 cursor-pointer accent-teal-500"
+          :checked="props.selected.includes(row.prId)"
+          @change="$emit('toggle', row)"
+          />
             #{{ row.prId }}
             <span class="size-1 rounded-full bg-slate-800"></span>
             {{ row.prRfpNumber }}
           </span>
         </div>
-        <Status :status="status(row)" />
+        <Status :status="props.status(row)" />
       </div>
 
       <dl class="text-xs">
@@ -57,7 +72,7 @@ defineEmits(["action"]);
             Total Amount:
           </dt>
           <dd class="font-medium text-slate-800">
-            {{ money(row.prRequestedAmount) }}
+            {{ props.money(row.prRequestedAmount) }}
           </dd>
         </div>
 
@@ -103,14 +118,14 @@ defineEmits(["action"]);
             Created At:
           </dt>
           <dd class="font-medium text-slate-800">
-            {{ date(row.prCreateDate) }}
+            {{ props.date(row.prCreateDate) }}
           </dd>
         </div>
       </dl>
 
       <div class="flex justify-end">
         <Action
-          :actions="getActions(row)"
+          :actions="props.getActions(row)"
           @action="(key) => $emit('action', row, key)"
         />
       </div>
