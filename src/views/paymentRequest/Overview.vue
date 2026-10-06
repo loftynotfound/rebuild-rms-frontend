@@ -2,12 +2,10 @@
 import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
-import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
-import {
-  useStore,
-  STATUS,
-  PAYMENT_STATUS,
-} from "@/composables/paymentRequest/useStore";
+import { useCard } from "@/composables/paymentRequest/useData";
+import { usePRList, cardFromPR } from "@/composables/paymentRequest/usePRList";
+import CancelRequestList from "@/components/paymentRequest/display/CancelRequestList.vue";
+import { useStore, STATUS, PAYMENT_STATUS } from "@/composables/paymentRequest/useStore";
 
 import Create from "@/components/paymentRequest/button/Create.vue";
 import ExportExcel from "@/components/paymentRequest/button/ExportExcel.vue";
@@ -37,13 +35,8 @@ const route = useRoute();
 const router = useRouter();
 
 // Payment Request & Store
-const { requests, money, date } = useStore();
-
-const {
-  cancelRequest,
-  useCard,
-  confirmPayment,
-} = usePaymentRequest();
+const { money, date } = useStore();
+const { requests, error: listError, fetchRequests } = usePRList();
 
 // Modal state
 const showCancelModal = ref(false);
@@ -96,23 +89,23 @@ const approvalOf = (item, level) =>
 
 // level approval terendah yang masih pending (urutan approval berjenjang)
 const waitingItems = ref([]);
+const pendingCancelCount = ref(0);
 const historyItems = ref([]);
 const actionError = ref("");
 const activeItem = ref(null);
 
 // Samakan shape API dengan shape kartu yang dipakai Data.vue
-const cardFromPR = (pr, extra = {}) => ({
-  prId: pr.pr_id,
-  prRfpNumber: pr.pr_rfp_no,
-  prDescriptionItem: pr.pr_description_item,
-  prRequestedAmount: pr.pr_requested_amount,
-  prVendor: "", // vendor tidak ada di backend
-  responsibleName: pr.responsible_name,
-  adminName: pr.admin_name,
-  prCreateDate: pr.pr_create_date,
-  prStatus: pr.pr_status,
-  ...extra,
-});
+// const cardFromPR = (pr, extra = {}) => ({
+//   prId: pr.pr_id,
+//   prRfpNumber: pr.pr_rfp_no,
+//   prDescriptionItem: pr.pr_description_item,
+//   prRequestedAmount: pr.pr_requested_amount,
+//   responsibleName: pr.responsible_name,
+//   adminName: pr.admin_name,
+//   prCreateDate: pr.pr_create_date,
+//   prStatus: pr.pr_status,
+//   ...extra,
+// });
 
 const fetchApproverData = async () => {
   if (!isApprover.value) return;
@@ -120,6 +113,10 @@ const fetchApproverData = async () => {
      // GET /pr?status=... membalas { paged:false, data:[...] }
      const approvedRes = await api.get("/pr", { params: { status: "approved" } });
      const approved = approvedRes.data?.data ?? [];
+     const cancelRes = await api.get("/pr/cancel-requests", {
+       params: { status: "pending", page: 1, item: 1 },
+     });
+     pendingCancelCount.value = cancelRes.meta?.total_data ?? 0;
      
      const rows = await Promise.all(
        approved.map(async (pr) => {
@@ -172,7 +169,6 @@ const fetchApproverData = async () => {
       prRfpNumber: d.rfp_no,
       prDescriptionItem: d.pr_description_item,
       prRequestedAmount: d.pr_requested_amount,
-      prVendor: "",
       responsibleName: "",
       adminName: d.requester_name,
       prCreateDate: d.decided_date,
@@ -193,7 +189,7 @@ const payFirst = async (item) => {
   actionError.value = "";
   try {
     await api.post(`/pr/payments/${item.pendingPayment.payment_id}/confirm`);
-    await Promise.all([fetchApproverData(), data.fetchCards()]);
+    await Promise.all([fetchApproverData(), refresh()]);
   } catch (e) {
     actionError.value =
       e.response?.data?.message ?? "Failed to confirm the payment.";
@@ -241,10 +237,15 @@ const source = computed(() => {
 
 const data = useCard(source);
 
-onMounted(() => {
-  data.fetchCards();
-  fetchApproverData();
-});
+// Requester memakai daftar PR sendiri; approver memakai my-approvals/my-decisions
+const loadRequests = () =>
+  isApprover.value ? Promise.resolve() : fetchRequests();
+
+const refresh = async () => {
+  await Promise.all([loadRequests(), fetchApproverData()]);
+};
+
+onMounted(refresh);
 
 // State kosong: tampil saat tidak ada data (dan tidak sedang loading / error)
 const isEmpty = computed(
@@ -303,7 +304,9 @@ const tabs = computed(() => {
       count:
         t.key === "waiting"
           ? waitingItems.value.length
-          : undefined,
+          : t.key === "cancel-requests"
+            ? pendingCancelCount.value
+            : undefined,
     }));
   }
   return REQUESTER_TABS.map((item) => ({
@@ -341,7 +344,7 @@ const submit = (item) => {
 const onSubmitted = async () => {
   showSubmit.value = false;
   submitTarget.value = null;
-  await data.fetchCards();
+  await refresh();
 };
 
 // Approval & Rejection
@@ -349,7 +352,7 @@ const runDecision = async (kind, item, notes = "") => {
   actionError.value = "";
   try {
     await api.post(`/pr/approvals/${item.approvalId}/${kind}`, { notes });
-    await Promise.all([fetchApproverData(), data.fetchCards()]);
+    await Promise.all([fetchApproverData(), refresh()]);
   } catch (e) {
     actionError.value =
       e.response?.data?.message ?? "Failed to process the decision.";
@@ -397,9 +400,32 @@ const closeCancel = () => {
   showCancelModal.value = false;
 };
 
-const confirmCancel = () => {
-  cancelRequest(cancelTarget.value.prId);
-  closeCancel();
+const cancelLoading = ref(false);
+const cancelError = ref("");
+
+const confirmCancel = async (notes) => {
+  cancelLoading.value = true;
+  cancelError.value = "";
+  try {
+    await api.post(`/pr/${cancelTarget.value.prId}/cancel`, { notes });
+    closeCancel();
+    await refresh();
+  } catch (e) {
+    // checker sudah menyetujui: backend meminta request pembatalan dengan berita acara
+    if (
+      e.response?.status === 409 &&
+      e.response.data?.data?.code === "cancel_request_required"
+    ) {
+      const item = cancelTarget.value;
+      closeCancel();
+      openCancelRequest(item);
+      return;
+    }
+    cancelError.value =
+      e.response?.data?.message ?? "Failed to cancel the request.";
+  } finally {
+    cancelLoading.value = false;
+  }
 };
 
 // Payment
@@ -427,7 +453,7 @@ const submitCancelRequest = async ({ reason, file }) => {
   try {
     await api.post(`/pr/${cancelRequestTarget.value.prId}/cancel-request`, fd);
     showCancelRequest.value = false;
-    await data.fetchCards();
+    await refresh();
   } catch (e) {
     cancelRequestError.value =
       e.response?.data?.message ?? "Failed to submit cancellation request.";
@@ -451,7 +477,7 @@ const openAssign = (item) => {
 //   await api.post(`/pr/payments/${payment.paymentId}/priority-date`, {
 //     priority_date: date,
 //   });
-//   await data.fetchCards();
+//   await refresh();
 // };
 
 // Actions berdasarkan status menentukan action apa yang tersedia pada setiap data.
@@ -467,10 +493,8 @@ const requesterActions = (item) => {
 
   if (s === "draft" || s === "revision")
     return [VIEW, { key: "edit", label: "Edit" }, { key: "submit", label: "Submit" }, cancel];
-  if (s === "submitted")
-    return [VIEW, cancelPhase(item) === "direct" ? cancel : cancelReq];
-  if (s === "approved")
-    return [VIEW, followUp, cancelReq];
+  if (s === "submitted") return [VIEW, cancel];
+  if (s === "approved") return [VIEW, followUp, cancelReq];
   if (s === "completed")
     return [VIEW, followUp];
   return [VIEW];
@@ -551,14 +575,14 @@ const handleAction = (item, key) => {
       <div class="pb-6">
         <Segment :model-value="status" :items="tabs" @update:model-value="switchStatus" />
         <p
-          v-if="actionError"
-          class="mb-4 rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500"
+        v-if="actionError || listError"
+        class="mb-4 rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500"
         >
-          {{ actionError }}
+        {{ actionError || listError }}
         </p>
       </div>
 
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between pb-6">
+      <div  v-if="status !== 'cancel-requests'" class="flex flex-col lg:flex-row lg:items-center lg:justify-between pb-6">
         <div class="flex flex-wrap items-center gap-2">
           <Search class="w-72" v-model="data.search.value" />
 
@@ -568,14 +592,17 @@ const handleAction = (item, key) => {
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <ExportExcel :export-rows="data.filteredCard.value" />
+          <ExportExcel
+            :start-date="data.dateFrom.value"
+            :end-date="data.dateTo.value"
+          />
 
           <!-- <Create v-if="!isApprover" /> -->
           <Create />
         </div>
       </div>
 
-      <section>
+      <section v-if="status !== 'cancel-requests'">
         <div v-if="isEmpty" class="flex flex-col items-center justify-center gap-2 py-16 text-center">
           <Icon icon="hugeicons:invoice-01" class="size-10 text-slate-400" />
           <p class="text-sm font-medium text-slate-800">{{ emptyMessage }}</p>
@@ -591,10 +618,25 @@ const handleAction = (item, key) => {
           </div>
         </template>
       </section>
+
+      <CancelRequestList
+        v-else
+        :money="money"
+        :date="date"
+        @changed="fetchApproverData"
+      />
+      
     </div>
   </div>
 
-  <Cancel v-if="showCancelModal" :target="cancelTarget" @close="closeCancel" @confirm="confirmCancel" />
+  <Cancel
+    v-if="showCancelModal"
+    :target="cancelTarget"
+    :loading="cancelLoading"
+    :error="cancelError"
+    @close="closeCancel"
+    @confirm="confirmCancel"
+  />
 
   <Signature v-if="modal === 'confirm'" title="Confirm Payment Request" role-label="Confirmed By" submit-label="Confirm"
     @close="closeModal" @submit="confirmAction" />

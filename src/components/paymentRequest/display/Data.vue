@@ -65,10 +65,12 @@ defineEmits(["action"]);
           class="flex flex-row justify-between items-center py-3 border-b border-slate-200"
         >
           <dt class="text-slate-400 flex gap-1 items-center">
-            <Icon icon="hugeicons:building-04" class="size-4" />
-            Vendor:
+            <Icon icon="hugeicons:shopping-cart-01" class="size-4" />
+            PO Number:
           </dt>
-          <dd class="font-medium text-slate-800">{{ row.prVendor }}</dd>
+          <dd class="font-medium text-slate-800">
+            {{ row.prPoNumber || "PO BELUM RELEASE" }}
+          </dd>
         </div>
 
         <div

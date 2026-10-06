@@ -7,7 +7,12 @@ import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentReques
 
 import Status from "@/components/paymentRequest/badge/Status.vue";
 import Document from "@/components/paymentRequest/display/Document.vue";
+import { openDocument } from "@/composables/paymentRequest/useDownload";
 
+import { useAuthStore } from "@/stores/auth";
+import ExportWord from "@/components/paymentRequest/button/ExportWord.vue";
+
+const authStore = useAuthStore();
 const route = useRoute();
 const { money, date } = usePaymentRequest();
 
@@ -28,21 +33,39 @@ const humanize = (s) =>
 const sum = (list) =>
   list.reduce((total, p) => total + Number(p.payment_amount || 0), 0);
 
+const cancelRequests = ref([]);
+const docError = ref("");
+
+const viewCancelDoc = async (c) => {
+  docError.value = "";
+  try {
+    await openDocument(
+      `/pr/cancel-requests/${c.cancel_id}/document`,
+      c.cancel_document_name,
+    );
+  } catch (e) {
+    docError.value = e.message;
+  }
+};
+
 const loadDetail = async () => {
   const id = route.params.id;
   detailLoading.value = true;
   loadError.value = "";
   item.value = null;
+  cancelRequests.value = [];
 
   try {
     const pr = (await api.get(`/pr/${id}`)).data;
 
-    const [payRes, apprRes, chainRes, respRes] = await Promise.all([
+    const [payRes, apprRes, chainRes, respRes, cancelRes] = await Promise.all([
       api.get(`/pr/${id}/payments`).catch(() => null),
       api.get(`/pr/${id}/approvals`).catch(() => null),
       api.get(`/pr/${id}/payment-chain`).catch(() => null),
       api.get(`/responsibles/${pr.pr_ref_responsible}`).catch(() => null),
+      api.get(`/pr/${id}/cancel-requests`).catch(() => null), // 403 untuk selain requester/finance
     ]);
+    cancelRequests.value = cancelRes?.data ?? [];
 
     // Pembayaran: yang terbaru dan belum dibatalkan (sama seperti export RFP)
     payments.value = payRes?.data ?? [];
@@ -125,6 +148,8 @@ watch(() => route.params.id, loadDetail);
         <h1 class="text-2xl font-semibold text-slate-800">Detail</h1>
         <Status :status="item.status" />
       </div>
+
+      <ExportWord v-if="authStore.hasAccess('export_pr')" :item="item" />
     </div>
 
     <div class="flex flex-col gap-4 px-6 py-6 bg-white border border-slate-200">
@@ -357,6 +382,42 @@ watch(() => route.params.id, loadDetail);
       </div>
     </div>
 
+    <div
+      v-if="cancelRequests.length"
+      class="rounded-sm border border-slate-200 bg-white px-6 py-4"
+    >
+      <h2 class="mb-2 text-sm font-semibold text-slate-900">
+        Cancellation Requests
+      </h2>
+      <p v-if="docError" class="mb-2 text-xs text-red-500">{{ docError }}</p>
+      <ul class="divide-y divide-slate-200 text-sm">
+        <li v-for="c in cancelRequests" :key="c.cancel_id" class="space-y-1 py-3">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-slate-600">
+              {{ date(c.cancel_create_date) }}
+              <span v-if="c.requester_name" class="text-slate-900">
+                · {{ c.requester_name }}
+              </span>
+            </span>
+            <span class="capitalize font-medium text-slate-900">
+              {{ c.cancel_status }}
+            </span>
+          </div>
+          <p class="whitespace-pre-line text-slate-600">{{ c.cancel_reason }}</p>
+          <p v-if="c.cancel_review_notes" class="text-xs text-slate-500">
+            Finance ({{ c.reviewer_name || "-" }}): {{ c.cancel_review_notes }}
+          </p>
+          <button
+            type="button"
+            class="text-xs font-medium text-teal-600 hover:text-teal-700"
+            @click="viewCancelDoc(c)"
+          >
+            {{ c.cancel_document_name || "View document" }}
+          </button>
+        </li>
+      </ul>
+    </div>
+    
     <Document :item="item" :money="money" :date="date" />
   </div>
 
