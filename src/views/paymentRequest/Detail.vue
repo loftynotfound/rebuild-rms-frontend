@@ -9,6 +9,10 @@ import Status from "@/components/paymentRequest/badge/Status.vue";
 import Document from "@/components/paymentRequest/display/Document.vue";
 import { openDocument } from "@/composables/paymentRequest/useDownload";
 
+import Attachments from "@/components/paymentRequest/display/Attachments.vue";
+import Comments from "@/components/paymentRequest/display/Comments.vue";
+import StatusHistory from "@/components/paymentRequest/display/StatusHistory.vue";
+
 import { useAuthStore } from "@/stores/auth";
 import ExportWord from "@/components/paymentRequest/button/ExportWord.vue";
 
@@ -97,6 +101,7 @@ const loadDetail = async () => {
     item.value = {
       prId: pr.pr_id,
       status: pr.pr_status,
+      ownerId: pr.pr_ref_admin,
       companyName: pr.responsible_name,
 
       rfpNumber: pr.pr_rfp_no,
@@ -330,23 +335,30 @@ watch(() => route.params.id, loadDetail);
           Not submitted yet.
         </p>
         <ul v-else class="divide-y divide-slate-200 text-sm">
-          <li
-            v-for="a in approvals"
-            :key="a.approval_id"
-            class="flex items-center justify-between gap-2 py-2"
-          >
-            <span class="text-slate-600">
-              L{{ a.approval_level }} {{ a.approval_type }}
-              <span v-if="a.admin_name" class="font-medium text-slate-900">
-                · {{ a.admin_name }}
+          <li v-for="a in approvals" :key="a.approval_id" class="space-y-1 py-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-slate-600">
+                L{{ a.approval_level }} {{ a.approval_type }}
+                <span v-if="a.admin_name" class="font-medium text-slate-900">
+                  · {{ a.admin_name }}
+                </span>
+                <span class="text-xs text-slate-400">
+                  (round {{ a.approval_round }})
+                </span>
               </span>
-              <span class="text-xs text-slate-400">
-                (round {{ a.approval_round }})
+              <span class="capitalize text-slate-900">
+                {{ a.approval_status.replace("_", " ") }}
               </span>
-            </span>
-            <span class="capitalize text-slate-900">
-              {{ a.approval_status.replace("_", " ") }}
-            </span>
+            </div>
+            <p
+              v-if="a.approval_notes"
+              class="whitespace-pre-line text-xs text-slate-500"
+            >
+              {{ a.approval_notes }}
+            </p>
+            <p v-if="a.approval_decided_date" class="text-[11px] text-slate-400">
+              {{ date(a.approval_decided_date) }}
+            </p>
           </li>
         </ul>
       </div>
@@ -417,7 +429,19 @@ watch(() => route.params.id, loadDetail);
         </li>
       </ul>
     </div>
-    
+
+    <div class="grid gap-4 md:grid-cols-2">
+      <Attachments
+        :pr-id="item.prId"
+        :owner-id="item.ownerId"
+        :status="item.status"
+        :date="date"
+      />
+      <StatusHistory :pr-id="item.prId" :date="date" />
+    </div>
+
+    <Comments :pr-id="item.prId" :date="date" />
+
     <Document :item="item" :money="money" :date="date" />
   </div>
 
