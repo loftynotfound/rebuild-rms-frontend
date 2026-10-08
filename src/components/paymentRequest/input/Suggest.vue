@@ -90,9 +90,13 @@ onBeforeUnmount(() => {
         @click="pick(opt)"
       >
         <span class="text-sm font-medium text-slate-700">{{ opt.title }}</span>
-        <span v-if="opt.subtitle" class="text-[11px] text-slate-400">{{ opt.subtitle }}</span>
+        <span v-if="opt.subtitle" class="text-[11px] text-slate-400">{{
+          opt.subtitle
+        }}</span>
       </button>
     </div>
-    <p v-else-if="loading" class="mt-1 text-[11px] text-slate-400">Searching...</p>
+    <p v-else-if="loading" class="mt-1 text-[11px] text-slate-400">
+      Searching...
+    </p>
   </div>
 </template>

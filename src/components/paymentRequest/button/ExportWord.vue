@@ -10,8 +10,7 @@ const loading = ref(false);
 const error = ref("");
 
 // sama dengan sanitizeFilename di backend
-const sanitize = (s) =>
-  (s || "PR").replace(/[\\/]/g, "-").replace(/ /g, "_");
+const sanitize = (s) => (s || "PR").replace(/[\\/]/g, "-").replace(/ /g, "_");
 
 const exportWord = async () => {
   error.value = "";

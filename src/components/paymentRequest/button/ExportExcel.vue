@@ -9,7 +9,9 @@ const props = defineProps({
 });
 
 const authStore = useAuthStore();
-const canExport = computed(() => authStore.hasAccess("export_pr_payment_report"));
+const canExport = computed(() =>
+  authStore.hasAccess("export_pr_payment_report"),
+);
 
 const loading = ref(false);
 const error = ref("");

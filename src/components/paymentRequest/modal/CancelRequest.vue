@@ -63,7 +63,9 @@ const submit = () => {
         <p class="mt-1 text-slate-500">{{ target?.prDescriptionItem }}</p>
       </div>
       <label class="block">
-        <span class="mb-1 block text-sm font-medium text-slate-600">Reason *</span>
+        <span class="mb-1 block text-sm font-medium text-slate-600"
+          >Reason *</span
+        >
         <textarea
           v-model="reason"
           rows="4"
@@ -71,17 +73,42 @@ const submit = () => {
           class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm focus:border-teal-400 focus:outline-none"
           placeholder="Summarize why this request should be cancelled"
         />
-        <span class="text-[11px] text-slate-500">{{ reason.length }}/{{ MAX_REASON }}</span>
+        <span class="text-[11px] text-slate-500"
+          >{{ reason.length }}/{{ MAX_REASON }}</span
+        >
       </label>
       <label class="block">
-        <span class="mb-1 block text-sm font-medium text-slate-600">Official Report *</span>
-        <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" class="text-sm" @change="onFile" />
-        <span class="block text-[11px] text-slate-500">PDF, Word, JPG or PNG. Max 10 MB.</span>
+        <span class="mb-1 block text-sm font-medium text-slate-600"
+          >Official Report *</span
+        >
+        <input
+          type="file"
+          accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+          class="text-sm"
+          @change="onFile"
+        />
+        <span class="block text-[11px] text-slate-500"
+          >PDF, Word, JPG or PNG. Max 10 MB.</span
+        >
       </label>
-      <p v-if="localError || error" class="text-xs text-red-500">{{ localError || error }}</p>
+      <p v-if="localError || error" class="text-xs text-red-500">
+        {{ localError || error }}
+      </p>
       <div class="flex justify-end gap-2 pt-2">
-        <button type="button" class="rounded-sm border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50" :disabled="loading" @click="emit('close')">Close</button>
-        <button type="button" class="rounded-sm bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50" :disabled="loading" @click="submit">
+        <button
+          type="button"
+          class="rounded-sm border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+          :disabled="loading"
+          @click="emit('close')"
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          class="rounded-sm bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
+          :disabled="loading"
+          @click="submit"
+        >
           {{ loading ? "Sending..." : "Send Request" }}
         </button>
       </div>

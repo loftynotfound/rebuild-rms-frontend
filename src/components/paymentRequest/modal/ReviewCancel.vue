@@ -27,7 +27,9 @@ const submit = () => {
 
 <template>
   <Modal
-    :title="isReject ? 'Reject Cancellation Request' : 'Approve Cancellation Request'"
+    :title="
+      isReject ? 'Reject Cancellation Request' : 'Approve Cancellation Request'
+    "
     @close="emit('close')"
   >
     <div class="space-y-4">
@@ -51,9 +53,15 @@ const submit = () => {
           rows="4"
           :maxlength="MAX_NOTES"
           class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm focus:border-teal-400 focus:outline-none"
-          :placeholder="isReject ? 'Why is this request rejected?' : 'Add a note for the requester'"
+          :placeholder="
+            isReject
+              ? 'Why is this request rejected?'
+              : 'Add a note for the requester'
+          "
         />
-        <span class="text-[11px] text-slate-500">{{ notes.length }}/{{ MAX_NOTES }}</span>
+        <span class="text-[11px] text-slate-500"
+          >{{ notes.length }}/{{ MAX_NOTES }}</span
+        >
       </label>
 
       <p v-if="localError || error" class="text-xs text-red-500">
@@ -72,7 +80,11 @@ const submit = () => {
         <button
           type="button"
           class="rounded-sm px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          :class="isReject ? 'bg-red-500 hover:bg-red-600' : 'bg-teal-500 hover:bg-teal-600'"
+          :class="
+            isReject
+              ? 'bg-red-500 hover:bg-red-600'
+              : 'bg-teal-500 hover:bg-teal-600'
+          "
           :disabled="loading"
           @click="submit"
         >

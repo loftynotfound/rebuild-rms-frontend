@@ -5,7 +5,11 @@ import { useRoute, useRouter } from "vue-router";
 import { useCard } from "@/composables/paymentRequest/useData";
 import { usePRList, cardFromPR } from "@/composables/paymentRequest/usePRList";
 import CancelRequestList from "@/components/paymentRequest/display/CancelRequestList.vue";
-import { useStore, STATUS, PAYMENT_STATUS } from "@/composables/paymentRequest/useStore";
+import {
+  useStore,
+  STATUS,
+  PAYMENT_STATUS,
+} from "@/composables/paymentRequest/useStore";
 
 import Create from "@/components/paymentRequest/button/Create.vue";
 import ExportExcel from "@/components/paymentRequest/button/ExportExcel.vue";
@@ -65,16 +69,14 @@ const approverTabs = computed(() => [
   { key: "waiting", label: "Waiting My Decision" },
   ...(isFinance.value
     ? [
-      { key: "payment", label: "Payment" },
-      { key: "cancel-requests", label: "Cancel Requests" },
-    ]
+        { key: "payment", label: "Payment" },
+        { key: "cancel-requests", label: "Cancel Requests" },
+      ]
     : []),
   { key: "history", label: "My Decisions" },
 ]);
 const tabKeys = computed(() =>
-  isApprover.value
-    ? approverTabs.value.map((tab) => tab.key)
-    : REQUESTER_TABS,
+  isApprover.value ? approverTabs.value.map((tab) => tab.key) : REQUESTER_TABS,
 );
 
 const status = ref(
@@ -95,33 +97,44 @@ const historyItems = ref([]);
 const actionError = ref("");
 const activeItem = ref(null);
 
+const NO_ACCESS = "You do not have access to this page for your role.";
+
+const errorMessage = (e, fallback) =>
+  e.response?.status === 403
+    ? NO_ACCESS
+    : (e.response?.data?.message ?? fallback);
+
 const fetchApproverData = async () => {
   if (!isApprover.value) return;
   if (isFinance.value) {
-     // GET /pr?status=... membalas { paged:false, data:[...] }
-     const approvedRes = await api.get("/pr", { params: { status: "approved" } });
-     const approved = approvedRes.data?.data ?? [];
-     const cancelRes = await api.get("/pr/cancel-requests", {
-       params: { status: "pending", page: 1, item: 1 },
-     });
-     pendingCancelCount.value = cancelRes.meta?.total_data ?? 0;
-     
-     const rows = await Promise.all(
-       approved.map(async (pr) => {
-         const payRes = await api.get(`/pr/${pr.pr_id}/payments`).catch(() => null);
-         const pending = (payRes?.data ?? []).find(
-           (p) => p.payment_status === "pending",
-         );
-          return cardFromPR(pr, {
-            pendingPayment: pending ?? null,
-            rfpNumber: pr.pr_rfp_no,
-            description: pr.pr_description_item,
-            priorityDate: pending?.payment_priority_date ?? "",
-          });
-       }),
-     );
-     paymentItems.value = rows.filter(Boolean);
-   }
+    // GET /pr?status=... membalas { paged:false, data:[...] }
+    const approvedRes = await api.get("/pr", {
+      params: { status: "approved" },
+    });
+    const approved = approvedRes.data?.data ?? [];
+    const cancelRes = await api.get("/pr/cancel-requests", {
+      params: { status: "pending", page: 1, item: 1 },
+    });
+    pendingCancelCount.value = cancelRes.meta?.total_data ?? 0;
+
+    const rows = await Promise.all(
+      approved.map(async (pr) => {
+        const payRes = await api
+          .get(`/pr/${pr.pr_id}/payments`)
+          .catch(() => null);
+        const pending = (payRes?.data ?? []).find(
+          (p) => p.payment_status === "pending",
+        );
+        return cardFromPR(pr, {
+          pendingPayment: pending ?? null,
+          rfpNumber: pr.pr_rfp_no,
+          description: pr.pr_description_item,
+          priorityDate: pending?.payment_priority_date ?? "",
+        });
+      }),
+    );
+    paymentItems.value = rows.filter(Boolean);
+  }
   try {
     const [pendingRes, decidedRes] = await Promise.all([
       api.get("/pr/my-approvals"),
@@ -161,8 +174,7 @@ const fetchApproverData = async () => {
       decision: d.decision,
     }));
   } catch (e) {
-    actionError.value =
-      e.response?.data?.message ?? "Failed to load approval data.";
+    actionError.value = errorMessage(e, "Failed to load approval data.");
   }
 };
 
@@ -170,7 +182,7 @@ const payFirst = async (item) => {
   actionError.value = "";
   try {
     await api.post(`/pr/payments/${item.pendingPayment.payment_id}/confirm`);
-    await Promise.all([fetchApproverData(), refresh(), ]);
+    await Promise.all([fetchApproverData(), refresh()]);
   } catch (e) {
     actionError.value =
       e.response?.data?.message ?? "Failed to confirm the payment.";
@@ -210,12 +222,15 @@ const selectedItems = computed(() =>
 const toggleSelect = (row) => {
   const idx = selectedIds.value.indexOf(row.prId);
   if (idx >= 0) selectedIds.value.splice(idx, 1);
-  else if (selectedIds.value.length < MAX_BULK) selectedIds.value.push(row.prId);
+  else if (selectedIds.value.length < MAX_BULK)
+    selectedIds.value.push(row.prId);
   else actionError.value = `Maximum ${MAX_BULK} requests per batch.`;
 };
 
 const selectAll = () => {
-  selectedIds.value = selectableItems.value.slice(0, MAX_BULK).map((i) => i.prId);
+  selectedIds.value = selectableItems.value
+    .slice(0, MAX_BULK)
+    .map((i) => i.prId);
   if (selectableItems.value.length > MAX_BULK)
     actionError.value = `Only the first ${MAX_BULK} requests were selected.`;
 };
@@ -264,7 +279,12 @@ const loadRequests = () =>
   isApprover.value ? Promise.resolve() : fetchRequests();
 
 const refresh = async () => {
-  await Promise.all([loadRequests(), fetchApproverData()]);
+  actionError.value = "";
+  try {
+    await Promise.all([loadRequests(), fetchApproverData()]);
+  } catch (e) {
+    actionError.value = errorMessage(e, "Failed to load data.");
+  }
   selectedIds.value = [];
 };
 
@@ -297,9 +317,9 @@ const dateRangeModel = computed({
   get: () =>
     data.dateFrom.value || data.dateTo.value
       ? {
-        start: data.dateFrom.value,
-        end: data.dateTo.value,
-      }
+          start: data.dateFrom.value,
+          end: data.dateTo.value,
+        }
       : null,
 
   set: (value) => {
@@ -358,6 +378,7 @@ const edit = (item) => {
 // Submission
 // Submission
 const showSubmit = ref(false);
+const submitTarget = ref(null);
 const submitTargets = ref([]);
 
 const submit = (item) => {
@@ -378,7 +399,8 @@ const onSubmitted = async (results) => {
   );
   showSubmit.value = false;
   submitTarget.value = null;
-  if (Array.isArray(results)) showFailures("Bulk Submit", results, labels, "pr_id");
+  if (Array.isArray(results))
+    showFailures("Bulk Submit", results, labels, "pr_id");
   submitTargets.value = [];
   await refresh();
 };
@@ -404,7 +426,9 @@ const runBulkDecision = async (decision, notes = "") => {
       decision,
       items: picked.map((i) => ({ approval_id: i.approvalId, notes })),
     });
-    const labels = Object.fromEntries(picked.map((i) => [i.approvalId, i.prRfpNumber]));
+    const labels = Object.fromEntries(
+      picked.map((i) => [i.approvalId, i.prRfpNumber]),
+    );
     showFailures(
       decision === "approved" ? "Bulk Approve" : "Bulk Reject",
       res.data ?? [],
@@ -462,7 +486,8 @@ const rejectAction = async (note) => {
 
 const rejectTitle = computed(() => {
   if (modal.value === "revise") return "Request Revision";
-  if (modal.value === "bulk-reject") return `Reject ${selectedItems.value.length} Requests`;
+  if (modal.value === "bulk-reject")
+    return `Reject ${selectedItems.value.length} Requests`;
   return "Reject Payment Request";
 });
 
@@ -508,7 +533,6 @@ const confirmCancel = async (notes) => {
 // Payment
 const firstPendingPayment = (item) =>
   item.payments.find((p) => p.paymentStatus === PAYMENT_STATUS.PENDING);
-
 
 // Request cancellation (berita acara)
 const showCancelRequest = ref(false);
@@ -569,11 +593,15 @@ const requesterActions = (item) => {
   const followUp = { key: "follow-up", label: "Create Follow-up PR" };
 
   if (s === "draft" || s === "revision")
-    return [VIEW, { key: "edit", label: "Edit" }, { key: "submit", label: "Submit" }, cancel];
+    return [
+      VIEW,
+      { key: "edit", label: "Edit" },
+      { key: "submit", label: "Submit" },
+      cancel,
+    ];
   if (s === "submitted") return [VIEW, cancel];
   if (s === "approved") return [VIEW, followUp, cancelReq];
-  if (s === "completed")
-    return [VIEW, followUp];
+  if (s === "completed") return [VIEW, followUp];
   return [VIEW];
 };
 
@@ -649,22 +677,38 @@ const handleAction = (item, key) => {
   <div class="space-y-4">
     <h1 class="text-2xl font-bold text-slate-800">Request Overview</h1>
 
-    <div class="flex flex-col px-4 py-4 rounded-sm border border-slate-200 bg-white shadow-xs">
+    <div
+      class="flex flex-col px-4 py-4 rounded-sm border border-slate-200 bg-white shadow-xs"
+    >
       <div class="pb-6">
-        <Segment :model-value="status" :items="tabs" @update:model-value="switchStatus" />
-        <p
-        v-if="actionError || listError"
-        class="mb-4 rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500"
-        >
-        {{ actionError || listError }}
-        </p>
+        <Segment
+          :model-value="status"
+          :items="tabs"
+          @update:model-value="switchStatus"
+        />
+        <div class="mt-4">
+          <p
+            v-if="actionError || listError"
+            class="rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500"
+          >
+            {{ actionError || listError }}
+          </p>
+        </div>
       </div>
 
-      <div  v-if="status !== 'cancel-requests'" class="flex flex-col lg:flex-row lg:items-center lg:justify-between pb-6">
+      <div
+        v-if="status !== 'cancel-requests'"
+        class="flex flex-col lg:flex-row lg:items-center lg:justify-between pb-6"
+      >
         <div class="flex flex-wrap items-center gap-2">
           <Search class="w-72" v-model="data.search.value" />
 
-          <DateRange class="w-50" v-model="dateRangeModel" :error="dateRangeError" @error="dateRangeError = $event" />
+          <DateRange
+            class="w-50"
+            v-model="dateRangeModel"
+            :error="dateRangeError"
+            @error="dateRangeError = $event"
+          />
 
           <Sort v-model="data.sort.value" />
         </div>
@@ -681,7 +725,10 @@ const handleAction = (item, key) => {
       </div>
 
       <section v-if="status !== 'cancel-requests'">
-        <div v-if="isEmpty" class="flex flex-col items-center justify-center gap-2 py-16 text-center">
+        <div
+          v-if="isEmpty"
+          class="flex flex-col items-center justify-center gap-2 py-16 text-center"
+        >
           <Icon icon="hugeicons:invoice-01" class="size-10 text-slate-400" />
           <p class="text-sm font-medium text-slate-800">{{ emptyMessage }}</p>
         </div>
@@ -692,13 +739,24 @@ const handleAction = (item, key) => {
             class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
           >
             <div class="flex items-center gap-3 text-slate-600">
-              <button type="button" class="font-medium text-teal-600 hover:text-teal-700" @click="selectAll">
+              <button
+                type="button"
+                class="font-medium text-teal-600 hover:text-teal-700"
+                @click="selectAll"
+              >
                 Select all ({{ selectableItems.length }})
               </button>
-              <button v-if="selectedIds.length" type="button" class="font-medium hover:text-slate-800" @click="selectedIds = []">
+              <button
+                v-if="selectedIds.length"
+                type="button"
+                class="font-medium hover:text-slate-800"
+                @click="selectedIds = []"
+              >
                 Clear
               </button>
-              <span v-if="selectedIds.length">{{ selectedIds.length }} selected</span>
+              <span v-if="selectedIds.length"
+                >{{ selectedIds.length }} selected</span
+              >
             </div>
 
             <div v-if="selectedIds.length" class="flex gap-2">
@@ -729,12 +787,27 @@ const handleAction = (item, key) => {
               </template>
             </div>
           </div>
-          <Data :selectable="isSelectable" :selected="selectedIds" @toggle="toggleSelect" :rows="data.card.value" :money="money" :date="date" :status="getStatus" :get-actions="getActions"
-            @action="handleAction" />
+          <Data
+            :selectable="isSelectable"
+            :selected="selectedIds"
+            @toggle="toggleSelect"
+            :rows="data.card.value"
+            :money="money"
+            :date="date"
+            :status="getStatus"
+            :get-actions="getActions"
+            @action="handleAction"
+          />
 
           <div>
-            <Pagination class="pt-4" :page="data.page.value" :total-page="data.totalPages.value"
-              :total-data="data.filteredCard.value.length" :per-page="data.perPage.value" @change="data.goToPage" />
+            <Pagination
+              class="pt-4"
+              :page="data.page.value"
+              :total-page="data.totalPages.value"
+              :total-data="data.filteredCard.value.length"
+              :per-page="data.perPage.value"
+              @change="data.goToPage"
+            />
           </div>
         </template>
       </section>
@@ -745,7 +818,6 @@ const handleAction = (item, key) => {
         :date="date"
         @changed="fetchApproverData"
       />
-
     </div>
   </div>
 
@@ -758,8 +830,14 @@ const handleAction = (item, key) => {
     @confirm="confirmCancel"
   />
 
-  <Signature v-if="modal === 'confirm'" title="Confirm Payment Request" role-label="Confirmed By" submit-label="Confirm"
-    @close="closeModal" @submit="confirmAction" />
+  <Signature
+    v-if="modal === 'confirm'"
+    title="Confirm Payment Request"
+    role-label="Confirmed By"
+    submit-label="Confirm"
+    @close="closeModal"
+    @submit="confirmAction"
+  />
 
   <Reject
     v-if="['reject', 'revise', 'bulk-reject'].includes(modal)"
@@ -768,7 +846,7 @@ const handleAction = (item, key) => {
     @submit="rejectAction"
   />
 
-    <SubmitPR
+  <SubmitPR
     v-if="showSubmit"
     :target="submitTarget"
     :targets="submitTargets"
@@ -783,8 +861,18 @@ const handleAction = (item, key) => {
     @close="bulkResult = null"
   />
 
-  <CancelRequest v-if="showCancelRequest" :target="cancelRequestTarget" :loading="cancelRequestLoading"
-    :error="cancelRequestError" @close="showCancelRequest = false" @submit="submitCancelRequest" />
+  <CancelRequest
+    v-if="showCancelRequest"
+    :target="cancelRequestTarget"
+    :loading="cancelRequestLoading"
+    :error="cancelRequestError"
+    @close="showCancelRequest = false"
+    @submit="submitCancelRequest"
+  />
 
-  <Assign v-model="showAssign" :item="assignTarget" @confirm="savePriorityDate" />
+  <Assign
+    v-model="showAssign"
+    :item="assignTarget"
+    @confirm="savePriorityDate"
+  />
 </template>

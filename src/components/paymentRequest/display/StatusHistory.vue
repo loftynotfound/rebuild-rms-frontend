@@ -34,13 +34,20 @@ watch(() => props.prId, fetchHistory);
 
     <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
     <p v-else-if="loading" class="text-sm text-slate-400">Loading...</p>
-    <p v-else-if="!history.length" class="text-sm text-slate-400">No history yet.</p>
+    <p v-else-if="!history.length" class="text-sm text-slate-400">
+      No history yet.
+    </p>
 
     <ol v-else class="space-y-4 border-l border-slate-200 pl-4 text-sm">
       <li v-for="h in history" :key="h.history_id" class="relative">
-        <span class="absolute -left-[21px] top-1.5 size-2.5 rounded-full bg-teal-500" />
+        <span
+          class="absolute -left-[21px] top-1.5 size-2.5 rounded-full bg-teal-500"
+        />
         <div class="flex flex-wrap items-center gap-1.5">
-          <Status v-if="h.history_from_status" :status="h.history_from_status" />
+          <Status
+            v-if="h.history_from_status"
+            :status="h.history_from_status"
+          />
           <Icon
             v-if="h.history_from_status"
             icon="hugeicons:arrow-right-01"
@@ -48,7 +55,10 @@ watch(() => props.prId, fetchHistory);
           />
           <Status :status="h.history_to_status" />
         </div>
-        <p v-if="h.history_notes" class="mt-1 whitespace-pre-line text-slate-600">
+        <p
+          v-if="h.history_notes"
+          class="mt-1 whitespace-pre-line text-slate-600"
+        >
           {{ h.history_notes }}
         </p>
         <p class="mt-0.5 text-xs text-slate-400">

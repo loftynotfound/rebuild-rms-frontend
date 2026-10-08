@@ -128,7 +128,9 @@ const remove = async (doc) => {
 
     <p v-if="error" class="mb-2 text-xs text-red-500">{{ error }}</p>
     <p v-if="loading" class="text-sm text-slate-400">Loading...</p>
-    <p v-else-if="!docs.length" class="text-sm text-slate-400">No attachments.</p>
+    <p v-else-if="!docs.length" class="text-sm text-slate-400">
+      No attachments.
+    </p>
 
     <ul v-else class="divide-y divide-slate-200 text-sm">
       <li

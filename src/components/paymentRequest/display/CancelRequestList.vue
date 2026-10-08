@@ -134,14 +134,18 @@ const confirmReview = async (notes) => {
       {{ error }}
     </p>
 
-    <p v-if="loading" class="py-12 text-center text-sm text-slate-400">Loading...</p>
+    <p v-if="loading" class="py-12 text-center text-sm text-slate-400">
+      Loading...
+    </p>
 
     <div
       v-else-if="!rows.length"
       class="flex flex-col items-center justify-center gap-2 py-16 text-center"
     >
       <Icon icon="hugeicons:file-block" class="size-10 text-slate-400" />
-      <p class="text-sm font-medium text-slate-800">No cancellation requests.</p>
+      <p class="text-sm font-medium text-slate-800">
+        No cancellation requests.
+      </p>
     </div>
 
     <div v-else class="grid grid-cols-1 gap-4 xl:grid-cols-2">
@@ -157,7 +161,9 @@ const confirmReview = async (notes) => {
           </div>
           <span
             class="inline-flex shrink-0 rounded-sm px-1.5 py-1 text-xs font-medium capitalize"
-            :class="STATUS_STYLE[row.cancel_status] || 'bg-slate-100 text-slate-600'"
+            :class="
+              STATUS_STYLE[row.cancel_status] || 'bg-slate-100 text-slate-600'
+            "
           >
             {{ row.cancel_status }}
           </span>
@@ -166,35 +172,54 @@ const confirmReview = async (notes) => {
         <dl class="grid grid-cols-2 gap-2 text-xs">
           <div>
             <dt class="text-slate-400">Requester</dt>
-            <dd class="font-medium text-slate-800">{{ row.requester_name || "-" }}</dd>
+            <dd class="font-medium text-slate-800">
+              {{ row.requester_name || "-" }}
+            </dd>
           </div>
           <div>
             <dt class="text-slate-400">Amount</dt>
-            <dd class="font-medium text-slate-800">{{ money(row.pr_requested_amount) }}</dd>
+            <dd class="font-medium text-slate-800">
+              {{ money(row.pr_requested_amount) }}
+            </dd>
           </div>
           <div>
             <dt class="text-slate-400">Requested At</dt>
-            <dd class="font-medium text-slate-800">{{ date(row.cancel_create_date) }}</dd>
+            <dd class="font-medium text-slate-800">
+              {{ date(row.cancel_create_date) }}
+            </dd>
           </div>
           <div>
             <dt class="text-slate-400">PR Status</dt>
-            <dd class="font-medium capitalize text-slate-800">{{ row.pr_status }}</dd>
+            <dd class="font-medium capitalize text-slate-800">
+              {{ row.pr_status }}
+            </dd>
           </div>
         </dl>
 
         <div class="rounded-sm bg-slate-50 p-3 text-xs">
           <p class="mb-1 font-medium text-slate-600">Reason</p>
-          <p class="whitespace-pre-line text-slate-700">{{ row.cancel_reason }}</p>
+          <p class="whitespace-pre-line text-slate-700">
+            {{ row.cancel_reason }}
+          </p>
         </div>
 
-        <div v-if="row.cancel_status !== 'pending'" class="rounded-sm bg-slate-50 p-3 text-xs">
+        <div
+          v-if="row.cancel_status !== 'pending'"
+          class="rounded-sm bg-slate-50 p-3 text-xs"
+        >
           <p class="mb-1 font-medium text-slate-600">
             Reviewed by {{ row.reviewer_name || "-" }}
-            <span v-if="row.cancel_review_date" class="font-normal text-slate-400">
+            <span
+              v-if="row.cancel_review_date"
+              class="font-normal text-slate-400"
+            >
               · {{ date(row.cancel_review_date) }}
             </span>
           </p>
-          <p v-if="row.cancel_review_notes" class="whitespace-pre-line text-slate-700">
+          <p
+            v-if="row.cancel_review_notes"
+            class="whitespace-pre-line text-slate-700"
+          >
             {{ row.cancel_review_notes }}
           </p>
         </div>

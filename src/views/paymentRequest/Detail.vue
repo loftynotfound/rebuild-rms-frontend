@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 
 import api from "@/js/api";
@@ -107,7 +107,8 @@ const loadDetail = async (silent = false) => {
       previous.filter((p) => p.payment_status === "paid"),
     );
 
-    const marginPct = Math.trunc(Number(pr.pr_margin_percentage || 0) * 10) / 10;
+    const marginPct =
+      Math.trunc(Number(pr.pr_margin_percentage || 0) * 10) / 10;
 
     item.value = {
       prId: pr.pr_id,
@@ -155,8 +156,10 @@ const loadDetail = async (silent = false) => {
 };
 
 onMounted(() => loadDetail());
-watch(() => route.params.id, () => loadDetail());
-
+watch(
+  () => route.params.id,
+  () => loadDetail(),
+);
 </script>
 
 <template>
@@ -358,7 +361,11 @@ watch(() => route.params.id, () => loadDetail());
           Not submitted yet.
         </p>
         <ul v-else class="divide-y divide-slate-200 text-sm">
-          <li v-for="a in approvals" :key="a.approval_id" class="space-y-1 py-2">
+          <li
+            v-for="a in approvals"
+            :key="a.approval_id"
+            class="space-y-1 py-2"
+          >
             <div class="flex items-center justify-between gap-2">
               <span class="text-slate-600">
                 L{{ a.approval_level }} {{ a.approval_type }}
@@ -379,7 +386,10 @@ watch(() => route.params.id, () => loadDetail());
             >
               {{ a.approval_notes }}
             </p>
-            <p v-if="a.approval_decided_date" class="text-[11px] text-slate-400">
+            <p
+              v-if="a.approval_decided_date"
+              class="text-[11px] text-slate-400"
+            >
               {{ date(a.approval_decided_date) }}
             </p>
           </li>
@@ -410,7 +420,11 @@ watch(() => route.params.id, () => loadDetail());
       </h2>
       <p v-if="docError" class="mb-2 text-xs text-red-500">{{ docError }}</p>
       <ul class="divide-y divide-slate-200 text-sm">
-        <li v-for="c in cancelRequests" :key="c.cancel_id" class="space-y-1 py-3">
+        <li
+          v-for="c in cancelRequests"
+          :key="c.cancel_id"
+          class="space-y-1 py-3"
+        >
           <div class="flex items-center justify-between gap-2">
             <span class="text-slate-600">
               {{ date(c.cancel_create_date) }}
@@ -422,7 +436,9 @@ watch(() => route.params.id, () => loadDetail());
               {{ c.cancel_status }}
             </span>
           </div>
-          <p class="whitespace-pre-line text-slate-600">{{ c.cancel_reason }}</p>
+          <p class="whitespace-pre-line text-slate-600">
+            {{ c.cancel_reason }}
+          </p>
           <p v-if="c.cancel_review_notes" class="text-xs text-slate-500">
             Finance ({{ c.reviewer_name || "-" }}): {{ c.cancel_review_notes }}
           </p>

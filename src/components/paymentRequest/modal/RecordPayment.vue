@@ -43,7 +43,8 @@ const submit = async () => {
   error.value = "";
   if (!form.stage) return (error.value = "Payment stage required.");
   if (!form.type) return (error.value = "Payment method required.");
-  if (!(Number(form.amount) > 0)) return (error.value = "Amount must be greater than 0.");
+  if (!(Number(form.amount) > 0))
+    return (error.value = "Amount must be greater than 0.");
 
   saving.value = true;
   try {
@@ -72,8 +73,8 @@ const field =
   <Modal title="Record Payment" @close="emit('close')">
     <div class="space-y-3">
       <p class="rounded-sm bg-slate-50 p-3 text-xs text-slate-500">
-        Requested {{ money(requestedAmount) }} · Recorded {{ money(recordedAmount) }} ·
-        Remaining {{ money(remaining) }}
+        Requested {{ money(requestedAmount) }} · Recorded
+        {{ money(recordedAmount) }} · Remaining {{ money(remaining) }}
       </p>
 
       <div class="grid grid-cols-2 gap-3">
@@ -83,7 +84,9 @@ const field =
           </span>
           <select v-model="form.stage" :class="field">
             <option value="" disabled>Select stage</option>
-            <option v-for="s in STAGES" :key="s.value" :value="s.value">{{ s.label }}</option>
+            <option v-for="s in STAGES" :key="s.value" :value="s.value">
+              {{ s.label }}
+            </option>
           </select>
         </label>
 
@@ -93,7 +96,9 @@ const field =
           </span>
           <select v-model="form.type" :class="field">
             <option value="" disabled>Select method</option>
-            <option v-for="t in TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
+            <option v-for="t in TYPES" :key="t.value" :value="t.value">
+              {{ t.label }}
+            </option>
           </select>
         </label>
       </div>
@@ -102,23 +107,44 @@ const field =
         <span class="mb-1 block text-sm font-medium text-slate-600">
           Amount <span class="text-red-500">*</span>
         </span>
-        <input v-model="form.amount" type="number" min="0" placeholder="0" :class="field" />
+        <input
+          v-model="form.amount"
+          type="number"
+          min="0"
+          placeholder="0"
+          :class="field"
+        />
       </label>
 
       <div class="grid grid-cols-2 gap-3">
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-600">Bank</span>
+          <span class="mb-1 block text-sm font-medium text-slate-600"
+            >Bank</span
+          >
           <input v-model="form.bank" placeholder="Bank Name" :class="field" />
         </label>
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-600">Account No.</span>
-          <input v-model="form.bank_account_no" inputmode="numeric" placeholder="Bank Account Number" :class="field" />
+          <span class="mb-1 block text-sm font-medium text-slate-600"
+            >Account No.</span
+          >
+          <input
+            v-model="form.bank_account_no"
+            inputmode="numeric"
+            placeholder="Bank Account Number"
+            :class="field"
+          />
         </label>
       </div>
 
       <label class="block">
-        <span class="mb-1 block text-sm font-medium text-slate-600">Account Name</span>
-        <input v-model="form.bank_account_name" placeholder="Bank Account Name" :class="field" />
+        <span class="mb-1 block text-sm font-medium text-slate-600"
+          >Account Name</span
+        >
+        <input
+          v-model="form.bank_account_name"
+          placeholder="Bank Account Name"
+          :class="field"
+        />
       </label>
 
       <label class="block">

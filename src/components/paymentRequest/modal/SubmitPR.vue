@@ -4,13 +4,14 @@ import api from "@/js/api";
 import { useAuthStore } from "@/stores/auth";
 import Modal from "@/components/ui/Modal.vue";
 
-const props = defineProps({ 
-  target: { type: Object, default: null},
-  targets: {type: Array, default: ()=>[]}
- });
-const list = computed(() => 
-  props.targets.length ? props.targets : props.target ? [props.target] : [],)
-const isBulk = computed(() => list.value.length > 1)
+const props = defineProps({
+  target: { type: Object, default: null },
+  targets: { type: Array, default: () => [] },
+});
+const list = computed(() =>
+  props.targets.length ? props.targets : props.target ? [props.target] : [],
+);
+const isBulk = computed(() => list.value.length > 1);
 const emit = defineEmits(["close", "done"]);
 const adminName = ref("");
 
@@ -129,7 +130,8 @@ onBeforeUnmount(() => {
 
 // --- submit ---
 const registerSignature = async () => {
-  if (!adminName.value) throw new Error("Could not load your name. Please reload and try again.");
+  if (!adminName.value)
+    throw new Error("Could not load your name. Please reload and try again.");
 
   let blob;
   let name = "signature.png";
@@ -167,20 +169,20 @@ const submit = async () => {
   try {
     if (!signatureId.value) await registerSignature();
 
-    if (isBulk.value){
+    if (isBulk.value) {
       const res = await api.post("/pr/bulk-submit", {
-        signature_id : signatureId.value,
-        default_checker_id : checker.value,
-        items : list.value.map((i) => ({pr_id: i.prId ?? i.pr_id}))
+        signature_id: signatureId.value,
+        default_checker_id: checker.value,
+        items: list.value.map((i) => ({ pr_id: i.prId ?? i.pr_id })),
       });
       emit("done", res.data ?? []);
     }
     const t = list.value[0];
     await api.post(`/pr/${t.prId ?? t.pr_id}/submit`, {
-      checker_id : checker.value,
-      signature_id : signatureId.value,
+      checker_id: checker.value,
+      signature_id: signatureId.value,
     });
-    emit("done")
+    emit("done");
   } catch (e) {
     error.value =
       e.response?.data?.message ?? e.message ?? "Failed to submit request.";
@@ -191,7 +193,14 @@ const submit = async () => {
 </script>
 
 <template>
-  <Modal :title="isBulk ? `submit ${list.length} payment Request` : 'Submit Payment Request'" @close="emit('close')">
+  <Modal
+    :title="
+      isBulk
+        ? `submit ${list.length} payment Request`
+        : 'Submit Payment Request'
+    "
+    @close="emit('close')"
+  >
     <div v-if="loading" class="py-8 text-center text-sm text-slate-400">
       Loading...
     </div>
@@ -206,7 +215,9 @@ const submit = async () => {
         </p>
       </div>
       <div v-else class="rounded-sm bg-slate-50 p-3 text-sm">
-        <p class="font-semibold text-slate-800">{{ list.length }} requests selected</p>
+        <p class="font-semibold text-slate-800">
+          {{ list.length }} requests selected
+        </p>
         <p class="mt-1 max-h-24 overflow-y-auto text-xs text-slate-500">
           {{ list.map((i) => i.prRfpNumber).join(", ") }}
         </p>
@@ -253,7 +264,9 @@ const submit = async () => {
           <button
             type="button"
             class="flex-1 rounded-sm py-1.5"
-            :class="mode === 'draw' ? 'bg-white text-teal-600' : 'text-slate-600'"
+            :class="
+              mode === 'draw' ? 'bg-white text-teal-600' : 'text-slate-600'
+            "
             @click="mode = 'draw'"
           >
             Draw
@@ -261,7 +274,9 @@ const submit = async () => {
           <button
             type="button"
             class="flex-1 rounded-sm py-1.5"
-            :class="mode === 'upload' ? 'bg-white text-teal-600' : 'text-slate-600'"
+            :class="
+              mode === 'upload' ? 'bg-white text-teal-600' : 'text-slate-600'
+            "
             @click="mode = 'upload'"
           >
             Upload Image

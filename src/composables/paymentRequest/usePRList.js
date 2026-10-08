@@ -47,7 +47,9 @@ export function usePRList() {
       requests.value = results.flat().map((pr) => cardFromPR(pr));
     } catch (e) {
       error.value =
-        e.response?.data?.message ?? "Failed to load payment requests.";
+        e.response?.status === 403
+          ? "Anda tidak punya akses untuk halaman ini."
+          : (e.response?.data?.message ?? "Failed to load payment requests.");
     } finally {
       loading.value = false;
     }

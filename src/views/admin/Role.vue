@@ -88,7 +88,9 @@ onMounted(fetchRoles);
           empty-message="Belum ada role"
         >
           <template #default="{ row }">
-            <p class="mb-2 wrap-break-word text-lg font-semibold text-slate-800">
+            <p
+              class="mb-2 wrap-break-word text-lg font-semibold text-slate-800"
+            >
               {{ row.role_title }}
             </p>
 

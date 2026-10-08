@@ -32,7 +32,7 @@ const props = defineProps({
     default: () => [],
   },
 });
-const emit = defineEmits(["action","toggle"]);
+const emit = defineEmits(["action", "toggle"]);
 </script>
 
 <template>
@@ -48,13 +48,13 @@ const emit = defineEmits(["action","toggle"]);
           <span
             class="flex items-center gap-2 text-sm font-semibold text-slate-800 leading-none"
           >
-          <input 
-          v-if="props.selectable(row)"
-          type="checkbox" 
-          class="size-4 cursor-pointer accent-teal-500"
-          :checked="props.selected.includes(row.prId)"
-          @change="$emit('toggle', row)"
-          />
+            <input
+              v-if="props.selectable(row)"
+              type="checkbox"
+              class="size-4 cursor-pointer accent-teal-500"
+              :checked="props.selected.includes(row.prId)"
+              @change="$emit('toggle', row)"
+            />
             #{{ row.prId }}
             <span class="size-1 rounded-full bg-slate-800"></span>
             {{ row.prRfpNumber }}

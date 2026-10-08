@@ -92,7 +92,9 @@ const onDone = () => {
 
 // data bank dari pembayaran terakhir sebagai nilai awal form
 const defaults = computed(() => {
-  const last = [...props.payments].reverse().find((p) => p.payment_bank_account_no);
+  const last = [...props.payments]
+    .reverse()
+    .find((p) => p.payment_bank_account_no);
   return {
     type: last?.payment_type ?? "",
     bank: last?.payment_bank ?? "",
@@ -117,7 +119,9 @@ const defaults = computed(() => {
     </div>
 
     <p v-if="error" class="mb-2 text-xs text-red-500">{{ error }}</p>
-    <p v-if="!payments.length" class="text-sm text-slate-400">No payment recorded.</p>
+    <p v-if="!payments.length" class="text-sm text-slate-400">
+      No payment recorded.
+    </p>
 
     <ul v-else class="divide-y divide-slate-200 text-sm">
       <li v-for="p in payments" :key="p.payment_id" class="space-y-1 py-3">
@@ -153,7 +157,10 @@ const defaults = computed(() => {
           </template>
         </p>
 
-        <div v-if="p.payment_status === 'pending'" class="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium">
+        <div
+          v-if="p.payment_status === 'pending'"
+          class="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium"
+        >
           <button
             v-if="can('finance')"
             type="button"
@@ -214,6 +221,10 @@ const defaults = computed(() => {
       @done="onDone"
     />
 
-    <Assign v-model="showAssign" :item="assignTarget" @confirm="savePriorityDate" />
+    <Assign
+      v-model="showAssign"
+      :item="assignTarget"
+      @confirm="savePriorityDate"
+    />
   </div>
 </template>

@@ -232,7 +232,6 @@ export function usePODetail(poId) {
     }
   }
 
-
   const canUnlinkQuotation = computed(() =>
     authStore.hasAccess("unlink_pr_po"),
   );
@@ -240,7 +239,7 @@ export function usePODetail(poId) {
     UNLINK_DISABLED_STATUSES.includes(po.value?.po_status),
   );
 
-   async function unlinkQuotation(quotationId, notes) {
+  async function unlinkQuotation(quotationId, notes) {
     actionLoading.value = true;
     quotationError.value = "";
     try {

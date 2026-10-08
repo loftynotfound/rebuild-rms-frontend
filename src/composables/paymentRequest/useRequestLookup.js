@@ -63,5 +63,13 @@ export function useRequestLookup() {
     );
   }
 
-  return { responsibles, checkers, signatureId, preparedBy, loading, load, addResponsible };
+  return {
+    responsibles,
+    checkers,
+    signatureId,
+    preparedBy,
+    loading,
+    load,
+    addResponsible,
+  };
 }
