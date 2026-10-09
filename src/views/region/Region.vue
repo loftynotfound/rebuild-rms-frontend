@@ -85,7 +85,9 @@ onMounted(fetchRegions);
           empty-message="Belum ada region"
         >
           <template #default="{ row }">
-            <p class="mb-3 wrap-break-word text-lg font-semibold text-slate-800">
+            <p
+              class="mb-3 wrap-break-word text-lg font-semibold text-slate-800"
+            >
               {{ row.region_title }}
             </p>
 

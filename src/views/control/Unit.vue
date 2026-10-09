@@ -85,7 +85,9 @@ onMounted(fetchUnits);
           empty-message="Belum ada unit"
         >
           <template #default="{ row }">
-            <p class="mb-3 wrap-break-word text-lg font-semibold text-slate-800">
+            <p
+              class="mb-3 wrap-break-word text-lg font-semibold text-slate-800"
+            >
               {{ row.unit_title }}
             </p>
 

@@ -335,7 +335,9 @@ onMounted(() => {
                     }}
                     &middot; {{ formatDate(row.po_date) }}
                   </p>
-                  <p class="wrap-break-word text-sm font-semibold text-slate-800">
+                  <p
+                    class="wrap-break-word text-sm font-semibold text-slate-800"
+                  >
                     {{ row.po_order_num ?? row.po_id }}
                   </p>
                 </div>

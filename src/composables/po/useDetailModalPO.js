@@ -219,7 +219,8 @@ export function usePODetailModals(detail) {
   }
 
   async function submitLink(candidate) {
-    if (await linkQuotation(candidate.quotation_id)) showLinkModal.value = false;
+    if (await linkQuotation(candidate.quotation_id))
+      showLinkModal.value = false;
   }
 
   const showUnlinkModal = ref(false);

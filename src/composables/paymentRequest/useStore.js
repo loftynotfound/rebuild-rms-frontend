@@ -97,7 +97,6 @@ export const mapPR = (pr) => ({
   prVendor: pr.pr_subclient ?? "",
   approvals: [],
   payments: [],
-  costControl: "",
 });
 
 export const mapPRDetail = (pr) => ({
@@ -107,7 +106,7 @@ export const mapPRDetail = (pr) => ({
   rfpType: pr.pr_priority ?? "",
   status: pr.pr_status,
   description: pr.pr_description_item ?? "",
-  totalAmount: pr.pr_requested_amount ?? 0,
+  requestedAmount: pr.pr_requested_amount ?? 0,
   quotationNumber: pr.quotation_no ?? pr.pr_qout_no ?? "",
   poNumber: pr.pr_po_no_display || pr.pr_po_no || "",
   poAmount: pr.pr_po_amount ?? 0,

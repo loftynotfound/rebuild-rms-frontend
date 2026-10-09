@@ -87,7 +87,9 @@ onMounted(fetchAccess);
           empty-message="Belum ada access"
         >
           <template #default="{ row }">
-            <p class="mb-1 wrap-break-word text-lg font-semibold text-slate-800">
+            <p
+              class="mb-1 wrap-break-word text-lg font-semibold text-slate-800"
+            >
               {{ row.access_title }}
             </p>
             <p class="mb-1 text-sm text-slate-500">

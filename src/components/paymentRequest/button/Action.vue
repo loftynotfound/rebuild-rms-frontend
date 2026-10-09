@@ -18,6 +18,8 @@ const ACTION_ICONS = {
   revise: "hugeicons:file-exclamation-point",
   reject: "hugeicons:file-remove",
   cancel: "hugeicons:file-block",
+  "cancel-request": "hugeicons:file-block",
+  "follow-up": "hugeicons:file-add",
 
   // Let this three alone for the next development of 3 level approvals based on their account roles
   complete: "hugeicons:file-validation",

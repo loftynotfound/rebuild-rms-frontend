@@ -67,6 +67,23 @@ export function usePODetail(poId) {
       LINKABLE_STATUSES.includes(po.value?.po_status),
   );
 
+  const canCreatePR = computed(
+    () =>
+      authStore.hasAccess("create_pr") &&
+      LINKABLE_STATUSES.includes(po.value?.po_status),
+  );
+
+  // quotationNo kosong = tombol Create PR biasa (soft link ke PO saja)
+  function createPR(quotationNo = "") {
+    router.push({
+      name: "payment-request-form",
+      query: {
+        po: po.value.po_order_num,
+        ...(quotationNo ? { quotation: quotationNo } : {}),
+      },
+    });
+  }
+
   const showInvoiceInPreview = computed(() => {
     const idx = STATUS_FLOW.indexOf(po.value?.po_status);
     return !!po.value?.po_invoice && idx > STATUS_FLOW.indexOf("prepared");
@@ -232,7 +249,6 @@ export function usePODetail(poId) {
     }
   }
 
-
   const canUnlinkQuotation = computed(() =>
     authStore.hasAccess("unlink_pr_po"),
   );
@@ -240,7 +256,7 @@ export function usePODetail(poId) {
     UNLINK_DISABLED_STATUSES.includes(po.value?.po_status),
   );
 
-   async function unlinkQuotation(quotationId, notes) {
+  async function unlinkQuotation(quotationId, notes) {
     actionLoading.value = true;
     quotationError.value = "";
     try {
@@ -672,5 +688,7 @@ export function usePODetail(poId) {
     canUnlinkQuotation,
     unlinkDisabledByStatus,
     unlinkQuotation,
+    canCreatePR,
+    createPR
   };
 }

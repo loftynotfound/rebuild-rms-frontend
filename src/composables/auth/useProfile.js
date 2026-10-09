@@ -33,11 +33,6 @@ export function useAdminProfile() {
     form.region_id = data.admin_ref_region ?? null;
     form.pic = data.admin_pic ?? "no";
     form.pic_client = data.admin_pic_client ?? "no";
-    form.signature =
-      data.admin_signature ??
-      data.signature ??
-      localStorage.getItem("rms_profile_signature_v7") ??
-      "";
   }
 
   async function fetchAdmin() {
@@ -53,10 +48,16 @@ export function useAdminProfile() {
       const res = await api.get(`/admins/${adminId}`);
       admin.value = res.data;
       fillForm(res.data);
-    } catch (err) {
+      try {
+        const sig = await api.get("/admins/me/signature");
+        form.signature = sig.data?.signature_file ?? "";
+      } catch {
+        form.signature = ""; // 404 = belum punya tanda tangan
+      }
+      } catch (err) {
       error.value =
         err.response?.data?.message || "Failed to load profile data";
-    } finally {
+      } finally {
       loading.value = false;
     }
   }
@@ -74,17 +75,45 @@ export function useAdminProfile() {
     }
   }
 
+  let savedSignature = "";
+
+  async function saveSignature() {
+    const blob = await (await fetch(form.signature)).blob();
+    const ext = blob.type === "image/jpeg" ? "jpg" : "png";
+
+    const fd = new FormData();
+    fd.append("file", blob, `signature.${ext}`);
+    fd.append("name_pic", form.username || admin.value?.admin_name || "");
+
+    await api.post("/admins/me/signature", fd);
+    savedSignature = form.signature;
+  }
+
   async function saveProfile() {
     saving.value = true;
     error.value = "";
     try {
       const adminId = authStore.admin?.admin_id;
-      await api.put(`/admins/${adminId}`, {
-        ...form,
-        admin_signature: form.signature,
-      });
-      if (form.signature)
-        localStorage.setItem("rms_profile_signature_v7", form.signature);
+
+      if (authStore.hasAccess("edit_other_admin")) {
+        const accountData = { ...form };
+        delete accountData.signature;
+        await api.put(`/admins/${adminId}`, {
+          email: form.email,
+          username: form.username,
+          role_id: form.role_id,
+          region_id: form.region_id,
+          pic: form.pic,
+          pic_client: form.pic_client,
+        });
+        await saveSignature();
+        await fetchAdmin();
+      }
+
+      if (form.signature && form.signature !== savedSignature) {
+        await saveSignature();
+      }
+
       await fetchAdmin();
       return true;
     } catch (err) {
@@ -93,6 +122,23 @@ export function useAdminProfile() {
     } finally {
       saving.value = false;
     }
+  }
+
+  // Ubah data URL (hasil canvas / upload) menjadi File
+  async function dataUrlToFile(dataUrl, filename) {
+    const blob = await (await fetch(dataUrl)).blob();
+    return new File([blob], filename, { type: blob.type });
+  }
+
+  async function saveSignature() {
+    if (!form.signature || !form.signature.startsWith("data:image"))
+      return true;
+    const file = await dataUrlToFile(form.signature, "signature.png");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("name_pic", form.username);
+    await api.post("/admins/me/signature", fd);
+    return true;
   }
 
   async function sendPasswordReset() {
