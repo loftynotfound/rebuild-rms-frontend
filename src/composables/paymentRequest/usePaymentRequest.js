@@ -1,8 +1,6 @@
 import { useCard, fetchDetail } from "@/composables/paymentRequest/useData";
-import { useCreate } from "@/composables/paymentRequest/useCreate";
 import { useFilter } from "@/composables/paymentRequest/useFilter";
 import { useExport } from "@/composables/paymentRequest/useExport";
-import { useStatus } from "@/composables/paymentRequest/useStatus";
 import { useStore } from "@/composables/paymentRequest/useStore";
 
 // usePaymentRequest menjadi satu pintu untuk seluruh fitur Payment Request.
@@ -11,17 +9,13 @@ import { useStore } from "@/composables/paymentRequest/useStore";
 export function usePaymentRequest() {
   const card = useCard();
   const store = useStore();
-  const create = useCreate();
   const filter = useFilter();
   const exportFns = useExport();
-  const status = useStatus();
 
   return {
     ...card,
     ...store,
-    ...create,
     ...filter,
-    ...status,
     ...exportFns,
     useCard,
     fetchDetail,

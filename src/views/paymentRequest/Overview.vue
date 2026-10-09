@@ -65,6 +65,12 @@ const isFinance = computed(() => authStore.hasAccess("finance"));
 const isApprover = computed(
   () => isChecker.value || isDirector.value || isFinance.value,
 );
+const tabRole = computed(() => {
+  if (!isApprover.value) return "requester";
+  if (isFinance.value) return "finance";
+  if (isDirector.value) return "director";
+  return "checker";
+});
 
 const REQUESTER_TABS = ["All", ...Object.values(STATUS)];
 const approverTabs = computed(() => [
@@ -686,6 +692,7 @@ const handleAction = (item, key) => {
         <Segment
           :model-value="status"
           :items="tabs"
+          :role="tabRole"
           @update:model-value="switchStatus"
         />
         <div class="mt-4">
