@@ -71,7 +71,43 @@ const searchPOs = async (keyword) => {
   }));
 };
 
-const COST_CONTROL_LIMIT = 50000000;
+const formatIDRInput = (value) => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+
+  if (!digits) return "";
+
+  return new Intl.NumberFormat("id-ID", {
+    maximumFractionDigits: 0,
+  }).format(Number(digits));
+};
+
+const parseIDRInput = (value) => {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  return digits ? Number(digits) : "";
+};
+
+const requestedAmountInput = computed({
+  get: () => formatIDRInput(form.requestedAmount),
+  set: (value) => {
+    form.requestedAmount = parseIDRInput(value);
+  },
+});
+
+const poAmountInput = computed({
+  get: () => formatIDRInput(form.poAmount),
+  set: (value) => {
+    form.poAmount = parseIDRInput(value);
+  },
+});
+
+const cogsInput = computed({
+  get: () => formatIDRInput(form.cogs),
+  set: (value) => {
+    form.cogs = parseIDRInput(value);
+  },
+});
+
+const COST_CONTROL_LIMIT = 5000000;
 const COST_CONTROL_MAX_SIZE = 10 * 1024 * 1024;
 const COST_CONTROL_TYPES = [
   "application/pdf",
@@ -95,7 +131,7 @@ const form = reactive({
   bankAccount: "",
 
   description: "",
-  totalAmount: "",
+  requestedAmount: "",
   poAmount: "",
   cogs: "",
   targetInvoiceDate: "",
@@ -144,7 +180,7 @@ let costControlFile = null;
 const isEditing = computed(() => Boolean(editingId.value));
 
 const isCostControlRequired = computed(
-  () => Number(form.totalAmount || 0) > COST_CONTROL_LIMIT,
+  () => Number(form.requestedAmount || 0) > COST_CONTROL_LIMIT,
 );
 
 const responsibleDropdownOptions = computed(() =>
@@ -290,8 +326,8 @@ const validate = (isSubmit) => {
       next.vendor = "Vendor name required.";
     }
 
-    if (!form.totalAmount) {
-      next.totalAmount = "Total amount required.";
+    if (!form.requestedAmount) {
+      next.requestedAmount = "Total amount required.";
     }
 
     if (!form.poAmount) {
@@ -318,15 +354,15 @@ const validate = (isSubmit) => {
 
 const buildPayments = () => {
   const hasFirst =
-    form.paymentStage && form.paymentType && Number(form.totalAmount) > 0;
+    form.paymentStage && form.paymentType && Number(form.requestedAmount) > 0;
   const first = hasFirst
     ? [
         {
           stage: form.paymentStage,
           type: form.paymentType,
           amount: restPayments.value.length
-            ? (firstAmount.value ?? Number(form.totalAmount))
-            : Number(form.totalAmount),
+            ? (firstAmount.value ?? Number(form.requestedAmount))
+            : Number(form.requestedAmount),
           bank: form.bankName,
           bank_account_no: form.bankAccountNumber,
           bank_account_name: form.bankAccount,
@@ -340,7 +376,7 @@ const toPayload = () => {
   const body = {
     ref_responsible: Number(form.responsible),
     description_item: form.description,
-    requested_amount: Number(form.totalAmount || 0),
+    requested_amount: Number(form.requestedAmount || 0),
     po_amount: Number(form.poAmount || 0),
     hpp: Number(form.cogs || 0),
     qout_no: form.quotationNumber,
@@ -507,7 +543,7 @@ const loadRequest = async () => {
       bankAccountNumber: first.payment_bank_account_no ?? "",
       bankAccount: first.payment_bank_account_name ?? "",
       description: pr.pr_description_item ?? "",
-      totalAmount: pr.pr_requested_amount ?? "",
+      requestedAmount: pr.pr_requested_amount ?? "",
       poAmount: pr.pr_po_amount ?? "",
       cogs: pr.pr_hpp ?? "",
       targetInvoiceDate: pr.pr_target_invoice_date || null,
@@ -804,22 +840,23 @@ watch(isCostControlRequired, (required) => {
             <!-- Total Amount -->
             <div>
               <span class="mb-1 block text-sm font-medium text-slate-600">
-                Total Amount
+                Requested Amount
                 <span class="text-red-500">*</span>
               </span>
               <input
-                v-model="form.totalAmount"
-                type="number"
+                v-model="requestedAmountInput"
+                type="text"
+                inputmode="numeric"
                 min="0"
                 placeholder="0"
                 class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
               />
               <span
-                v-if="errors.totalAmount"
+                v-if="errors.requestedAmount"
                 class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
               >
                 <Icon icon="hugeicons:alert-02" class="size-4" />
-                {{ errors.totalAmount }}
+                {{ errors.requestedAmount }}
               </span>
             </div>
 
@@ -830,8 +867,9 @@ watch(isCostControlRequired, (required) => {
                 <span class="text-red-500">*</span>
               </span>
               <input
-                v-model="form.poAmount"
-                type="number"
+                v-model="poAmountInput"
+                type="text"
+                inputmode="numeric"
                 min="0"
                 placeholder="0"
                 class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
@@ -852,8 +890,9 @@ watch(isCostControlRequired, (required) => {
                 <span class="text-red-500">*</span>
               </span>
               <input
-                v-model="form.cogs"
-                type="number"
+                v-model="cogsInput"
+                type="text"
+                inputmode="numeric"
                 min="0"
                 placeholder="0"
                 class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
