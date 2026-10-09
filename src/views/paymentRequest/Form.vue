@@ -32,14 +32,14 @@ import SubmitPR from "@/components/paymentRequest/modal/SubmitPR.vue";
 const router = useRouter();
 const route = useRoute();
 
-const { money } = usePaymentRequest();
+const {
+  money,
+} = usePaymentRequest();
 
 const authStore = useAuthStore();
 
 const {
   responsibles,
-  checkers,
-  signatureId,
   preparedBy,
   load: loadLookups,
   addResponsible,
@@ -48,8 +48,7 @@ const {
 const showSubmit = ref(false);
 const submitTarget = ref(null);
 
-const inputClass =
-  "w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400";
+const inputClass ="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400";
 
 const searchQuotations = async (keyword) => {
   const res = await api.get("/pr/quotations", { params: { keyword } });
@@ -62,9 +61,7 @@ const searchQuotations = async (keyword) => {
 };
 
 const searchPOs = async (keyword) => {
-  const res = await api.get("/pr/po-options", {
-    params: { keyword, limit: 10 },
-  });
+  const res = await api.get("/pr/po-options", { params: { keyword, limit: 10 } });
   return (res.data ?? []).map((p) => ({
     key: p.po_id,
     value: p.po_order_num,
@@ -104,7 +101,6 @@ const form = reactive({
 
   responsible: "",
   costControl: "",
-  checker: "",
 });
 
 const errors = ref({});
@@ -115,8 +111,12 @@ const serverError = ref("");
 const linkCheck = ref(null);
 const lockedQuotation = ref(false);
 const lockedPo = ref(false);
+const autoJoin = ref(false);
 const restPayments = ref([]); // draft payment ke-2 dst, dipertahankan saat update
 const firstAmount = ref(null);
+
+const fromPo = computed(() => route.query.po ?? "");
+const isFollowUp = computed(() => Boolean(refPrevious.value));
 
 const linkLocksResponsible = computed(() =>
   Boolean(linkCheck.value?.responsible?.locked),
@@ -129,15 +129,11 @@ const poLocked = computed(
     lockedPo.value ||
     ["quotation_linked", "linked_match"].includes(linkCheck.value?.code),
 );
-const isFollowUp = computed(() => Boolean(refPrevious.value));
 
 const showResponsibleModal = ref(false);
 
 const responsibleDropdownOpen = ref(false);
 const responsibleDropdown = ref(null);
-
-const checkerDropdownOpen = ref(false);
-const checkerDropdown = ref(null);
 
 const costControlInput = ref(null);
 const costControlFileName = ref("");
@@ -156,12 +152,6 @@ const responsibleDropdownOptions = computed(() =>
 const selectedResponsible = computed(() =>
   responsibles.value.find((r) => r.value === form.responsible),
 );
-const checkerDropdownOptions = computed(() => checkers.value);
-
-const selectedChecker = computed(() =>
-  checkers.value.find((c) => c.value === form.checker),
-);
-
 const selectResponsible = (value) => {
   if (responsibleLocked.value) return;
   form.responsible = value;
@@ -177,21 +167,12 @@ const handleAddResponsible = async (payload) => {
   }
 };
 
-const selectChecker = (value) => {
-  form.checker = value;
-  checkerDropdownOpen.value = false;
-};
-
 const onOutsideClick = (event) => {
   if (
     responsibleDropdown.value &&
     !responsibleDropdown.value.contains(event.target)
   ) {
     responsibleDropdownOpen.value = false;
-  }
-
-  if (checkerDropdown.value && !checkerDropdown.value.contains(event.target)) {
-    checkerDropdownOpen.value = false;
   }
 };
 
@@ -206,6 +187,7 @@ const marginPct = computed(() => {
 
   return ((margin.value / poAmount) * 100).toFixed(2);
 });
+
 
 const handleCostControl = (event) => {
   const file = event.target.files?.[0];
@@ -317,7 +299,8 @@ const validate = (isSubmit) => {
     }
 
     if (isCostControlRequired.value && !form.costControl) {
-      next.costControl = "Cost control file is required.";
+      next.costControl =
+        "Cost control file is required.";
     }
 
     if (!form.paymentStage) {
@@ -355,15 +338,16 @@ const toPayload = () => {
     ref_responsible: Number(form.responsible),
     description_item: form.description,
     requested_amount: Number(form.totalAmount || 0),
+    po_amount: Number(form.poAmount || 0),
+    hpp: Number(form.cogs || 0),
     qout_no: form.quotationNumber,
     po_no: form.poNumber,
     target_invoice_date: form.targetInvoiceDate || "",
     ref_previous_pr: refPrevious.value,
-    confirm_join_quotation: false,
+    confirm_join_quotation: autoJoin.value,
   };
   const payments = buildPayments();
-  body.po_amount = Number(form.poAmount || 0);
-  body.hpp = Number(form.cogs || 0);
+  // update: selalu kirim (mengganti draft payment); create: hanya bila ada
   if (editingId.value || payments.length) body.payments = payments;
   return body;
 };
@@ -418,10 +402,7 @@ const persist = async (isSubmit) => {
       showSubmit.value = true;
       return;
     }
-    router.push({
-      name: "payment-request-overview",
-      query: { status: "draft" },
-    });
+    router.push({ name: "payment-request-overview", query: { status: "draft" } });
   } catch (e) {
     serverError.value =
       e.response?.data?.message ?? "Failed to save the payment request.";
@@ -440,8 +421,7 @@ const loadFollowUp = async () => {
       api.get(`/pr/${ref}/payments`),
     ]);
     const prev = prRes.data;
-    if (!["approved", "completed"].includes(prev.pr_status))
-      return goOverview();
+    if (!["approved", "completed"].includes(prev.pr_status)) return goOverview();
 
     const pay = (payRes.data ?? []).at(-1) ?? {};
     refPrevious.value = prev.pr_id;
@@ -461,8 +441,23 @@ const loadFollowUp = async () => {
   }
 };
 
+// Dibuka dari tab Quotation pada halaman PO:
+//   ?po=PO-001                    -> tombol "Create PR": hanya nomor PO (soft link)
+//   ?po=PO-001&quotation=Q-001    -> "Add PR" pada baris quotation: PO + quotation
+const loadFromPO = () => {
+  form.poNumber = String(route.query.po);
+  lockedPo.value = true;
+
+  if (route.query.quotation) {
+    form.quotationNumber = String(route.query.quotation);
+    lockedQuotation.value = true;
+    autoJoin.value = true; // PR memang dimaksudkan bergabung ke grup ini
+  }
+};
+
 const loadRequest = async () => {
   if (route.query.ref && !route.query.id) return loadFollowUp();
+  if (route.query.po && !route.query.id && !route.query.ref) return loadFromPO();
   if (!route.query.id) return;
 
   try {
@@ -475,9 +470,7 @@ const loadRequest = async () => {
     const pr = prRes.data;
     if (!["draft", "revision"].includes(pr.pr_status)) return goOverview();
 
-    const drafts = (payRes.data ?? []).filter(
-      (p) => p.payment_status === "draft",
-    );
+    const drafts = (payRes.data ?? []).filter((p) => p.payment_status === "draft");
     const [first = {}, ...rest] = drafts;
 
     editingId.value = pr.pr_id;
@@ -533,6 +526,7 @@ onBeforeUnmount(() => {
 watch(isCostControlRequired, (required) => {
   if (!required) errors.value.costControl = "";
 });
+
 </script>
 
 <template>
@@ -540,17 +534,17 @@ watch(isCostControlRequired, (required) => {
     <!-- Title -->
     <div>
       <h1 class="text-2xl font-bold text-slate-800">
-        {{
-          isEditing
-            ? "Modify Request Details"
-            : isFollowUp
-              ? "Create Follow-up Request"
-              : "Create New Request"
-        }}
+        {{ isEditing ? "Modify Request Details" : isFollowUp ? "Create Follow-up Request" : "Create New Request" }}
       </h1>
       <p v-if="isFollowUp" class="mt-1 text-sm text-slate-500">
         Follow-up of request #{{ refPrevious }}. Responsible, quotation, and
         purchase order number follow the previous request.
+      </p>
+      <p v-if="fromPo" class="mt-1 text-sm text-slate-500">
+        Creating a request for PO {{ fromPo }}.
+        <span v-if="!form.quotationNumber">
+          Leave the quotation number empty to only attach this PO number.
+        </span>
       </p>
     </div>
 
@@ -618,10 +612,7 @@ watch(isCostControlRequired, (required) => {
                 :fetcher="searchQuotations"
                 :disabled="lockedQuotation"
                 placeholder="Quotation Number"
-                :class="[
-                  inputClass,
-                  lockedQuotation && 'cursor-not-allowed bg-slate-50',
-                ]"
+                :class="[inputClass, lockedQuotation && 'cursor-not-allowed bg-slate-50']"
               />
             </div>
 
@@ -635,10 +626,7 @@ watch(isCostControlRequired, (required) => {
                 :fetcher="searchPOs"
                 :disabled="poLocked"
                 placeholder="Purchase Order Number"
-                :class="[
-                  inputClass,
-                  poLocked && 'cursor-not-allowed bg-slate-50',
-                ]"
+                :class="[inputClass, poLocked && 'cursor-not-allowed bg-slate-50']"
               />
               <span
                 v-if="linkCheck && linkCheck.code !== 'empty'"
@@ -905,9 +893,7 @@ watch(isCostControlRequired, (required) => {
                   <button
                     type="button"
                     :disabled="responsibleLocked"
-                    :class="
-                      responsibleLocked && 'cursor-not-allowed bg-slate-50'
-                    "
+                    :class="responsibleLocked && 'cursor-not-allowed bg-slate-50'"
                     class="block w-full cursor-pointer rounded-sm border font-medium border-slate-200 px-3 py-2 pr-8 text-left text-sm text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
                     @click="responsibleDropdownOpen = !responsibleDropdownOpen"
                   >
@@ -918,11 +904,7 @@ watch(isCostControlRequired, (required) => {
                           : 'text-slate-400 tracking-normal'
                       "
                     >
-                      {{
-                        selectedResponsible
-                          ? selectedResponsible.label
-                          : "Responsible & COA"
-                      }}
+                      {{ selectedResponsible ? selectedResponsible.label : "Responsible & COA" }}
                     </span>
                   </button>
                   <Icon
@@ -941,10 +923,7 @@ watch(isCostControlRequired, (required) => {
                 </div>
 
                 <Label
-                  v-if="
-                    !responsibleLocked &&
-                    authStore.hasAccess('create_responsible')
-                  "
+                  v-if="!responsibleLocked && authStore.hasAccess('create_responsible')"
                   label="Add Responsible & COA"
                 >
                   <button
@@ -1035,16 +1014,10 @@ watch(isCostControlRequired, (required) => {
           </div>
         </div>
 
-        <p
-          v-if="serverError"
-          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-        >
+        <p v-if="serverError" class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
           {{ serverError }}
         </p>
-        <p
-          v-if="errors.link"
-          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-        >
+        <p v-if="errors.link" class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
           {{ errors.link }}
         </p>
 
@@ -1058,9 +1031,7 @@ watch(isCostControlRequired, (required) => {
 
     <Handler
       v-model="showResponsibleModal"
-      :responsible-options="
-        responsibles.map((r) => ({ responsible: r.name, coa: r.coa }))
-      "
+      :responsible-options="responsibles.map((r) => ({ responsible: r.name, coa: r.coa }))"
       @add="handleAddResponsible"
     />
     <SubmitPR

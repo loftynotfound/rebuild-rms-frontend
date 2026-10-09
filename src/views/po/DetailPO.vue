@@ -57,6 +57,8 @@ const {
   downloadDocument,
   showQuotationTab,
   canLinkQuotation,
+  canCreatePR,
+  createPR,
   linkedQuotations,
   quotationsLoading,
   quotationError,
@@ -1292,14 +1294,18 @@ onMounted(fetchAll);
             >
               Linked Quotations
             </h2>
-            <button
-              v-if="canLinkQuotation"
-              type="button"
-              class="rounded-sm bg-teal-500 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600"
-              @click="openLinkModal"
-            >
-              Add PR
-            </button>
+            <div class="flex items-center gap-2">
+              <button v-if="canCreatePR" type="button"
+                class="rounded-sm border border-teal-500 px-3 py-2 text-sm font-medium text-teal-600 hover:bg-teal-50"
+                @click="createPR()">
+                Create PR
+              </button>
+              <button v-if="canLinkQuotation" type="button"
+                class="rounded-sm bg-teal-500 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600"
+                @click="openLinkModal">
+                Link Quotation
+              </button>
+            </div>
           </div>
 
           <p
@@ -1356,6 +1362,11 @@ onMounted(fetchAll);
                   <td class="py-3 pr-3 text-center">{{ q.total_pr }}</td>
                   <td class="py-3 pr-3 text-center">
                     <div class="flex items-center justify-center gap-2">
+                      <button v-if="canCreatePR" type="button"
+                        class="rounded border border-teal-200 px-2.5 py-1 text-xs font-medium text-teal-600 hover:bg-teal-50"
+                        @click="createPR(q.quotation_no)">
+                        Add PR
+                      </button>
                       <button
                         type="button"
                         class="rounded border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
@@ -1753,9 +1764,7 @@ onMounted(fetchAll);
       <div
         class="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-md bg-white p-6 shadow-lg"
       >
-        <h3 class="mb-4 text-base font-semibold text-slate-800">
-          Add PR (Link Quotation)
-        </h3>
+        <h3 class="mb-4 text-base font-semibold text-slate-800">Link Quotation</h3>
         <form class="mb-4 flex gap-2" @submit.prevent="searchCandidates">
           <input
             v-model="candidateKeyword"
@@ -1803,7 +1812,7 @@ onMounted(fetchAll);
                   Already linked to {{ c.linked_po_no }}
                 </p>
                 <p v-else-if="!c.eligible" class="text-xs text-slate-400">
-                  Needs at least one completed PR
+                  Needs at least one submitted, approved, or completed PR
                 </p>
               </div>
               <button
