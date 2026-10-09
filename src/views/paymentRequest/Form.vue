@@ -32,9 +32,7 @@ import SubmitPR from "@/components/paymentRequest/modal/SubmitPR.vue";
 const router = useRouter();
 const route = useRoute();
 
-const {
-  money,
-} = usePaymentRequest();
+const { money } = usePaymentRequest();
 
 const authStore = useAuthStore();
 
@@ -48,7 +46,8 @@ const {
 const showSubmit = ref(false);
 const submitTarget = ref(null);
 
-const inputClass ="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400";
+const inputClass =
+  "w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400";
 
 const searchQuotations = async (keyword) => {
   const res = await api.get("/pr/quotations", { params: { keyword } });
@@ -61,7 +60,9 @@ const searchQuotations = async (keyword) => {
 };
 
 const searchPOs = async (keyword) => {
-  const res = await api.get("/pr/po-options", { params: { keyword, limit: 10 } });
+  const res = await api.get("/pr/po-options", {
+    params: { keyword, limit: 10 },
+  });
   return (res.data ?? []).map((p) => ({
     key: p.po_id,
     value: p.po_order_num,
@@ -188,7 +189,6 @@ const marginPct = computed(() => {
   return ((margin.value / poAmount) * 100).toFixed(2);
 });
 
-
 const handleCostControl = (event) => {
   const file = event.target.files?.[0];
 
@@ -268,6 +268,10 @@ const validate = (isSubmit) => {
     next.responsible = "Responsible & COA required.";
   }
 
+  if (!form.quotationNumber.trim()) {
+    next.quotationNumber = "Quotation number required.";
+  }
+
   if (!form.description) {
     next.description = "Description required.";
   }
@@ -299,8 +303,7 @@ const validate = (isSubmit) => {
     }
 
     if (isCostControlRequired.value && !form.costControl) {
-      next.costControl =
-        "Cost control file is required.";
+      next.costControl = "Cost control file is required.";
     }
 
     if (!form.paymentStage) {
@@ -402,7 +405,10 @@ const persist = async (isSubmit) => {
       showSubmit.value = true;
       return;
     }
-    router.push({ name: "payment-request-overview", query: { status: "draft" } });
+    router.push({
+      name: "payment-request-overview",
+      query: { status: "draft" },
+    });
   } catch (e) {
     serverError.value =
       e.response?.data?.message ?? "Failed to save the payment request.";
@@ -421,7 +427,8 @@ const loadFollowUp = async () => {
       api.get(`/pr/${ref}/payments`),
     ]);
     const prev = prRes.data;
-    if (!["approved", "completed"].includes(prev.pr_status)) return goOverview();
+    if (!["approved", "completed"].includes(prev.pr_status))
+      return goOverview();
 
     const pay = (payRes.data ?? []).at(-1) ?? {};
     refPrevious.value = prev.pr_id;
@@ -457,7 +464,8 @@ const loadFromPO = () => {
 
 const loadRequest = async () => {
   if (route.query.ref && !route.query.id) return loadFollowUp();
-  if (route.query.po && !route.query.id && !route.query.ref) return loadFromPO();
+  if (route.query.po && !route.query.id && !route.query.ref)
+    return loadFromPO();
   if (!route.query.id) return;
 
   try {
@@ -470,7 +478,9 @@ const loadRequest = async () => {
     const pr = prRes.data;
     if (!["draft", "revision"].includes(pr.pr_status)) return goOverview();
 
-    const drafts = (payRes.data ?? []).filter((p) => p.payment_status === "draft");
+    const drafts = (payRes.data ?? []).filter(
+      (p) => p.payment_status === "draft",
+    );
     const [first = {}, ...rest] = drafts;
 
     editingId.value = pr.pr_id;
@@ -526,7 +536,6 @@ onBeforeUnmount(() => {
 watch(isCostControlRequired, (required) => {
   if (!required) errors.value.costControl = "";
 });
-
 </script>
 
 <template>
@@ -534,7 +543,13 @@ watch(isCostControlRequired, (required) => {
     <!-- Title -->
     <div>
       <h1 class="text-2xl font-bold text-slate-800">
-        {{ isEditing ? "Modify Request Details" : isFollowUp ? "Create Follow-up Request" : "Create New Request" }}
+        {{
+          isEditing
+            ? "Modify Request Details"
+            : isFollowUp
+              ? "Create Follow-up Request"
+              : "Create New Request"
+        }}
       </h1>
       <p v-if="isFollowUp" class="mt-1 text-sm text-slate-500">
         Follow-up of request #{{ refPrevious }}. Responsible, quotation, and
@@ -606,14 +621,26 @@ watch(isCostControlRequired, (required) => {
             <div>
               <span class="mb-1 block text-sm font-medium text-slate-600">
                 Quotation Number
+                <span class="text-red-500">*</span>
               </span>
               <Suggest
                 v-model="form.quotationNumber"
                 :fetcher="searchQuotations"
                 :disabled="lockedQuotation"
                 placeholder="Quotation Number"
-                :class="[inputClass, lockedQuotation && 'cursor-not-allowed bg-slate-50']"
+                :class="[
+                  inputClass,
+                  lockedQuotation && 'cursor-not-allowed bg-slate-50',
+                ]"
               />
+
+              <span
+                v-if="errors.quotationNumber"
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
+              >
+                <Icon icon="hugeicons:alert-02" class="size-4" />
+                {{ errors.quotationNumber }}
+              </span>
             </div>
 
             <!-- Purchase Order Number -->
@@ -626,7 +653,10 @@ watch(isCostControlRequired, (required) => {
                 :fetcher="searchPOs"
                 :disabled="poLocked"
                 placeholder="Purchase Order Number"
-                :class="[inputClass, poLocked && 'cursor-not-allowed bg-slate-50']"
+                :class="[
+                  inputClass,
+                  poLocked && 'cursor-not-allowed bg-slate-50',
+                ]"
               />
               <span
                 v-if="linkCheck && linkCheck.code !== 'empty'"
@@ -893,7 +923,9 @@ watch(isCostControlRequired, (required) => {
                   <button
                     type="button"
                     :disabled="responsibleLocked"
-                    :class="responsibleLocked && 'cursor-not-allowed bg-slate-50'"
+                    :class="
+                      responsibleLocked && 'cursor-not-allowed bg-slate-50'
+                    "
                     class="block w-full cursor-pointer rounded-sm border font-medium border-slate-200 px-3 py-2 pr-8 text-left text-sm text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
                     @click="responsibleDropdownOpen = !responsibleDropdownOpen"
                   >
@@ -904,7 +936,11 @@ watch(isCostControlRequired, (required) => {
                           : 'text-slate-400 tracking-normal'
                       "
                     >
-                      {{ selectedResponsible ? selectedResponsible.label : "Responsible & COA" }}
+                      {{
+                        selectedResponsible
+                          ? selectedResponsible.label
+                          : "Responsible & COA"
+                      }}
                     </span>
                   </button>
                   <Icon
@@ -923,7 +959,10 @@ watch(isCostControlRequired, (required) => {
                 </div>
 
                 <Label
-                  v-if="!responsibleLocked && authStore.hasAccess('create_responsible')"
+                  v-if="
+                    !responsibleLocked &&
+                    authStore.hasAccess('create_responsible')
+                  "
                   label="Add Responsible & COA"
                 >
                   <button
@@ -1014,10 +1053,16 @@ watch(isCostControlRequired, (required) => {
           </div>
         </div>
 
-        <p v-if="serverError" class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
+        <p
+          v-if="serverError"
+          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
+        >
           {{ serverError }}
         </p>
-        <p v-if="errors.link" class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
+        <p
+          v-if="errors.link"
+          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
+        >
           {{ errors.link }}
         </p>
 
@@ -1031,7 +1076,9 @@ watch(isCostControlRequired, (required) => {
 
     <Handler
       v-model="showResponsibleModal"
-      :responsible-options="responsibles.map((r) => ({ responsible: r.name, coa: r.coa }))"
+      :responsible-options="
+        responsibles.map((r) => ({ responsible: r.name, coa: r.coa }))
+      "
       @add="handleAddResponsible"
     />
     <SubmitPR
