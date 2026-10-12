@@ -1,22 +1,42 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, watch } from "vue";
 
-defineProps({
+const props = defineProps({
   modelValue: { type: String, required: true },
   items: { type: Array, required: true },
+  role: { type: String, default: "requester" },
 });
 defineEmits(["update:modelValue"]);
 
 const iconMap = {
-  All: "hugeicons:files-01",
-  draft: "hugeicons:file-edit",
-  submitted: "hugeicons:file-clock",
-  approved: "hugeicons:file-upload",
-  rejected: "hugeicons:file-remove",
-  revision: "hugeicons:file-input",
-  completed: "hugeicons:file-validation",
-  cancelled: "hugeicons:file-block",
+  // requester
+  All: "hugeicons:layers-01",
+  draft: "hugeicons:edit-02",
+  submitted: "hugeicons:sent",
+  approved: "hugeicons:checkmark-circle-02",
+  rejected: "hugeicons:cancel-circle",
+  revision: "hugeicons:refresh",
+  completed: "hugeicons:task-done-01",
+  cancelled: "hugeicons:blocked",
+  // approver
+  waiting: "hugeicons:clock-01",
+  payment: "hugeicons:wallet-01",
+  "cancel-requests": "hugeicons:alert-02",
+  history: "hugeicons:checkmark-badge-01",
 };
+
+const LABELS = {
+  checker: { waiting: "To Review", history: "Reviewed" },
+  director: { waiting: "To Approve", history: "Decision History" },
+  finance: {
+    waiting: "To Approve",
+    payment: "Payment Queue",
+    "cancel-requests": "Cancellation Requests",
+    history: "Decision History",
+  },
+};
+
+const labelOf = (item) => LABELS[props.role]?.[item.key] ?? item.label;
 
 const scrollerRef = ref(null);
 const canScrollLeft = ref(false);
@@ -93,7 +113,7 @@ onBeforeUnmount(() => {
             aria-hidden="true"
           />
 
-          {{ item.label }}
+          {{ labelOf(item) }}
 
           <span
             v-if="item.count !== undefined"
