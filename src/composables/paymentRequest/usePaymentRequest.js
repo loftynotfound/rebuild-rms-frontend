@@ -1,19 +1,16 @@
 import {
-  useList,
+  useRequest,
   STATUS,
+  PAYMENT_STATUS,
+  APPROVAL_STATUS,
   money,
   date,
   cardFromPR,
-} from "@/composables/paymentRequest/useList";
-import {
-  useDetail,
-  PAYMENT_STATUS,
-  APPROVAL_STATUS,
-} from "@/composables/paymentRequest/useDetail";
-import { useActivity } from "@/composables/paymentRequest/useActivity";
-import { useDocument } from "@/composables/paymentRequest/useDocument";
+} from "@/composables/paymentRequest/useRequest";
 import { useApproval } from "@/composables/paymentRequest/useApproval";
-import { usePayment } from "@/composables/paymentRequest/usePayment";
+import { usePayment } from "@/composables/paymentRequest/usePayment"; 
+import { useCancellation } from "@/composables/paymentRequest/useCancellation";
+import { useActivity } from "@/composables/paymentRequest/useActivity";
 import { useExport } from "@/composables/paymentRequest/useExport";
 
 export function usePaymentRequest() {
@@ -25,12 +22,11 @@ export function usePaymentRequest() {
     date,
     cardFromPR,
 
-    ...useList(),
-    ...useDetail(),
-    ...useActivity(),
-    ...useDocument(),
+    ...useRequest(),
     ...useApproval(),
     ...usePayment(),
+    ...useCancellation(),
+    ...useActivity(),
     ...useExport(),
   };
 }

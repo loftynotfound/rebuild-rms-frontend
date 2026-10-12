@@ -1,4 +1,3 @@
-```vue
 <script setup>
 import {
   computed,
@@ -12,7 +11,6 @@ import { useRoute, useRouter } from "vue-router";
 
 import { useAuthStore } from "@/stores/auth";
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
-import api from "@/js/api";
 
 import ButtonSubmit from "@/components/paymentRequest/base/ButtonSubmit.vue";
 import ButtonDraft from "@/components/paymentRequest/base/ButtonDraft.vue";
@@ -28,7 +26,22 @@ import ModalSuggest from "@/components/paymentRequest/overlay/ModalSuggest.vue";
 const router = useRouter();
 const route = useRoute();
 
-const { money } = usePaymentRequest();
+const {
+  money,
+  getPR,
+  getPayments,
+  getDocuments,
+  uploadDocument,
+  getQuotations,
+  getPoOptions,
+  checkLink,
+  createPR,
+  updatePR,
+  responsibles,
+  preparedBy,
+  loadLookups,
+  addResponsible,
+} = usePaymentRequest();
 const authStore = useAuthStore();
 
 const showSubmit = ref(false);
@@ -38,7 +51,7 @@ const inputClass =
   "w-full rounded-sm border border-slate-200 px-3 py-2 text-sm placeholder:text-slate-400 placeholder:tracking-normal tracking-tight font-medium text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400";
 
 const searchQuotations = async (keyword) => {
-  const res = await api.get("/pr/quotations", { params: { keyword } });
+  const res = await getQuotations(keyword);
 
   return (res.data ?? []).map((q) => ({
     key: q.quotation_id,
@@ -49,9 +62,7 @@ const searchQuotations = async (keyword) => {
 };
 
 const searchPOs = async (keyword) => {
-  const res = await api.get("/pr/po-options", {
-    params: { keyword, limit: 10 },
-  });
+  const res = await getPoOptions(keyword);
 
   return (res.data ?? []).map((p) => ({
     key: p.po_id,
@@ -254,7 +265,7 @@ const removeCostControl = () => {
   }
 };
 
-const checkLink = async () => {
+const runCheckLink = async () => {
   const qout = form.quotationNumber.trim();
   const po = form.poNumber.trim();
 
@@ -264,12 +275,10 @@ const checkLink = async () => {
   }
 
   try {
-    const res = await api.get("/pr/link-check", {
-      params: {
-        qout_no: qout,
-        po_no: po,
-        exclude_pr_id: editingId.value ?? 0,
-      },
+    const res = await checkLink({
+      qout_no: qout,
+      po_no: po,
+      exclude_pr_id: editingId.value ?? 0,
     });
 
     linkCheck.value = res.data;
@@ -292,7 +301,7 @@ watch(
   () => [form.quotationNumber, form.poNumber],
   () => {
     clearTimeout(linkTimer);
-    linkTimer = setTimeout(checkLink, 400);
+    linkTimer = setTimeout(runCheckLink, 400);
   },
 );
 
@@ -396,9 +405,7 @@ const toPayload = () => {
 };
 
 const send = (body) =>
-  editingId.value
-    ? api.put(`/pr/${editingId.value}`, body)
-    : api.post("/pr", body);
+  editingId.value ? updatePR(editingId.value, body) : createPR(body);
 
 const sendWithJoinConfirm = async (body) => {
   try {
@@ -438,7 +445,7 @@ const persist = async (isSubmit) => {
       fd.append("document_type", "cost_control");
       fd.append("file", costControlFile);
 
-      await api.post(`/pr/${prId}/documents`, fd);
+      await uploadDocument(prId, fd);
       costControlFile = null;
     }
 
@@ -472,8 +479,8 @@ const loadFollowUp = async () => {
     const refId = route.query.ref;
 
     const [prRes, payRes] = await Promise.all([
-      api.get(`/pr/${refId}`),
-      api.get(`/pr/${refId}/payments`),
+      getPR(refId),
+      getPayments(refId),
     ]);
 
     const prev = prRes.data;
@@ -523,9 +530,9 @@ const loadRequest = async () => {
     const id = route.query.id;
 
     const [prRes, payRes, docRes] = await Promise.all([
-      api.get(`/pr/${id}`),
-      api.get(`/pr/${id}/payments`),
-      api.get(`/pr/${id}/documents`),
+      getPR(id),
+      getPayments(id),
+      getDocuments(id),
     ]);
 
     const pr = prRes.data;

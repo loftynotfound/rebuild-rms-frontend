@@ -1,8 +1,17 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref, computed } from "vue";
-import api from "@/js/api";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
 import { useAuthStore } from "@/stores/auth";
 import Modal from "@/components/ui/Modal.vue";
+
+const {
+  getMySignature,
+  saveMySignature,
+  getCheckers,
+  getAdmin,
+  submitRequest,
+  submitManyRequests,
+} = usePaymentRequest();
 
 const props = defineProps({
   target: { type: Object, default: null },
@@ -33,7 +42,7 @@ const hasInk = ref(false);
 
 const fetchSignature = async () => {
   try {
-    const res = await api.get("/admins/me/signature");
+    const res = await getMySignature();
     signatureId.value = res.data?.signature_id ?? res.data?.id ?? null;
   } catch (e) {
     if (e.response?.status !== 404) throw e;
@@ -46,8 +55,8 @@ onMounted(async () => {
     const me = authStore.admin?.admin_id;
     const [, res, meRes] = await Promise.all([
       fetchSignature(),
-      api.get("/admins/checkers"),
-      me ? api.get(`/admins/${me}`) : null,
+      getCheckers(),
+      me ? getAdmin(me) : null,
     ]);
     adminName.value = meRes?.data?.admin_name ?? "";
     checkers.value = (res.data ?? [])
@@ -146,7 +155,7 @@ const registerSignature = async () => {
   const fd = new FormData();
   fd.append("file", blob, name);
   fd.append("name_pic", adminName.value);
-  const res = await api.post("/admins/me/signature", fd);
+  const res = await saveMySignature(fd);
 
   signatureId.value = res.data?.signature_id ?? null;
   if (!signatureId.value) await fetchSignature();
@@ -166,15 +175,17 @@ const submit = async () => {
     if (!signatureId.value) await registerSignature();
 
     if (isBulk.value) {
-      const res = await api.post("/pr/bulk-submit", {
+      const res = await submitManyRequests({
         signature_id: signatureId.value,
         default_checker_id: checker.value,
         items: list.value.map((i) => ({ pr_id: i.prId ?? i.pr_id })),
       });
       emit("done", res.data ?? []);
+      return;
     }
+
     const t = list.value[0];
-    await api.post(`/pr/${t.prId ?? t.pr_id}/submit`, {
+    await submitRequest(t.prId ?? t.pr_id, {
       checker_id: checker.value,
       signature_id: signatureId.value,
     });

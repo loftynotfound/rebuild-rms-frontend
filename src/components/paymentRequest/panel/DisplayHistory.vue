@@ -1,7 +1,9 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import api from "@/js/api";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
 import BadgeStatus from "@/components/paymentRequest/base/BadgeStatus.vue";
+
+const { getHistory } = usePaymentRequest();
 
 const props = defineProps({
   prId: { type: Number, required: true },
@@ -16,7 +18,7 @@ const fetchHistory = async () => {
   loading.value = true;
   error.value = "";
   try {
-    history.value = (await api.get(`/pr/${props.prId}/history`)).data ?? [];
+    history.value = (await getHistory(props.prId)).data ?? [];
   } catch (e) {
     error.value = e.response?.data?.message ?? "Failed to load status history.";
   } finally {

@@ -1,7 +1,10 @@
 <script setup>
 import { ref } from "vue";
-import api from "@/js/api";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
+
 import Modal from "@/components/ui/Modal.vue";
+
+const { cancelPayment } = usePaymentRequest();
 
 const props = defineProps({
   payment: { type: Object, required: true },
@@ -21,7 +24,7 @@ const submit = async () => {
   saving.value = true;
   error.value = "";
   try {
-    await api.post(`/pr/payments/${props.payment.payment_id}/cancel`, {
+    await cancelPayment(props.payment.payment_id, {
       notes: notes.value.trim(),
     });
     emit("done");
