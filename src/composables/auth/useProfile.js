@@ -52,12 +52,12 @@ export function useAdminProfile() {
         const sig = await api.get("/admins/me/signature");
         form.signature = sig.data?.signature_file ?? "";
       } catch {
-        form.signature = ""; // 404 = belum punya tanda tangan
+        form.signature = "";
       }
-      } catch (err) {
+    } catch (err) {
       error.value =
         err.response?.data?.message || "Failed to load profile data";
-      } finally {
+    } finally {
       loading.value = false;
     }
   }
@@ -70,9 +70,7 @@ export function useAdminProfile() {
       ]);
       roleOptions.value = rolesRes.data;
       regionOptions.value = regionsRes.data;
-    } catch {
-      // Dropdown options are non-critical; silently ignore, form still usable with current values
-    }
+    } catch {}
   }
 
   let savedSignature = "";
@@ -124,7 +122,6 @@ export function useAdminProfile() {
     }
   }
 
-  // Ubah data URL (hasil canvas / upload) menjadi File
   async function dataUrlToFile(dataUrl, filename) {
     const blob = await (await fetch(dataUrl)).blob();
     return new File([blob], filename, { type: blob.type });

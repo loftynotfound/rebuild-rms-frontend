@@ -2,9 +2,8 @@
 import { ref } from "vue";
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
 
-import DateInput from "@/components/paymentRequest/input/Date.vue";
+import InputDate from "@/components/paymentRequest/base/InputDate.vue";
 
-// Nilai awal tanggal diambil dari filter tanggal di Overview (boleh kosong)
 const props = defineProps({
   startDate: { type: String, default: "" },
   endDate: { type: String, default: "" },
@@ -14,25 +13,33 @@ const emit = defineEmits(["close"]);
 
 const { exportExcel } = usePaymentRequest();
 
-const form = ref({ startDate: props.startDate, endDate: props.endDate });
+const form = ref({
+  startDate: props.startDate,
+  endDate: props.endDate,
+});
+
 const exporting = ref(false);
 const exportError = ref("");
 
-// Backend mewajibkan start dan end diisi berpasangan.
-// Kalau keduanya kosong, backend mengekspor semua data.
 const validate = () => {
   const { startDate, endDate } = form.value;
 
   if (!startDate && !endDate) return "";
-  if (!startDate || !endDate)
+
+  if (!startDate || !endDate) {
     return "Start date and end date must be filled together.";
-  if (startDate > endDate) return "Start date cannot be later than end date.";
+  }
+
+  if (startDate > endDate) {
+    return "Start date cannot be later than end date.";
+  }
 
   return "";
 };
 
 const submit = async () => {
   exportError.value = validate();
+
   if (exportError.value) return;
 
   exporting.value = true;
@@ -42,9 +49,10 @@ const submit = async () => {
       startDate: form.value.startDate,
       endDate: form.value.endDate,
     });
+
     emit("close");
   } catch (err) {
-    exportError.value = err.message;
+    exportError.value = err.message ?? "Failed to export the Excel file.";
   } finally {
     exporting.value = false;
   }
@@ -61,55 +69,57 @@ const close = () => {
     @click.self="close"
   >
     <div
-      class="max-h-[90vh] w-full max-w-lg overflow-y-auto bg-white shadow-lg sm:rounded-md p-6"
+      class="max-h-[90vh] w-full max-w-lg overflow-y-auto bg-white p-6 shadow-lg sm:rounded-md"
     >
-      <div class="flex flex-col pb-3 gap-1 border-b border-slate-200">
+      <div class="flex flex-col gap-1 border-b border-slate-200 pb-3">
         <span class="text-base font-semibold text-slate-800">
           Export File .xlsx
         </span>
+
         <span class="text-sm text-slate-500">
-          Download payment requests data. Set dates empty to export all
+          Download payment requests data. Leave both dates empty to export all
           data.
         </span>
       </div>
 
-      <div class="pt-4 flex flex-col gap-4">
+      <div class="flex flex-col gap-4 pt-4">
         <div class="flex flex-col gap-2">
-          <span class="block text-sm font-medium text-slate-800">
-            Start Date
-          </span>
-          <DateInput v-model="form.startDate" placeholder="Start date" />
+          <label class="text-sm font-medium text-slate-800"> Start Date </label>
+
+          <InputDate v-model="form.startDate" placeholder="Start date" />
         </div>
+
         <div class="flex flex-col gap-2">
-          <span class="block text-sm font-medium text-slate-800">
-            End Date
-          </span>
-          <DateInput v-model="form.endDate" placeholder="End date" />
+          <label class="text-sm font-medium text-slate-800"> End Date </label>
+
+          <InputDate v-model="form.endDate" placeholder="End date" />
         </div>
       </div>
 
-      <span
+      <p
         v-if="exportError"
-        class="mb-4 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600"
+        role="alert"
+        class="mt-4 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600"
       >
         {{ exportError }}
-      </span>
+      </p>
 
       <div
-        class="pt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end"
+        class="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:items-center sm:justify-end"
       >
         <button
           type="button"
           :disabled="exporting"
-          class="w-full rounded-sm border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 cursor-pointer"
+          class="w-full cursor-pointer rounded-sm border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
           @click="close"
         >
           Cancel
         </button>
+
         <button
           type="button"
           :disabled="exporting"
-          class="w-full rounded-sm bg-teal-500 px-4 py-2 text-sm font-medium text-white hover:bg-teal-600 disabled:opacity-50 cursor-pointer"
+          class="w-full cursor-pointer rounded-sm bg-teal-500 px-4 py-2 text-sm font-medium text-white hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
           @click="submit"
         >
           {{ exporting ? "Generating..." : "Export" }}

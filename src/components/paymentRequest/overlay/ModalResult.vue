@@ -34,7 +34,7 @@ const okCount = computed(() => props.rows.length - failed.value.length);
         <button
           type="button"
           class="rounded-sm bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600"
-          @click="emite('close')"
+          @click="emit('close')"
         >
           close
         </button>

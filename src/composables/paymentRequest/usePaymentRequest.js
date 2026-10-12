@@ -1,23 +1,36 @@
-import { useCard, fetchDetail } from "@/composables/paymentRequest/useData";
-import { useFilter } from "@/composables/paymentRequest/useFilter";
+import {
+  useList,
+  STATUS,
+  money,
+  date,
+  cardFromPR,
+} from "@/composables/paymentRequest/useList";
+import {
+  useDetail,
+  PAYMENT_STATUS,
+  APPROVAL_STATUS,
+} from "@/composables/paymentRequest/useDetail";
+import { useActivity } from "@/composables/paymentRequest/useActivity";
+import { useDocument } from "@/composables/paymentRequest/useDocument";
+import { useApproval } from "@/composables/paymentRequest/useApproval";
+import { usePayment } from "@/composables/paymentRequest/usePayment";
 import { useExport } from "@/composables/paymentRequest/useExport";
-import { useStore } from "@/composables/paymentRequest/useStore";
 
-// usePaymentRequest menjadi satu pintu untuk seluruh fitur Payment Request.
-// Setiap composable tetap memiliki tanggung jawabnya masing-masing.
-// File ini hanya menggabungkan hasilnya agar mudah digunakan oleh component.
 export function usePaymentRequest() {
-  const card = useCard();
-  const store = useStore();
-  const filter = useFilter();
-  const exportFns = useExport();
-
   return {
-    ...card,
-    ...store,
-    ...filter,
-    ...exportFns,
-    useCard,
-    fetchDetail,
+    STATUS,
+    PAYMENT_STATUS,
+    APPROVAL_STATUS,
+    money,
+    date,
+    cardFromPR,
+
+    ...useList(),
+    ...useDetail(),
+    ...useActivity(),
+    ...useDocument(),
+    ...useApproval(),
+    ...usePayment(),
+    ...useExport(),
   };
 }

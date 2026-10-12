@@ -1,16 +1,19 @@
 <script setup>
 import { computed, onMounted, ref, watch } from "vue";
-import api from "@/js/api";
 import { useAuthStore } from "@/stores/auth";
-import { openDocument } from "@/composables/paymentRequest/useDownload";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
 
 import Pagination from "@/components/ui/Pagination.vue";
-import ReviewCancel from "@/components/paymentRequest/modal/ReviewCancel.vue";
+import ModalCancelReview from "@/components/paymentRequest/overlay/ModalCancelReview.vue";
+
+const { getCancelRequests, reviewCancelRequest, openDocument } =
+  usePaymentRequest();
 
 defineProps({
   money: { type: Function, required: true },
   date: { type: Function, required: true },
 });
+
 const emit = defineEmits(["changed"]);
 
 const authStore = useAuthStore();
@@ -22,6 +25,7 @@ const FILTERS = [
   { key: "rejected", label: "Rejected" },
   { key: "all", label: "All" },
 ];
+
 const STATUS_STYLE = {
   pending: "bg-amber-100 text-amber-600 border border-amber-200",
   approved: "bg-teal-100 text-teal-600 border border-teal-200",
@@ -41,16 +45,22 @@ const error = ref("");
 const fetchList = async () => {
   loading.value = true;
   error.value = "";
+
   try {
-    const res = await api.get("/pr/cancel-requests", {
-      params: { status: status.value, page: page.value, item: perPage },
+    const res = await getCancelRequests({
+      status: status.value,
+      page: page.value,
+      item: perPage,
     });
-    rows.value = res.data ?? [];
-    totalData.value = res.meta?.total_data ?? rows.value.length;
-    totalPage.value = res.meta?.total_page ?? 1;
+
+    rows.value = Array.isArray(res?.data) ? res.data : [];
+    totalData.value = res?.meta?.total_data ?? rows.value.length;
+    totalPage.value = res?.meta?.total_page ?? 1;
   } catch (e) {
     error.value =
-      e.response?.data?.message ?? "Failed to load cancellation requests.";
+      e.response?.data?.message ??
+      e.message ??
+      "Failed to load cancellation requests.";
   } finally {
     loading.value = false;
   }
@@ -70,18 +80,18 @@ const goToPage = (p) => {
 
 const viewDocument = async (row) => {
   error.value = "";
+
   try {
     await openDocument(
       `/pr/cancel-requests/${row.cancel_id}/document`,
       row.cancel_document_name,
     );
   } catch (e) {
-    error.value = e.message;
+    error.value = e.message ?? "Failed to open the document.";
   }
 };
 
-// --- review ---
-const review = ref(null); // { row, mode }
+const review = ref(null);
 const reviewLoading = ref(false);
 const reviewError = ref("");
 
@@ -91,17 +101,24 @@ const openReview = (row, mode) => {
 };
 
 const confirmReview = async (notes) => {
+  if (!review.value) return;
+
   const { row, mode } = review.value;
+
   reviewLoading.value = true;
   reviewError.value = "";
+
   try {
-    await api.post(`/pr/cancel-requests/${row.cancel_id}/${mode}`, { notes });
+    await reviewCancelRequest(row.cancel_id, mode, { notes });
+
     review.value = null;
     await fetchList();
     emit("changed");
   } catch (e) {
     reviewError.value =
-      e.response?.data?.message ?? "Failed to process the request.";
+      e.response?.data?.message ??
+      e.message ??
+      "Failed to process the request.";
   } finally {
     reviewLoading.value = false;
   }
@@ -272,7 +289,7 @@ const confirmReview = async (notes) => {
       @change="goToPage"
     />
 
-    <ReviewCancel
+    <ModalCancelReview
       v-if="review"
       :target="review.row"
       :mode="review.mode"

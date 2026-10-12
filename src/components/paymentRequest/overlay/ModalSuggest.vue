@@ -7,7 +7,6 @@ import { onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps({
   modelValue: { type: String, default: "" },
-  // async (keyword) => [{ key, value, title, subtitle }]
   fetcher: { type: Function, required: true },
   minChars: { type: Number, default: 2 },
   disabled: { type: Boolean, default: false },
@@ -20,7 +19,7 @@ const loading = ref(false);
 const root = ref(null);
 
 let timer;
-let seq = 0; // abaikan respons yang sudah usang
+let seq = 0;
 
 const search = (keyword) => {
   clearTimeout(timer);

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
-import Label from "@/components/paymentRequest/badge/Label.vue";
-import Dropdown from "@/components/paymentRequest/modal/Dropdown.vue";
+import BadgeLabel from "@/components/paymentRequest/base/BadgeLabel.vue";
+import ModalDropdown from "@/components/paymentRequest/overlay/ModalDropdown.vue";
 
 const props = defineProps({
   label: { type: String, default: "Action" },
@@ -20,8 +20,6 @@ const ACTION_ICONS = {
   cancel: "hugeicons:file-block",
   "cancel-request": "hugeicons:file-block",
   "follow-up": "hugeicons:file-add",
-
-  // Let this three alone for the next development of 3 level approvals based on their account roles
   complete: "hugeicons:file-validation",
   paid: "hugeicons:file-dollar",
   date: "hugeicons:file-management",
@@ -53,7 +51,7 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
 
 <template>
   <div ref="root" class="relative inline-flex">
-    <Label :label="label" :disabled="open">
+    <BadgeLabel :label="label" :disabled="open">
       <button
         type="button"
         class="group flex cursor-pointer items-center justify-center border border-slate-200 h-8 w-8 rounded-sm text-slate-600 hover:bg-slate-100"
@@ -64,9 +62,9 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
       >
         <Icon icon="hugeicons:more-vertical" class="size-5" />
       </button>
-    </Label>
+    </BadgeLabel>
 
-    <Dropdown
+    <ModalDropdown
       v-if="open"
       :options="options"
       placement="up"

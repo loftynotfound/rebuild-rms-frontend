@@ -1,15 +1,16 @@
 <script setup>
 import { computed, ref } from "vue";
-import api from "@/js/api";
 import { useAuthStore } from "@/stores/auth";
+import api from "@/js/api";
 
-import Assign from "@/components/paymentRequest/modal/Assign.vue";
-import RecordPayment from "@/components/paymentRequest/modal/RecordPayment.vue";
-import CancelPayment from "@/components/paymentRequest/modal/CancelPayment.vue";
-import PriorityCountdown from "@/components/paymentRequest/badge/PriorityCountdown.vue";
+import ModalAssign from "@/components/paymentRequest/overlay/ModalAssign.vue";
+import ModalPayment from "@/components/paymentRequest/overlay/ModalPayment.vue";
+import ModalCancelPayment from "@/components/paymentRequest/overlay/ModalCancelPayment.vue";
+
+import BadgeCountdown from "@/components/paymentRequest/base/BadgeCountdown.vue";
 
 const props = defineProps({
-  pr: { type: Object, required: true }, // { prId, rfpNumber, description, status, totalAmount }
+  pr: { type: Object, required: true },
   payments: { type: Array, default: () => [] },
   money: { type: Function, required: true },
   date: { type: Function, required: true },
@@ -49,7 +50,6 @@ const run = async (fn, fallback) => {
   }
 };
 
-// --- konfirmasi lunas ---
 const confirmPaid = (p) => {
   if (!window.confirm(`Mark ${props.money(p.payment_amount)} as paid?`)) return;
   run(
@@ -58,7 +58,6 @@ const confirmPaid = (p) => {
   );
 };
 
-// --- tanggal prioritas ---
 const assignTarget = ref(null);
 const showAssign = ref(false);
 
@@ -81,7 +80,6 @@ const savePriorityDate = (priorityDate) =>
     "Failed to set the priority date.",
   );
 
-// --- catat & batalkan ---
 const showRecord = ref(false);
 const cancelTarget = ref(null);
 
@@ -91,7 +89,6 @@ const onDone = () => {
   emit("changed");
 };
 
-// data bank dari pembayaran terakhir sebagai nilai awal form
 const defaults = computed(() => {
   const last = [...props.payments]
     .reverse()
@@ -158,10 +155,14 @@ const defaults = computed(() => {
           </template>
         </p>
         <div
-          v-if="p.payment_status === 'pending' && p.payment_priority_date && can('finance')"
+          v-if="
+            p.payment_status === 'pending' &&
+            p.payment_priority_date &&
+            can('finance')
+          "
           class="pt-0.5"
         >
-          <PriorityCountdown :value="p.payment_priority_date" />
+          <BadgeCountdown :value="p.payment_priority_date" />
         </div>
 
         <div
@@ -209,7 +210,7 @@ const defaults = computed(() => {
       Recorded {{ money(recorded) }} of {{ money(pr.totalAmount) }} requested.
     </p>
 
-    <RecordPayment
+    <ModalPayment
       v-if="showRecord"
       :pr-id="pr.prId"
       :requested-amount="pr.totalAmount"
@@ -220,7 +221,7 @@ const defaults = computed(() => {
       @done="onDone"
     />
 
-    <CancelPayment
+    <ModalCancelPayment
       v-if="cancelTarget"
       :payment="cancelTarget"
       :money="money"
@@ -228,7 +229,7 @@ const defaults = computed(() => {
       @done="onDone"
     />
 
-    <Assign
+    <ModalAssign
       v-model="showAssign"
       :item="assignTarget"
       @confirm="savePriorityDate"

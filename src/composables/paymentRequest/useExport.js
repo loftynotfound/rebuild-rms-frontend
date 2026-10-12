@@ -1,19 +1,7 @@
 import api from "@/js/api";
 
-// Menyimpan Blob (isi file dari backend) menjadi file unduhan di browser.
-const downloadFile = (blob, filename) => {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-};
-
-// Saat backend membalas error (400/403/404), isinya JSON tetapi diterima
-// sebagai Blob. Fungsi ini membukanya agar pesan dari backend bisa dibaca.
-const getErrorMessage = async (err) => {
-  const data = err.response?.data;
+const getErrorMessage = async (error, fallback = "Gagal memproses file.") => {
+  const data = error.response?.data;
 
   if (data instanceof Blob) {
     try {
@@ -22,11 +10,62 @@ const getErrorMessage = async (err) => {
     } catch {}
   }
 
-  return err.message ?? "Gagal mengunduh file";
+  return error.response?.data?.message ?? error.message ?? fallback;
 };
 
-// GET /api/pr/payments/export -> file .xlsx
-// start_date dan end_date wajib dikirim berpasangan, kalau tidak backend membalas 400.
+const saveBlob = (blob, filename) => {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+};
+
+const fetchBlob = async (url, params) => {
+  try {
+    return await api.get(url, {
+      params,
+      responseType: "blob",
+    });
+  } catch (error) {
+    throw new Error(await getErrorMessage(error));
+  }
+};
+
+const downloadFile = async (url, filename, params) => {
+  const blob = await fetchBlob(url, params);
+  saveBlob(blob, filename);
+};
+
+const openDocument = async (url, filename) => {
+  const win = window.open("", "_blank");
+
+  try {
+    const blob = await fetchBlob(url);
+
+    if (win && /^(application\/pdf|image\/)/.test(blob.type)) {
+      const objectUrl = URL.createObjectURL(blob);
+
+      win.location.href = objectUrl;
+
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60_000);
+      return;
+    }
+
+    win?.close();
+    saveBlob(blob, filename);
+  } catch (error) {
+    win?.close();
+    throw error;
+  }
+};
+
 const exportExcel = async ({ startDate, endDate } = {}) => {
   const params = {};
 
@@ -36,33 +75,32 @@ const exportExcel = async ({ startDate, endDate } = {}) => {
   }
 
   try {
-    const blob = await api.get("/pr/payments/export", {
-      params,
-      responseType: "blob",
-    });
-
-    downloadFile(blob, "payment-request-summary.xlsx");
-  } catch (err) {
-    throw new Error(await getErrorMessage(err));
+    const blob = await fetchBlob("/pr/payments/export", params);
+    saveBlob(blob, "payment-request-summary.xlsx");
+  } catch (error) {
+    throw new Error(await getErrorMessage(error, "Gagal mengekspor Excel."));
   }
 };
 
-// GET /api/pr/{id}/export -> file .docx
 const exportWord = async (item) => {
   try {
-    const blob = await api.get(`/pr/${item.prId}/export`, {
-      responseType: "blob",
-    });
+    const blob = await fetchBlob(`/pr/${item.prId}/export`);
 
-    downloadFile(
+    saveBlob(
       blob,
-      `${item.prRfpNumber || item.prId}-request-for-payment.docx`,
+      `${item.prRfpNumber || item.rfpNumber || item.prId}-request-for-payment.docx`,
     );
-  } catch (err) {
-    throw new Error(await getErrorMessage(err));
+  } catch (error) {
+    throw new Error(await getErrorMessage(error, "Gagal mengekspor Word."));
   }
 };
 
 export function useExport() {
-  return { exportExcel, exportWord };
+  return {
+    fetchBlob,
+    downloadFile,
+    openDocument,
+    exportExcel,
+    exportWord,
+  };
 }

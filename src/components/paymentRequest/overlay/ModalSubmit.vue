@@ -26,12 +26,11 @@ const signatureId = ref(null);
 const checkers = ref([]);
 const checker = ref("");
 
-const mode = ref("draw"); // draw | upload
+const mode = ref("draw");
 const file = ref(null);
 const filePreview = ref("");
 const hasInk = ref(false);
 
-// --- data dari DB ---
 const fetchSignature = async () => {
   try {
     const res = await api.get("/admins/me/signature");
@@ -61,7 +60,6 @@ onMounted(async () => {
   }
 });
 
-// --- canvas ---
 const canvas = ref(null);
 let drawing = false;
 
@@ -106,7 +104,6 @@ const clearCanvas = () => {
   hasInk.value = false;
 };
 
-// --- upload file ---
 const onFile = (e) => {
   const f = e.target.files?.[0];
   if (!f) return;
@@ -128,7 +125,6 @@ onBeforeUnmount(() => {
   if (filePreview.value) URL.revokeObjectURL(filePreview.value);
 });
 
-// --- submit ---
 const registerSignature = async () => {
   if (!adminName.value)
     throw new Error("Could not load your name. Please reload and try again.");
@@ -153,7 +149,7 @@ const registerSignature = async () => {
   const res = await api.post("/admins/me/signature", fd);
 
   signatureId.value = res.data?.signature_id ?? null;
-  if (!signatureId.value) await fetchSignature(); // cadangan bila respons berubah
+  if (!signatureId.value) await fetchSignature();
   if (!signatureId.value)
     throw new Error("Signature uploaded but could not be loaded.");
 };

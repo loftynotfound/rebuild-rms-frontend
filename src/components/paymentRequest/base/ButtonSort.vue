@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
-import Dropdown from "@/components/paymentRequest/modal/Dropdown.vue";
+import ModalDropdown from "@/components/paymentRequest/overlay/ModalDropdown.vue";
 
 const props = defineProps({
   modelValue: { type: String, default: "" },
@@ -44,7 +44,7 @@ onBeforeUnmount(() =>
       {{ selectedLabel }}
     </button>
 
-    <Dropdown
+    <ModalDropdown
       v-if="isOpen"
       :options="sortOptions"
       :model-value="modelValue"

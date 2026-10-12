@@ -9,7 +9,6 @@ const props = defineProps({
 defineEmits(["update:modelValue"]);
 
 const iconMap = {
-  // requester
   All: "hugeicons:layers-01",
   draft: "hugeicons:edit-02",
   submitted: "hugeicons:sent",
@@ -18,7 +17,6 @@ const iconMap = {
   revision: "hugeicons:refresh",
   completed: "hugeicons:task-done-01",
   cancelled: "hugeicons:blocked",
-  // approver
   waiting: "hugeicons:clock-01",
   payment: "hugeicons:wallet-01",
   "cancel-requests": "hugeicons:alert-02",

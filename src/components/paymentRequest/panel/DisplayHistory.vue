@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
 import api from "@/js/api";
-import Status from "@/components/paymentRequest/badge/Status.vue";
+import BadgeStatus from "@/components/paymentRequest/base/BadgeStatus.vue";
 
 const props = defineProps({
   prId: { type: Number, required: true },
@@ -41,10 +41,10 @@ watch(() => props.prId, fetchHistory);
     <ol v-else class="space-y-4 border-l border-slate-200 pl-4 text-sm">
       <li v-for="h in history" :key="h.history_id" class="relative">
         <span
-          class="absolute -left-[21px] top-1.5 size-2.5 rounded-full bg-teal-500"
+          class="absolute -left-5.25 top-1.5 size-2.5 rounded-full bg-teal-500"
         />
         <div class="flex flex-wrap items-center gap-1.5">
-          <Status
+          <BadgeStatus
             v-if="h.history_from_status"
             :status="h.history_from_status"
           />
@@ -53,7 +53,7 @@ watch(() => props.prId, fetchHistory);
             icon="hugeicons:arrow-right-01"
             class="size-4 text-slate-400"
           />
-          <Status :status="h.history_to_status" />
+          <BadgeStatus :status="h.history_to_status" />
         </div>
         <p
           v-if="h.history_notes"

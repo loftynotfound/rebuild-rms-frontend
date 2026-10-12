@@ -2,22 +2,20 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 
-import api from "@/js/api";
-import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
-
-import Status from "@/components/paymentRequest/badge/Status.vue";
-import Document from "@/components/paymentRequest/display/Document.vue";
-import { openDocument } from "@/composables/paymentRequest/useDownload";
-
-import Attachments from "@/components/paymentRequest/display/Attachments.vue";
-import Comments from "@/components/paymentRequest/display/Comments.vue";
-import StatusHistory from "@/components/paymentRequest/display/StatusHistory.vue";
-
-import PaymentsPanel from "@/components/paymentRequest/display/PaymentsPanel.vue";
-import EditAmounts from "@/components/paymentRequest/modal/EditAmounts.vue";
-
 import { useAuthStore } from "@/stores/auth";
-import ExportWord from "@/components/paymentRequest/button/ExportWord.vue";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
+import api from "@/js/api";
+
+import ModalAmounts from "@/components/paymentRequest/overlay/ModalAmounts.vue";
+
+import BadgeStatus from "@/components/paymentRequest/base/BadgeStatus.vue";
+import ButtonWord from "@/components/paymentRequest/base/ButtonWord.vue";
+
+import DisplayDocument from "@/components/paymentRequest/panel/DisplayDocument.vue";
+import DisplayAttachment from "@/components/paymentRequest/panel/DisplayAttachment.vue";
+import DisplayComment from "@/components/paymentRequest/panel/DisplayComment.vue";
+import DisplayHistory from "@/components/paymentRequest/panel/DisplayHistory.vue";
+import DisplayPayment from "@/components/paymentRequest/panel/DisplayPayment.vue";
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -38,32 +36,37 @@ const canEditAmounts = computed(
 
 const dateOrDash = (value) => (value ? date(value) : "-");
 
-const humanize = (s) =>
-  (s ?? "")
+const humanize = (value) =>
+  (value ?? "")
     .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
 const sum = (list) =>
-  list.reduce((total, p) => total + Number(p.payment_amount || 0), 0);
+  list.reduce(
+    (total, payment) => total + Number(payment.payment_amount || 0),
+    0,
+  );
 
 const cancelRequests = ref([]);
 const docError = ref("");
 
-const viewCancelDoc = async (c) => {
+const viewCancelDoc = async (cancelRequest) => {
   docError.value = "";
+
   try {
     await openDocument(
-      `/pr/cancel-requests/${c.cancel_id}/document`,
-      c.cancel_document_name,
+      `/pr/cancel-requests/${cancelRequest.cancel_id}/document`,
+      cancelRequest.cancel_document_name,
     );
-  } catch (e) {
-    docError.value = e.message;
+  } catch (error) {
+    docError.value = error.message;
   }
 };
 
 const loadDetail = async (silent = false) => {
   const id = route.params.id;
+
   detailLoading.value = true;
   loadError.value = "";
   cancelRequests.value = [];
@@ -78,33 +81,47 @@ const loadDetail = async (silent = false) => {
       api.get(`/pr/${id}/approvals`).catch(() => null),
       api.get(`/pr/${id}/payment-chain`).catch(() => null),
       api.get(`/responsibles/${pr.pr_ref_responsible}`).catch(() => null),
-      api.get(`/pr/${id}/cancel-requests`).catch(() => null), // 403 untuk selain requester/finance
+      api.get(`/pr/${id}/cancel-requests`).catch(() => null),
     ]);
+
     cancelRequests.value = cancelRes?.data ?? [];
 
-    // Pembayaran: yang terbaru dan belum dibatalkan (sama seperti export RFP)
     payments.value = payRes?.data ?? [];
-    const live = payments.value.filter((p) => p.payment_status !== "cancelled");
-    const latest = live.at(-1) ?? payments.value.at(-1) ?? {};
 
-    // Approval: round terakhir saja
+    const livePayments = payments.value.filter(
+      (payment) => payment.payment_status !== "cancelled",
+    );
+
+    const latestPayment = livePayments.at(-1) ?? payments.value.at(-1) ?? {};
+
     approvals.value = apprRes?.data ?? [];
-    const round = Math.max(0, ...approvals.value.map((a) => a.approval_round));
+
+    const latestRound = Math.max(
+      0,
+      ...approvals.value.map((approval) => approval.approval_round),
+    );
+
     const approved = approvals.value
       .filter(
-        (a) => a.approval_round === round && a.approval_status === "approved",
+        (approval) =>
+          approval.approval_round === latestRound &&
+          approval.approval_status === "approved",
       )
       .sort((a, b) => a.approval_level - b.approval_level);
+
     const checked = approved[0];
     const finalApprover = approved.length > 1 ? approved.at(-1) : null;
 
-    // Total pembayaran sebelumnya: PR sebelum PR ini pada chain (urut lama -> baru)
     const chain = chainRes?.data ?? [];
-    const idx = chain.findIndex((c) => c.pr_id === pr.pr_id);
-    const previous =
-      idx > 0 ? chain.slice(0, idx).flatMap((c) => c.payments ?? []) : [];
+    const chainIndex = chain.findIndex((entry) => entry.pr_id === pr.pr_id);
+
+    const previousPayments =
+      chainIndex > 0
+        ? chain.slice(0, chainIndex).flatMap((entry) => entry.payments ?? [])
+        : [];
+
     const totalPreviousPayment = sum(
-      previous.filter((p) => p.payment_status === "paid"),
+      previousPayments.filter((payment) => payment.payment_status === "paid"),
     );
 
     const marginPct =
@@ -117,17 +134,17 @@ const loadDetail = async (silent = false) => {
       companyName: pr.responsible_name,
 
       rfpNumber: pr.pr_rfp_no,
-      rfpType: humanize(latest.payment_stage),
+      rfpType: humanize(latestPayment.payment_stage),
       createdAt: pr.pr_create_date,
-      rfpDate: pr.pr_create_date, // pr_rfp_date belum diisi oleh backend
+      rfpDate: pr.pr_create_date,
       quotationNumber: pr.quotation_no || pr.pr_qout_no || "",
       poNumber: pr.pr_po_no || "PO BELUM RELEASE",
       poNoRaw: pr.pr_po_no || "",
 
-      paymentType: humanize(latest.payment_type),
-      bankName: latest.payment_bank ?? "",
-      bankAccountNumber: latest.payment_bank_account_no ?? "",
-      bankAccountName: latest.payment_bank_account_name ?? "",
+      paymentType: humanize(latestPayment.payment_type),
+      bankName: latestPayment.payment_bank ?? "",
+      bankAccountNumber: latestPayment.payment_bank_account_no ?? "",
+      bankAccountName: latestPayment.payment_bank_account_name ?? "",
 
       description: pr.pr_description_item,
       totalAmount: pr.pr_requested_amount,
@@ -143,19 +160,24 @@ const loadDetail = async (silent = false) => {
       preparedBy: pr.admin_name,
       reviewedBy: checked?.admin_name ?? "",
       approvedBy: finalApprover?.admin_name ?? "",
-      postedBy: latest.payment_status === "paid" ? latest.admin_paid_name : "",
+      postedBy:
+        latestPayment.payment_status === "paid"
+          ? latestPayment.admin_paid_name
+          : "",
     };
-  } catch (e) {
+  } catch (error) {
     loadError.value =
-      e.response?.status === 404
+      error.response?.status === 404
         ? "Payment request not found."
-        : (e.response?.data?.message ?? "Failed to load the payment request.");
+        : (error.response?.data?.message ??
+          "Failed to load the payment request.");
   } finally {
     detailLoading.value = false;
   }
 };
 
 onMounted(() => loadDetail());
+
 watch(
   () => route.params.id,
   () => loadDetail(),
@@ -167,7 +189,7 @@ watch(
     <div class="flex items-center justify-between gap-4">
       <div class="flex items-center gap-2">
         <h1 class="text-2xl font-semibold text-slate-800">Detail</h1>
-        <Status :status="item.status" />
+        <BadgeStatus :status="item.status" />
       </div>
 
       <div class="flex items-center gap-2">
@@ -179,34 +201,34 @@ watch(
         >
           Edit Amounts
         </button>
-        <ExportWord v-if="authStore.hasAccess('export_pr')" :item="item" />
+
+        <ButtonWord v-if="authStore.hasAccess('export_pr')" :item="item" />
       </div>
     </div>
 
-    <div class="flex flex-col gap-4 px-6 py-6 bg-white border border-slate-200">
-      <!-- Request information -->
+    <div class="flex flex-col gap-4 border border-slate-200 bg-white px-6 py-6">
       <div>
-        <div class="py-2 border-y border-slate-200">
-          <h2 class="text-sm text-slate-900 font-medium">
+        <div class="border-y border-slate-200 py-2">
+          <h2 class="text-sm font-medium text-slate-900">
             Request For Payment Number:
-            <span class="text-slate-600 font-normal">
+            <span class="font-normal text-slate-600">
               {{ item.rfpNumber }}
             </span>
           </h2>
         </div>
 
-        <div class="pt-2 grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 pt-2">
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Type:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.rfpType || "-" }}
               </span>
             </div>
 
             <div class="flex flex-col">
               <span class="text-slate-600">Date:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ dateOrDash(item.createdAt || item.rfpDate) }}
               </span>
             </div>
@@ -215,14 +237,14 @@ watch(
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Quotation Number:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.quotationNumber || "-" }}
               </span>
             </div>
 
             <div class="flex flex-col">
               <span class="text-slate-600">Purchase Order Number:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.poNumber || "-" }}
               </span>
             </div>
@@ -230,31 +252,28 @@ watch(
         </div>
       </div>
 
-      <!-- Payment method -->
       <div>
-        <div>
-          <h2
-            class="py-2 border-y border-slate-200 text-sm font-semibold text-slate-900"
-          >
-            Payment Method:
-            <span class="text-slate-600 font-normal">
-              {{ item.paymentType || "-" }}
-            </span>
-          </h2>
-        </div>
+        <h2
+          class="border-y border-slate-200 py-2 text-sm font-semibold text-slate-900"
+        >
+          Payment Method:
+          <span class="font-normal text-slate-600">
+            {{ item.paymentType || "-" }}
+          </span>
+        </h2>
 
-        <div class="pt-2 grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 pt-2">
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Bank Name:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.bankName || "-" }}
               </span>
             </div>
 
             <div class="flex flex-col">
               <span class="text-slate-600">Bank Account Number:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.bankAccountNumber || "-" }}
               </span>
             </div>
@@ -263,7 +282,7 @@ watch(
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Bank Account Name:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.bankAccountName || "-" }}
               </span>
             </div>
@@ -271,34 +290,33 @@ watch(
         </div>
       </div>
 
-      <!-- Description & amounts -->
       <div>
-        <div class="py-2 border-y border-slate-200 text-sm font-normal">
-          <h2 class="text-slate-900 font-medium">Description:</h2>
+        <div class="border-y border-slate-200 py-2 text-sm">
+          <h2 class="font-medium text-slate-900">Description:</h2>
           <span class="text-slate-600">
             {{ item.description || "-" }}
           </span>
         </div>
 
-        <div class="pt-2 grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 pt-2">
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Total Amount:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ money(item.totalAmount) }}
               </span>
             </div>
 
             <div class="flex flex-col">
               <span class="text-slate-600">Purchase Order Amount:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ money(item.poAmount) }}
               </span>
             </div>
 
             <div class="flex flex-col">
               <span class="text-slate-600">COGS Amount:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ money(item.cogs) }}
               </span>
             </div>
@@ -307,21 +325,21 @@ watch(
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Total Previous Payments:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ money(item.totalPreviousPayment) }}
               </span>
             </div>
 
             <div class="flex flex-col">
               <span class="text-slate-600">Margin (Rp):</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ money(item.margin) }} ({{ item.marginPct }}%)
               </span>
             </div>
 
             <div class="flex flex-col">
               <span class="text-slate-600">Target Invoice Date:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ dateOrDash(item.targetInvoiceDate) }}
               </span>
             </div>
@@ -329,13 +347,12 @@ watch(
         </div>
       </div>
 
-      <!-- Responsible & PIC -->
       <div class="border-t border-slate-200">
-        <div class="pt-2 grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-4 pt-2">
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Responsible & COA:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.responsible || "-" }} {{ item.coa }}
               </span>
             </div>
@@ -344,7 +361,7 @@ watch(
           <div class="space-y-2 text-sm">
             <div class="flex flex-col">
               <span class="text-slate-600">Person In Charge:</span>
-              <span class="text-slate-900 font-medium">
+              <span class="font-medium text-slate-900">
                 {{ item.preparedBy || "-" }}
               </span>
             </div>
@@ -353,50 +370,59 @@ watch(
       </div>
     </div>
 
-    <!-- Approvals & payments -->
     <div class="grid gap-4 md:grid-cols-2">
       <div class="rounded-sm border border-slate-200 bg-white px-6 py-4">
         <h2 class="mb-2 text-sm font-semibold text-slate-900">Approvals</h2>
+
         <p v-if="!approvals.length" class="text-sm text-slate-400">
           Not submitted yet.
         </p>
+
         <ul v-else class="divide-y divide-slate-200 text-sm">
           <li
-            v-for="a in approvals"
-            :key="a.approval_id"
+            v-for="approval in approvals"
+            :key="approval.approval_id"
             class="space-y-1 py-2"
           >
             <div class="flex items-center justify-between gap-2">
               <span class="text-slate-600">
-                L{{ a.approval_level }} {{ a.approval_type }}
-                <span v-if="a.admin_name" class="font-medium text-slate-900">
-                  · {{ a.admin_name }}
+                L{{ approval.approval_level }} {{ approval.approval_type }}
+
+                <span
+                  v-if="approval.admin_name"
+                  class="font-medium text-slate-900"
+                >
+                  · {{ approval.admin_name }}
                 </span>
+
                 <span class="text-xs text-slate-400">
-                  (round {{ a.approval_round }})
+                  (round {{ approval.approval_round }})
                 </span>
               </span>
+
               <span class="capitalize text-slate-900">
-                {{ a.approval_status.replace("_", " ") }}
+                {{ approval.approval_status.replace("_", " ") }}
               </span>
             </div>
+
             <p
-              v-if="a.approval_notes"
+              v-if="approval.approval_notes"
               class="whitespace-pre-line text-xs text-slate-500"
             >
-              {{ a.approval_notes }}
+              {{ approval.approval_notes }}
             </p>
+
             <p
-              v-if="a.approval_decided_date"
+              v-if="approval.approval_decided_date"
               class="text-[11px] text-slate-400"
             >
-              {{ date(a.approval_decided_date) }}
+              {{ date(approval.approval_decided_date) }}
             </p>
           </li>
         </ul>
       </div>
 
-      <PaymentsPanel
+      <DisplayPayment
         :pr="{
           prId: item.prId,
           rfpNumber: item.rfpNumber,
@@ -418,56 +444,70 @@ watch(
       <h2 class="mb-2 text-sm font-semibold text-slate-900">
         Cancellation Requests
       </h2>
-      <p v-if="docError" class="mb-2 text-xs text-red-500">{{ docError }}</p>
+
+      <p v-if="docError" class="mb-2 text-xs text-red-500">
+        {{ docError }}
+      </p>
+
       <ul class="divide-y divide-slate-200 text-sm">
         <li
-          v-for="c in cancelRequests"
-          :key="c.cancel_id"
+          v-for="cancelRequest in cancelRequests"
+          :key="cancelRequest.cancel_id"
           class="space-y-1 py-3"
         >
           <div class="flex items-center justify-between gap-2">
             <span class="text-slate-600">
-              {{ date(c.cancel_create_date) }}
-              <span v-if="c.requester_name" class="text-slate-900">
-                · {{ c.requester_name }}
+              {{ date(cancelRequest.cancel_create_date) }}
+
+              <span v-if="cancelRequest.requester_name" class="text-slate-900">
+                · {{ cancelRequest.requester_name }}
               </span>
             </span>
-            <span class="capitalize font-medium text-slate-900">
-              {{ c.cancel_status }}
+
+            <span class="font-medium capitalize text-slate-900">
+              {{ cancelRequest.cancel_status }}
             </span>
           </div>
+
           <p class="whitespace-pre-line text-slate-600">
-            {{ c.cancel_reason }}
+            {{ cancelRequest.cancel_reason }}
           </p>
-          <p v-if="c.cancel_review_notes" class="text-xs text-slate-500">
-            Finance ({{ c.reviewer_name || "-" }}): {{ c.cancel_review_notes }}
+
+          <p
+            v-if="cancelRequest.cancel_review_notes"
+            class="text-xs text-slate-500"
+          >
+            Finance ({{ cancelRequest.reviewer_name || "-" }}):
+            {{ cancelRequest.cancel_review_notes }}
           </p>
+
           <button
             type="button"
             class="text-xs font-medium text-teal-600 hover:text-teal-700"
-            @click="viewCancelDoc(c)"
+            @click="viewCancelDoc(cancelRequest)"
           >
-            {{ c.cancel_document_name || "View document" }}
+            {{ cancelRequest.cancel_document_name || "View document" }}
           </button>
         </li>
       </ul>
     </div>
 
     <div class="grid gap-4 md:grid-cols-2">
-      <Attachments
+      <DisplayAttachment
         :pr-id="item.prId"
         :owner-id="item.ownerId"
         :status="item.status"
         :date="date"
       />
-      <StatusHistory :pr-id="item.prId" :date="date" />
+
+      <DisplayHistory :pr-id="item.prId" :date="date" />
     </div>
 
-    <Comments :pr-id="item.prId" :date="date" />
+    <DisplayComment :pr-id="item.prId" :date="date" />
 
-    <Document :item="item" :money="money" :date="date" />
+    <DisplayDocument :item="item" :money="money" :date="date" />
 
-    <EditAmounts
+    <ModalAmounts
       v-if="showEditAmounts"
       :target="{
         prId: item.prId,

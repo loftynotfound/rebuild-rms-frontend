@@ -4,7 +4,7 @@ import api from "@/js/api";
 import Modal from "@/components/ui/Modal.vue";
 
 const props = defineProps({
-  target: { type: Object, required: true }, // { prId, poAmount, cogs, poNoRaw }
+  target: { type: Object, required: true },
 });
 const emit = defineEmits(["close", "done"]);
 

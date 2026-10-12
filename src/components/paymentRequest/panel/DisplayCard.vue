@@ -1,6 +1,6 @@
 <script setup>
-import Status from "@/components/paymentRequest/badge/Status.vue";
-import Action from "@/components/paymentRequest/button/Action.vue";
+import BadgeStatus from "@/components/paymentRequest/base/BadgeStatus.vue";
+import ButtonAction from "@/components/paymentRequest/base/ButtonAction.vue";
 
 const props = defineProps({
   rows: {
@@ -60,7 +60,7 @@ const emit = defineEmits(["action", "toggle"]);
             {{ row.prRfpNumber }}
           </span>
         </div>
-        <Status :status="props.status(row)" />
+        <BadgeStatus :status="props.status(row)" />
       </div>
 
       <dl class="text-xs">
@@ -124,7 +124,7 @@ const emit = defineEmits(["action", "toggle"]);
       </dl>
 
       <div class="flex justify-end">
-        <Action
+        <ButtonAction
           :actions="props.getActions(row)"
           @action="(key) => $emit('action', row, key)"
         />

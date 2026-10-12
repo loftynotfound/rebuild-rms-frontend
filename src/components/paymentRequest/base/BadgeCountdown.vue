@@ -9,7 +9,6 @@ const DAY = 86_400_000;
 
 const startOfDay = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 
-// "2026-10-20" dibaca sebagai tanggal lokal (bukan UTC) supaya tidak bergeser sehari
 const parse = (ymd) => {
   const [y, m, d] = ymd.slice(0, 10).split("-").map(Number);
   return new Date(y, m - 1, d);

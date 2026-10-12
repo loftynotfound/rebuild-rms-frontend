@@ -4,7 +4,7 @@ import Modal from "@/components/ui/Modal.vue";
 
 const props = defineProps({
   target: { type: Object, required: true },
-  mode: { type: String, required: true }, // approve | reject
+  mode: { type: String, required: true },
   loading: { type: Boolean, default: false },
   error: { type: String, default: "" },
 });

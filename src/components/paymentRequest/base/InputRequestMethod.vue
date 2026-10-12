@@ -1,18 +1,18 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
-import Dropdown from "@/components/paymentRequest/modal/Dropdown.vue";
+import ModalDropdown from "@/components/paymentRequest/overlay/ModalDropdown.vue";
 
 const props = defineProps({
   modelValue: { type: String, default: "" },
+  error: { type: String, default: "" },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
 const options = [
-  { value: "down_payment", label: "Down Payment" },
-  { value: "full_payment", label: "Full Payment" },
-  { value: "final_payment", label: "Final Payment" },
+  { value: "transfer", label: "Transfer" },
+  { value: "cash", label: "Cash" },
 ];
 
 const open = ref(false);
@@ -27,6 +27,7 @@ const select = (value) => {
   open.value = false;
 };
 
+// Tutup dropdown kalau klik di luar komponen ini
 const onOutsideClick = (event) => {
   if (root.value && !root.value.contains(event.target)) {
     open.value = false;
@@ -42,7 +43,7 @@ onBeforeUnmount(() =>
 <template>
   <div>
     <span class="mb-1 block text-sm font-medium text-slate-600">
-      Payment Stage
+      Payment Method
       <span class="text-red-500">*</span>
     </span>
 
@@ -59,14 +60,14 @@ onBeforeUnmount(() =>
               : 'text-slate-400 tracking-normal'
           "
         >
-          {{ selectedLabel || "Payment Stage" }}
+          {{ selectedLabel || "Payment Method" }}
         </span>
       </button>
       <Icon
         icon="hugeicons:arrow-down-01"
         class="pointer-events-none absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-slate-600"
       />
-      <Dropdown
+      <ModalDropdown
         v-if="open"
         :options="options"
         :model-value="modelValue"
