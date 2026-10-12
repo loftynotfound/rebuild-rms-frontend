@@ -38,6 +38,7 @@ const {
 
 const columns = [
   { key: "no", label: "No", class: "w-16" },
+  { key: "division_code", label: "Code" },
   { key: "division_title", label: "Title" },
   { key: "action", label: "Action", class: "w-24 text-center" },
 ];
@@ -85,6 +86,13 @@ onMounted(fetchDivisions);
           empty-message="Belum ada division"
         >
           <template #default="{ row }">
+            <p
+              v-if="row.division_code"
+              class="mb-1 text-sm font-medium text-slate-500"
+            >
+              {{ row.division_code }}
+            </p>
+
             <p
               class="mb-3 wrap-break-word text-lg font-semibold text-slate-800"
             >
@@ -232,13 +240,28 @@ onMounted(fetchDivisions);
         </p>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700"
-            >Title</label
-          >
+          <label class="mb-1 block text-sm font-medium text-slate-700">
+            Division Code <span class="text-red-500">*</span>
+          </label>
+          <input
+            v-model="form.code"
+            type="text"
+            required
+            maxlength="20"
+            class="w-full rounded-sm border border-slate-300 px-3 py-2 text-sm uppercase focus:border-teal-500 focus:outline-none"
+            placeholder="e.g. WH, SLS, FIN, IT"
+          />
+        </div>
+
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">
+            Title <span class="text-red-500">*</span>
+          </label>
           <input
             v-model="form.title"
             type="text"
             required
+            maxlength="100"
             class="w-full rounded-sm border border-slate-300 px-3 py-2 text-sm focus:border-teal-500 focus:outline-none"
             placeholder="Enter division title"
           />

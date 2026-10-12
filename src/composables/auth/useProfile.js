@@ -1,4 +1,4 @@
-import { ref, reactive, computed, onMounted } from "vue";
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import api from "@/js/api";
@@ -15,6 +15,9 @@ export function useAdminProfile() {
 
   const roleOptions = ref([]);
   const regionOptions = ref([]);
+
+  // URL gambar tanda tangan dari server (Object URL dari blob)
+  const signatureUrl = ref("");
 
   const form = reactive({
     email: "",
@@ -35,6 +38,34 @@ export function useAdminProfile() {
     form.pic_client = data.admin_pic_client ?? "no";
   }
 
+  // Revoke Object URL lama untuk mencegah memory leak
+  function revokeSignatureUrl() {
+    if (signatureUrl.value && signatureUrl.value.startsWith("blob:")) {
+      URL.revokeObjectURL(signatureUrl.value);
+      signatureUrl.value = "";
+    }
+  }
+
+  // Mengambil file gambar tanda tangan dari server sebagai blob
+  async function fetchSignature() {
+    try {
+      // Cek metadata terlebih dahulu (apakah signature sudah ada di DB)
+      await api.get("/admins/me/signature");
+
+      // Jika ada, ambil file binary-nya
+      const blob = await api.get("/admins/me/signature/file", {
+        responseType: "blob",
+      });
+
+      // Revoke URL sebelumnya lalu buat Object URL baru
+      revokeSignatureUrl();
+      signatureUrl.value = URL.createObjectURL(blob);
+    } catch {
+      // 404 = belum punya tanda tangan, atau error lain
+      revokeSignatureUrl();
+    }
+  }
+
   async function fetchAdmin() {
     loading.value = true;
     error.value = "";
@@ -48,12 +79,9 @@ export function useAdminProfile() {
       const res = await api.get(`/admins/${adminId}`);
       admin.value = res.data;
       fillForm(res.data);
-      try {
-        const sig = await api.get("/admins/me/signature");
-        form.signature = sig.data?.signature_file ?? "";
-      } catch {
-        form.signature = "";
-      }
+
+      // Ambil gambar tanda tangan dari server
+      await fetchSignature();
     } catch (err) {
       error.value =
         err.response?.data?.message || "Failed to load profile data";
@@ -73,18 +101,24 @@ export function useAdminProfile() {
     } catch {}
   }
 
-  let savedSignature = "";
+  // Konversi Data URL (base64) hasil canvas/upload menjadi File object
+  async function dataUrlToFile(dataUrl, filename) {
+    const blob = await (await fetch(dataUrl)).blob();
+    return new File([blob], filename, { type: blob.type });
+  }
 
+  // Upload tanda tangan baru ke server via POST /admins/me/signature
   async function saveSignature() {
-    const blob = await (await fetch(form.signature)).blob();
-    const ext = blob.type === "image/jpeg" ? "jpg" : "png";
+    if (!form.signature || !form.signature.startsWith("data:image"))
+      return true;
 
+    const file = await dataUrlToFile(form.signature, "signature.png");
     const fd = new FormData();
-    fd.append("file", blob, `signature.${ext}`);
+    fd.append("file", file);
     fd.append("name_pic", form.username || admin.value?.admin_name || "");
 
     await api.post("/admins/me/signature", fd);
-    savedSignature = form.signature;
+    return true;
   }
 
   async function saveProfile() {
@@ -94,8 +128,6 @@ export function useAdminProfile() {
       const adminId = authStore.admin?.admin_id;
 
       if (authStore.hasAccess("edit_other_admin")) {
-        const accountData = { ...form };
-        delete accountData.signature;
         await api.put(`/admins/${adminId}`, {
           email: form.email,
           username: form.username,
@@ -104,14 +136,14 @@ export function useAdminProfile() {
           pic: form.pic,
           pic_client: form.pic_client,
         });
-        await saveSignature();
-        await fetchAdmin();
       }
 
-      if (form.signature && form.signature !== savedSignature) {
+      // Upload tanda tangan jika ada draft baru (data:image)
+      if (form.signature && form.signature.startsWith("data:image")) {
         await saveSignature();
       }
 
+      // Refresh data admin & gambar tanda tangan dari server
       await fetchAdmin();
       return true;
     } catch (err) {
@@ -120,22 +152,6 @@ export function useAdminProfile() {
     } finally {
       saving.value = false;
     }
-  }
-
-  async function dataUrlToFile(dataUrl, filename) {
-    const blob = await (await fetch(dataUrl)).blob();
-    return new File([blob], filename, { type: blob.type });
-  }
-
-  async function saveSignature() {
-    if (!form.signature || !form.signature.startsWith("data:image"))
-      return true;
-    const file = await dataUrlToFile(form.signature, "signature.png");
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("name_pic", form.username);
-    await api.post("/admins/me/signature", fd);
-    return true;
   }
 
   async function sendPasswordReset() {
@@ -175,6 +191,11 @@ export function useAdminProfile() {
     fetchOptions();
   });
 
+  // Bersihkan Object URL saat composable di-unmount
+  onBeforeUnmount(() => {
+    revokeSignatureUrl();
+  });
+
   return {
     admin,
     form,
@@ -184,6 +205,7 @@ export function useAdminProfile() {
     error,
     roleOptions,
     regionOptions,
+    signatureUrl,
     isPic,
     isPicClient,
     saveProfile,

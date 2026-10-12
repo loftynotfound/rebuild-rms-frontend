@@ -1,4 +1,3 @@
-```vue
 <script setup>
 import {
   computed,
@@ -12,10 +11,12 @@ import { useRoute, useRouter } from "vue-router";
 
 import { useAuthStore } from "@/stores/auth";
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
+import { useApproval } from "@/composables/paymentRequest/useApproval";
 import api from "@/js/api";
 
 import ButtonSubmit from "@/components/paymentRequest/base/ButtonSubmit.vue";
 import ButtonDraft from "@/components/paymentRequest/base/ButtonDraft.vue";
+import BadgeLabel from "@/components/paymentRequest/base/BadgeLabel.vue";
 import InputDate from "@/components/paymentRequest/base/InputDate.vue";
 import InputRequestMethod from "@/components/paymentRequest/base/InputRequestMethod.vue";
 import InputRequestStage from "@/components/paymentRequest/base/InputRequestStage.vue";
@@ -30,6 +31,13 @@ const route = useRoute();
 
 const { money } = usePaymentRequest();
 const authStore = useAuthStore();
+const {
+  responsibles,
+  responsibleOptions,
+  preparedBy,
+  load: loadLookups,
+  addResponsible,
+} = useApproval();
 
 const showSubmit = ref(false);
 const submitTarget = ref(null);
@@ -1175,9 +1183,7 @@ watch(isCostControlRequired, (required) => {
     <!-- Modals -->
     <ModalHandler
       v-model="showResponsibleModal"
-      :responsible-options="
-        responsibles.map((r) => ({ responsible: r.name, coa: r.coa }))
-      "
+      :responsible-options="responsibleOptions"
       @add="handleAddResponsible"
     />
 
