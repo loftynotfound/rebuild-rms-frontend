@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import api from "@/js/api";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
+
+const { getComments, addComment } = usePaymentRequest();
 
 const props = defineProps({
   prId: { type: Number, required: true },
@@ -24,7 +26,7 @@ const sending = ref(false);
 const fetchComments = async () => {
   loading.value = true;
   try {
-    comments.value = (await api.get(`/pr/${props.prId}/comments`)).data ?? [];
+    comments.value = (await getComments(props.prId)).data ?? [];
   } catch (e) {
     if (e.response?.status === 403) forbidden.value = true;
     else error.value = e.response?.data?.message ?? "Failed to load comments.";
@@ -41,7 +43,7 @@ const send = async () => {
   sending.value = true;
   error.value = "";
   try {
-    await api.post(`/pr/${props.prId}/comments`, {
+    await addComment(props.prId, {
       text: text.value.trim(),
       type: "general",
     });

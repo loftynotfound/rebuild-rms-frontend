@@ -1,7 +1,10 @@
 <script setup>
 import { computed, reactive, ref } from "vue";
-import api from "@/js/api";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
+
 import Modal from "@/components/ui/Modal.vue";
+
+const { recordPayment } = usePaymentRequest();
 
 const props = defineProps({
   prId: { type: Number, required: true },
@@ -48,7 +51,7 @@ const submit = async () => {
 
   saving.value = true;
   try {
-    await api.post(`/pr/${props.prId}/payments`, {
+    await recordPayment(props.prId, {
       stage: form.stage,
       type: form.type,
       amount: Number(form.amount),

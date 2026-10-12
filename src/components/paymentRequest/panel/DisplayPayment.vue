@@ -1,13 +1,15 @@
 <script setup>
 import { computed, ref } from "vue";
 import { useAuthStore } from "@/stores/auth";
-import api from "@/js/api";
+import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
+
+import BadgeCountdown from "@/components/paymentRequest/base/BadgeCountdown.vue";
 
 import ModalAssign from "@/components/paymentRequest/overlay/ModalAssign.vue";
 import ModalPayment from "@/components/paymentRequest/overlay/ModalPayment.vue";
 import ModalCancelPayment from "@/components/paymentRequest/overlay/ModalCancelPayment.vue";
 
-import BadgeCountdown from "@/components/paymentRequest/base/BadgeCountdown.vue";
+const { confirmPayment, updatePriorityDate } = usePaymentRequest();
 
 const props = defineProps({
   pr: { type: Object, required: true },
@@ -53,7 +55,7 @@ const run = async (fn, fallback) => {
 const confirmPaid = (p) => {
   if (!window.confirm(`Mark ${props.money(p.payment_amount)} as paid?`)) return;
   run(
-    () => api.post(`/pr/payments/${p.payment_id}/confirm`),
+    () => confirmPayment(p.payment_id),
     "Failed to confirm the payment.",
   );
 };
@@ -73,10 +75,7 @@ const openAssign = (p) => {
 
 const savePriorityDate = (priorityDate) =>
   run(
-    () =>
-      api.post(`/pr/payments/${assignTarget.value.paymentId}/priority-date`, {
-        priority_date: priorityDate,
-      }),
+    () => updatePriorityDate(assignTarget.value.paymentId, priorityDate),
     "Failed to set the priority date.",
   );
 

@@ -4,7 +4,6 @@ import { useRoute } from "vue-router";
 
 import { useAuthStore } from "@/stores/auth";
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
-import api from "@/js/api";
 
 import ModalAmounts from "@/components/paymentRequest/overlay/ModalAmounts.vue";
 
@@ -19,7 +18,16 @@ import DisplayPayment from "@/components/paymentRequest/panel/DisplayPayment.vue
 
 const authStore = useAuthStore();
 const route = useRoute();
-const { money, date } = usePaymentRequest();
+const {
+  money,
+  date,
+  getPR,
+  getPayments,
+  getApprovals,
+  getPaymentChain,
+  getResponsible,
+  getPrCancelRequests,
+} = usePaymentRequest();
 
 const item = ref(null);
 const approvals = ref([]);
@@ -55,8 +63,8 @@ const viewCancelDoc = async (cancelRequest) => {
   docError.value = "";
 
   try {
-    await openDocument(
-      `/pr/cancel-requests/${cancelRequest.cancel_id}/document`,
+    await openCancelDocument(
+      cancelRequest.cancel_id,
       cancelRequest.cancel_document_name,
     );
   } catch (error) {
@@ -74,14 +82,14 @@ const loadDetail = async (silent = false) => {
   if (!silent) item.value = null;
 
   try {
-    const pr = (await api.get(`/pr/${id}`)).data;
+    const pr = (await getPR(id)).data;
 
     const [payRes, apprRes, chainRes, respRes, cancelRes] = await Promise.all([
-      api.get(`/pr/${id}/payments`).catch(() => null),
-      api.get(`/pr/${id}/approvals`).catch(() => null),
-      api.get(`/pr/${id}/payment-chain`).catch(() => null),
-      api.get(`/responsibles/${pr.pr_ref_responsible}`).catch(() => null),
-      api.get(`/pr/${id}/cancel-requests`).catch(() => null),
+      getPayments(id).catch(() => null),
+      getApprovals(id).catch(() => null),
+      getPaymentChain(id).catch(() => null),
+      getResponsible(pr.pr_ref_responsible).catch(() => null),
+      getPrCancelRequests(id).catch(() => null),
     ]);
 
     cancelRequests.value = cancelRes?.data ?? [];

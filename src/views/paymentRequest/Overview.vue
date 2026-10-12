@@ -4,7 +4,6 @@ import { useRoute, useRouter } from "vue-router";
 
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
 import { useAuthStore } from "@/stores/auth";
-import api from "@/js/api";
 
 import ButtonCreate from "@/components/paymentRequest/base/ButtonCreate.vue";
 import ButtonExcel from "@/components/paymentRequest/base/ButtonExcel.vue";
@@ -49,6 +48,7 @@ const {
   requests,
   error: listError,
   fetchRequests,
+  fetchByStatus,
   search,
   dateFrom,
   dateTo,
@@ -56,8 +56,17 @@ const {
   page,
   perPage,
   loading,
+  getPayments,
   confirmPayment,
   updatePriorityDate,
+  getPR,
+  getMyApprovals,
+  getMyDecisions,
+  decide,
+  bulkDecide,
+  cancelPR,
+  getCancelRequests,
+  requestCancel,
 } = paymentRequest;
 
 const isChecker = computed(() => authStore.hasAccess("checker"));
@@ -159,11 +168,7 @@ const fetchApproverData = async () => {
 
   try {
     if (isFinance.value) {
-      const approvedResponse = await api.get("/pr", {
-        params: { status: "approved" },
-      });
-
-      const approved = normalizeList(approvedResponse);
+      const approved = await fetchByStatus("approved");
 
       const cancelResponse = await paymentRequest.getCancelRequests({
         status: "pending",
@@ -178,9 +183,7 @@ const fetchApproverData = async () => {
 
       const rows = await Promise.all(
         approved.map(async (pr) => {
-          const paymentResponse = await api
-            .get(`/pr/${pr.pr_id}/payments`)
-            .catch(() => null);
+          const paymentResponse = await getPayments(pr.pr_id).catch(() => null);
 
           const payments = normalizeList(paymentResponse);
 
@@ -204,10 +207,8 @@ const fetchApproverData = async () => {
     }
 
     const [pendingResponse, decidedResponse] = await Promise.all([
-      api.get("/pr/my-approvals"),
-      api.get("/pr/my-decisions", {
-        params: { page: 1, item: 100 },
-      }),
+      getMyApprovals(),
+      getMyDecisions({ page: 1, item: 100 }),
     ]);
 
     const approvals = normalizeList(pendingResponse);
@@ -215,8 +216,7 @@ const fetchApproverData = async () => {
 
     const details = await Promise.all(
       approvals.map((approval) =>
-        api
-          .get(`/pr/${approval.approval_ref_pr}`)
+        getPR(approval.approval_ref_pr)
           .then((response) => response.data)
           .catch(() => null),
       ),
@@ -282,12 +282,6 @@ const source = computed(() => {
   return [...list].sort((a, b) => Number(a.prId) - Number(b.prId));
 });
 
-/**
- * Filter & pagination untuk sumber data tab aktif.
- *
- * State search, dateFrom, dateTo, sort, page, dan perPage
- * berasal dari usePaymentRequest().
- */
 const paymentText = (item) =>
   (item.payments ?? [])
     .map(
@@ -563,7 +557,7 @@ const runDecision = async (kind, item, notes = "") => {
   actionError.value = "";
 
   try {
-    await api.post(`/pr/approvals/${item.approvalId}/${kind}`, { notes });
+    await decide(item.approvalId, kind, { notes });
 
     await refresh();
   } catch (error) {
@@ -580,7 +574,7 @@ const runBulkDecision = async (decision, notes = "") => {
   actionError.value = "";
 
   try {
-    const response = await api.post("/pr/approvals/bulk-decide", {
+    const response = await bulkDecide({
       decision,
       items: picked.map((item) => ({
         approval_id: item.approvalId,
@@ -679,7 +673,7 @@ const confirmCancel = async (notes) => {
   cancelError.value = "";
 
   try {
-    await api.post(`/pr/${cancelTarget.value.prId}/cancel`, { notes });
+    await cancelPR(cancelTarget.value.prId, { notes });
 
     closeCancel();
     await refresh();
@@ -718,10 +712,7 @@ const submitCancelRequest = async ({ reason, file }) => {
   cancelRequestError.value = "";
 
   try {
-    await api.post(
-      `/pr/${cancelRequestTarget.value.prId}/cancel-request`,
-      formData,
-    );
+    await requestCancel(cancelRequestTarget.value.prId, formData);
 
     showCancelRequest.value = false;
     await refresh();

@@ -8,17 +8,20 @@ export function useActivity() {
 
   const getHistory = (prId) => api.get(`/pr/${prId}/history`);
 
-  const getCancelRequests = (params = {}) =>
-    api.get("/pr/cancel-requests", { params });
+  const getDocuments = (prId) => api.get(`/pr/${prId}/documents`);
 
-  const reviewCancelRequest = (cancelId, mode, payload = {}) =>
-    api.post(`/pr/cancel-requests/${cancelId}/${mode}`, payload);
+  const uploadDocument = (prId, formData) =>
+    api.post(`/pr/${prId}/documents`, formData);
+
+  const deleteDocument = (prId, documentId) =>
+    api.delete(`/pr/${prId}/documents/${documentId}`);
 
   return {
     getComments,
     addComment,
     getHistory,
-    getCancelRequests,
-    reviewCancelRequest,
+    getDocuments,
+    uploadDocument,
+    deleteDocument,
   };
 }
