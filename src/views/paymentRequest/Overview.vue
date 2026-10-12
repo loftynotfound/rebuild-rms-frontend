@@ -608,27 +608,35 @@ const requesterActions = (item) => {
 };
 
 const approverActions = (item) => {
-  if (status.value === "waiting") {
-    const lvl = item.approvalLevel;
-    const approve = { key: "approve", label: "Approve" };
-    if (lvl === 1 && isChecker.value)
-      return [
-        VIEW,
-        approve,
-        { key: "revise", label: "Request Revision" },
-        { key: "reject", label: "Reject" },
-      ];
-    if (lvl === 2 && isDirector.value) return [VIEW, approve];
-    if (lvl === 3 && isFinance.value) return [VIEW, approve];
-  }
-  if (status.value === "payment" && isFinance.value)
-    return item.pendingPayment
-      ? [
+  switch (status.value) {
+    case "waiting": {
+      const lvl = item.approvalLevel;
+      const approve = { key: "approve", label: "Approve" };
+      if (lvl === 1 && isChecker.value)
+        return [
           VIEW,
-          { key: "date", label: "Set Priority Date" },
-          { key: "paid", label: "Mark As Paid" },
-        ]
-      : [VIEW];
+          approve,
+          { key: "revise", label: "Request Revision" },
+          { key: "reject", label: "Reject" },
+        ];
+      if (lvl === 2 && isDirector.value) return [VIEW, approve];
+      if (lvl === 3 && isFinance.value) return [VIEW, approve];
+      return [VIEW];
+    }
+
+    case "payment":
+      return isFinance.value && item.pendingPayment
+        ? [
+            VIEW,
+            { key: "date", label: "Set Priority Date" },
+            { key: "paid", label: "Mark As Paid" },
+          ]
+        : [VIEW];
+
+    case "history": // semua slug: lihat detail PR yang pernah diputuskan
+    default:
+      return [VIEW];
+  }
 };
 
 const getActions = (item) =>

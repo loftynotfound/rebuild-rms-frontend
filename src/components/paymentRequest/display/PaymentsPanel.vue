@@ -6,6 +6,7 @@ import { useAuthStore } from "@/stores/auth";
 import Assign from "@/components/paymentRequest/modal/Assign.vue";
 import RecordPayment from "@/components/paymentRequest/modal/RecordPayment.vue";
 import CancelPayment from "@/components/paymentRequest/modal/CancelPayment.vue";
+import PriorityCountdown from "@/components/paymentRequest/badge/PriorityCountdown.vue";
 
 const props = defineProps({
   pr: { type: Object, required: true }, // { prId, rfpNumber, description, status, totalAmount }
@@ -156,6 +157,12 @@ const defaults = computed(() => {
             {{ date(p.payment_paid_date) }}
           </template>
         </p>
+        <div
+          v-if="p.payment_status === 'pending' && p.payment_priority_date && can('finance')"
+          class="pt-0.5"
+        >
+          <PriorityCountdown :value="p.payment_priority_date" />
+        </div>
 
         <div
           v-if="p.payment_status === 'pending'"
