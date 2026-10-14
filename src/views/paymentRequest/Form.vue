@@ -14,6 +14,7 @@ import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentReques
 
 import ButtonSubmit from "@/components/paymentRequest/base/ButtonSubmit.vue";
 import ButtonDraft from "@/components/paymentRequest/base/ButtonDraft.vue";
+import BadgeLabel from "@/components/paymentRequest/base/BadgeLabel.vue";
 import InputDate from "@/components/paymentRequest/base/InputDate.vue";
 import InputRequestMethod from "@/components/paymentRequest/base/InputRequestMethod.vue";
 import InputRequestStage from "@/components/paymentRequest/base/InputRequestStage.vue";
@@ -43,6 +44,13 @@ const {
   addResponsible,
 } = usePaymentRequest();
 const authStore = useAuthStore();
+const {
+  responsibles,
+  responsibleOptions,
+  preparedBy,
+  load: loadLookups,
+  addResponsible,
+} = useApproval();
 
 const showSubmit = ref(false);
 const submitTarget = ref(null);
@@ -1182,9 +1190,7 @@ watch(isCostControlRequired, (required) => {
     <!-- Modals -->
     <ModalHandler
       v-model="showResponsibleModal"
-      :responsible-options="
-        responsibles.map((r) => ({ responsible: r.name, coa: r.coa }))
-      "
+      :responsible-options="responsibleOptions"
       @add="handleAddResponsible"
     />
 

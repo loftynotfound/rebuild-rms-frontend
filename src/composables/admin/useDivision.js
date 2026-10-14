@@ -31,6 +31,7 @@ export function useDivisions() {
   const form = ref({
     division_id: null,
     title: "",
+    code: "",
   });
 
   async function fetchDivisions() {
@@ -109,6 +110,7 @@ export function useDivisions() {
     form.value = {
       division_id: null,
       title: "",
+      code: "",
     };
     formError.value = null;
   }
@@ -128,6 +130,7 @@ export function useDivisions() {
     form.value = {
       division_id: division.division_id,
       title: division.division_title,
+      code: division.division_code ?? "",
     };
 
     showModal.value = true;
@@ -144,6 +147,7 @@ export function useDivisions() {
 
     const payload = {
       title: form.value.title,
+      code: form.value.code,
     };
 
     try {

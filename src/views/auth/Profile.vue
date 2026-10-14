@@ -10,6 +10,7 @@ const {
   error,
   roleOptions,
   regionOptions,
+  signatureUrl,
   isPic,
   isPicClient,
   saveProfile,
@@ -263,8 +264,8 @@ async function handlePasswordReset() {
               class="flex min-h-24 items-center justify-center rounded-sm border border-slate-200 bg-white p-3"
             >
               <img
-                v-if="form.signature"
-                :src="form.signature"
+                v-if="form.signature || signatureUrl"
+                :src="form.signature || signatureUrl"
                 alt="Account signature"
                 class="max-h-20 max-w-full object-contain"
               />
