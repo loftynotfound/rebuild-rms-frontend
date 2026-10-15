@@ -239,7 +239,7 @@ watch(
       <div
         v-if="isOpen"
         ref="popupEl"
-        class="z-50 overflow-y-auto rounded-md border border-slate-200 bg-white p-3 shadow-xs sm:overflow-visible"
+        class="z-50 overflow-y-auto rounded-sm border border-slate-200 bg-white p-3 shadow-xs sm:overflow-visible"
         :style="popupStyle">
         <div class="mb-2 flex items-center justify-between gap-1">
           <div class="flex items-center gap-0.5">

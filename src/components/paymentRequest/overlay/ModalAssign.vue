@@ -47,7 +47,7 @@ const confirm = () => {
     v-if="modelValue"
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
     @click.self="close">
-    <div class="w-full max-w-md rounded-xl bg-white shadow-2xl">
+    <div class="w-full max-w-md rounded-sm bg-white shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <div>
           <p class="text-xs font-semibold tracking-wide text-teal-600 uppercase">
@@ -74,7 +74,7 @@ const confirm = () => {
       </div>
 
       <div class="space-y-4 px-6 py-5">
-        <div class="rounded-lg bg-slate-50 p-4 text-sm">
+        <div class="rounded-sm bg-slate-50 p-4 text-sm">
           <p class="font-semibold text-slate-800">
             {{ item?.rfpNumber }}
           </p>
@@ -92,7 +92,7 @@ const confirm = () => {
           <input
             v-model="priorityDate"
             type="date"
-            class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100" />
+            class="w-full rounded-sm border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-100" />
 
           <p class="mt-1.5 text-xs text-slate-500">
             Tanggal kapan PR ini akan diprioritaskan untuk dibayar, bukan tanggal pembayarannya.
@@ -106,14 +106,14 @@ const confirm = () => {
         <div class="flex justify-end gap-2 pt-2">
           <button
             type="button"
-            class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            class="rounded-sm border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
             @click="close">
             Cancel
           </button>
 
           <button
             type="button"
-            class="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
+            class="rounded-sm bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700"
             @click="confirm">
             Save Priority
           </button>

@@ -10,7 +10,7 @@ const emit = defineEmits(["close"]);
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
     @click.self="emit('close')">
-    <div class="w-full max-w-xl rounded-md bg-white shadow-lg">
+    <div class="w-full max-w-xl rounded-sm bg-white shadow-lg">
       <div class="flex items-center justify-between border-b border-slate-200 px-6 py-4">
         <h2 class="text-lg font-semibold text-slate-800">{{ title }}</h2>
         <button

@@ -23,7 +23,7 @@ const { menuItems, isGroupOpen, toggleGroup, isActive, isParentActive } = useSid
         <img
           src="/src/assets/logos/logo-ruas.png"
           alt="RUAS Logo"
-          class="h-16 w-auto shrink-0 rounded-md object-contain" />
+          class="h-16 w-auto shrink-0 rounded-sm object-contain" />
       </div>
 
       <!-- Menu -->
@@ -63,7 +63,7 @@ const { menuItems, isGroupOpen, toggleGroup, isActive, isParentActive } = useSid
                   <li v-for="child in item.children" :key="child.label">
                     <router-link
                       :to="child.to"
-                      class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors"
+                      class="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold transition-colors"
                       :class="
                         isActive(child.to)
                           ? 'bg-[#119E92]/10 text-[#119E92]'
@@ -82,7 +82,7 @@ const { menuItems, isGroupOpen, toggleGroup, isActive, isParentActive } = useSid
             <template v-else>
               <router-link
                 :to="item.to"
-                class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors"
+                class="flex items-center gap-3 rounded-sm px-3 py-2.5 text-sm font-semibold transition-colors"
                 :class="
                   isActive(item.to)
                     ? 'bg-[#119E92]/10 text-[#119E92]'

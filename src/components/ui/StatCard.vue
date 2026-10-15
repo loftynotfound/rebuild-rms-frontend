@@ -25,11 +25,11 @@ defineProps({
 
 <template>
   <div
-    class="group relative cursor-pointer overflow-hidden rounded-md border-l-4 bg-white p-5 shadow-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
+    class="group relative cursor-pointer overflow-hidden rounded-sm border border-l-4 border-slate-200 bg-white p-5 shadow-xs transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
     :style="{ borderLeftColor: accent }">
     <div class="flex items-start justify-between">
       <span
-        class="hidden h-11 w-11 items-center justify-center rounded-lg transition-transform duration-200 ease-out group-hover:scale-110 sm:flex"
+        class="hidden h-11 w-11 items-center justify-center rounded-sm transition-transform duration-200 ease-out group-hover:scale-110 sm:flex"
         :style="{ backgroundColor: iconBg, color: accent }"
         aria-hidden="true">
         <slot name="icon" />

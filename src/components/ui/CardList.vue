@@ -13,7 +13,7 @@ defineProps({
   <div class="space-y-3">
     <!-- Loading State -->
     <div v-if="loading" class="space-y-3">
-      <div v-for="n in 3" :key="n" class="animate-pulse rounded-lg border border-slate-100 p-4">
+      <div v-for="n in 3" :key="n" class="animate-pulse rounded-sm border border-slate-100 p-4">
         <div class="mb-2 h-4 w-1/2 rounded bg-slate-100"></div>
         <div class="h-3 w-2/3 rounded bg-slate-100"></div>
       </div>
@@ -34,7 +34,7 @@ defineProps({
       v-for="(row, index) in rows"
       v-else
       :key="row[rowKey]"
-      class="rounded-lg border border-slate-100 p-4">
+      class="rounded-sm border border-slate-100 p-4">
       <!--
         Custom card body: pass a default slot to design the card however a given
         page needs (header + badge, grids, footers, action buttons, etc).

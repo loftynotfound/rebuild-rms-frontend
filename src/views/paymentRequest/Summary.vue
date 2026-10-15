@@ -202,7 +202,7 @@ onMounted(fetchRequests);
   <div class="space-y-4">
     <h1 class="text-2xl font-bold text-slate-800">Request Summary</h1>
 
-    <div class="rounded-md border border-slate-200 bg-white p-4 sm:p-6">
+    <div class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
       <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <h2 class="text-base font-semibold text-slate-800">Filter</h2>
 
@@ -239,11 +239,11 @@ onMounted(fetchRequests);
       </div>
     </div>
 
-    <div class="rounded-md border border-slate-200 bg-white p-4 sm:p-6">
+    <div class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
       <h2 class="mb-6 text-base font-semibold text-slate-800">Payment Request Summary</h2>
 
       <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div class="rounded-xl border border-slate-200 p-4">
+        <div class="rounded-sm border border-slate-200 p-4">
           <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Highest PR</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.highest ? summary.highest.total : "-" }}
@@ -253,7 +253,7 @@ onMounted(fetchRequests);
           </p>
         </div>
 
-        <div class="rounded-xl border border-slate-200 p-4">
+        <div class="rounded-sm border border-slate-200 p-4">
           <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Lowest PR</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.lowest ? summary.lowest.total : "-" }}
@@ -263,7 +263,7 @@ onMounted(fetchRequests);
           </p>
         </div>
 
-        <div class="rounded-xl border border-slate-200 p-4">
+        <div class="rounded-sm border border-slate-200 p-4">
           <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Average PR</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ Math.round(summary.average) }}
@@ -292,7 +292,7 @@ onMounted(fetchRequests);
       </div>
     </div>
 
-    <div class="rounded-md border border-slate-200 bg-white p-4 sm:p-6">
+    <div class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
       <h2 class="mb-6 text-base font-semibold text-slate-800">Responsible Amount Summary</h2>
 
       <div v-if="listLoading" class="flex h-64 items-center justify-center text-sm text-slate-400">
@@ -311,7 +311,7 @@ onMounted(fetchRequests);
       </div>
     </div>
 
-    <div class="rounded-md border border-slate-200 bg-white">
+    <div class="rounded-sm border border-slate-200 bg-white shadow-xs">
       <div class="p-4 pb-0 sm:p-6 sm:pb-0">
         <h2 class="mb-5 text-base font-semibold text-slate-800">Status Payment Request Report</h2>
       </div>

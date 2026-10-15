@@ -67,7 +67,7 @@ const close = () => {
   <div
     class="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 sm:items-center sm:px-4"
     @click.self="close">
-    <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto bg-white p-6 shadow-lg sm:rounded-md">
+    <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto bg-white p-6 shadow-lg sm:rounded-sm">
       <div class="flex flex-col gap-1 border-b border-slate-200 pb-3">
         <span class="text-base font-semibold text-slate-800"> Export File .xlsx </span>
 

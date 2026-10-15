@@ -40,7 +40,7 @@ watch(() => props.prId, fetchHistory);
 
     <ol v-else class="space-y-4 border-l border-slate-200 pl-4 text-sm">
       <li v-for="h in history" :key="h.history_id" class="relative">
-        <span class="absolute top-1.5 -left-5.25 size-2.5 rounded-full bg-teal-500" />
+        <span class="absolute top-1.5 -left-5.25 size-2.5 rounded-sm bg-teal-500" />
         <div class="flex flex-wrap items-center gap-1.5">
           <BadgeStatus v-if="h.history_from_status" :status="h.history_from_status" />
           <Icon

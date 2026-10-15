@@ -140,21 +140,21 @@ async function handlePasswordReset() {
     <!-- Loading State -->
     <div
       v-if="loading"
-      class="rounded-md border border-slate-200 bg-white p-12 text-center text-sm text-slate-400">
+      class="rounded-sm border border-slate-200 bg-white p-12 text-center text-sm text-slate-400">
       Loading...
     </div>
 
     <!-- Error State (no data loaded at all) -->
     <div
       v-else-if="error && !form.email"
-      class="rounded-md border border-slate-200 bg-white p-12 text-center text-sm text-red-500">
+      class="rounded-sm border border-slate-200 bg-white p-12 text-center text-sm text-red-500">
       {{ error }}
     </div>
 
     <!-- Form -->
     <form
       v-else
-      class="rounded-md border border-slate-200 bg-white shadow-sm"
+      class="rounded-sm border border-slate-200 bg-white shadow-sm"
       @submit.prevent="handleSave">
       <div class="grid grid-cols-1 gap-x-6 gap-y-5 px-4 py-4 sm:grid-cols-2 sm:px-6 sm:py-6">
         <!-- Email -->

@@ -51,7 +51,7 @@ onMounted(fetchAdmins);
   <div class="space-y-4">
     <h1 class="text-2xl font-bold text-slate-800">Admin List</h1>
 
-    <div class="rounded-md bg-white shadow-sm">
+    <div class="rounded-sm border border-slate-200 bg-white shadow-xs">
       <div class="flex justify-end px-4 pt-4 sm:px-6 sm:pt-6">
         <button
           v-if="authStore.hasAccess('create_new_admin')"
@@ -83,7 +83,7 @@ onMounted(fetchAdmins);
           row-key="admin_id"
           empty-message="Belum ada data admin">
           <template #default="{ row }">
-            <p class="mb-1 text-lg font-semibold break-words text-slate-800">
+            <p class="mb-1 text-lg font-semibold wrap-break-word text-slate-800">
               {{ row.admin_name }}
             </p>
             <p class="mb-1 text-sm text-slate-500">
@@ -103,7 +103,7 @@ onMounted(fetchAdmins);
               <button
                 v-if="authStore.hasAccess('edit_other_admin')"
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-md border border-yellow-400 bg-white px-3 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-50"
+                class="flex items-center justify-center gap-1.5 rounded-sm border border-yellow-400 bg-white px-3 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-50"
                 aria-label="Edit admin"
                 @click="handleEdit(row)">
                 <svg
@@ -126,7 +126,7 @@ onMounted(fetchAdmins);
                   row.admin_active === 'active' && authStore.hasAccess('deactivate_other_admin')
                 "
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-md border border-red-400 bg-white px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
+                class="flex items-center justify-center gap-1.5 rounded-sm border border-red-400 bg-white px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
                 aria-label="Nonaktifkan admin"
                 @click="handleDeactivate(row)">
                 <svg
@@ -148,7 +148,7 @@ onMounted(fetchAdmins);
                 <button
                   v-if="authStore.hasAccess('deactivate_other_admin')"
                   type="button"
-                  class="flex items-center justify-center gap-1.5 rounded-md border border-emerald-500 bg-white px-3 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50"
+                  class="flex items-center justify-center gap-1.5 rounded-sm border border-emerald-500 bg-white px-3 py-2 text-sm font-medium text-emerald-600 hover:bg-emerald-50"
                   aria-label="Aktifkan admin"
                   @click="handleActivate(row)">
                   <svg
@@ -169,7 +169,7 @@ onMounted(fetchAdmins);
                 <button
                   v-if="authStore.hasAccess('resend_admin_activation')"
                   type="button"
-                  class="col-span-2 flex items-center justify-center gap-1.5 rounded-md border border-sky-500 bg-white px-3 py-2 text-sm font-medium text-sky-600 hover:bg-sky-50"
+                  class="col-span-2 flex items-center justify-center gap-1.5 rounded-sm border border-sky-500 bg-white px-3 py-2 text-sm font-medium text-sky-600 hover:bg-sky-50"
                   aria-label="Kirim ulang email aktivasi"
                   @click="handleResendActivation(row)">
                   <svg

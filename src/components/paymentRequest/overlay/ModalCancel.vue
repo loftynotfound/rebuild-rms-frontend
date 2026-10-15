@@ -26,7 +26,7 @@ const confirm = () => {
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
     @click.self="emit('close')">
-    <div class="w-full max-w-md rounded-xl bg-white shadow-2xl">
+    <div class="w-full max-w-md rounded-sm bg-white shadow-2xl">
       <div class="border-b border-slate-200 px-6 py-4">
         <h2 class="text-lg font-semibold text-slate-800">Cancel Payment Request</h2>
       </div>
@@ -34,7 +34,7 @@ const confirm = () => {
       <div class="space-y-3 px-6 py-5 text-sm text-slate-600">
         <p>Are you sure you want to cancel this payment request?</p>
 
-        <div class="rounded-lg bg-slate-50 p-3">
+        <div class="rounded-sm bg-slate-50 p-3">
           <p class="font-semibold text-slate-800">
             {{ target?.prRfpNumber }}
           </p>

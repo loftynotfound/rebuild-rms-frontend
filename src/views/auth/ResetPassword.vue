@@ -26,7 +26,7 @@ const showConfirmPassword = ref(false);
 <template>
   <div
     class="flex min-h-screen items-center justify-center bg-linear-to-br from-[#17BDAF] to-[#119E92] p-4">
-    <div class="w-full max-w-md rounded-md bg-white p-8 shadow-xl">
+    <div class="w-full max-w-md rounded-sm bg-white p-8 shadow-xl">
       <!-- Logo -->
       <div class="mb-6 flex flex-col items-center">
         <h1 class="text-lg font-bold text-slate-700">{{ pageTitle }}</h1>

@@ -55,7 +55,7 @@ onMounted(fetchClients);
   <div class="space-y-4">
     <h1 class="text-2xl font-bold text-slate-800">Client List</h1>
 
-    <div class="rounded-md bg-white shadow-sm">
+    <div class="rounded-sm border border-slate-200 bg-white shadow-xs">
       <div class="flex justify-end px-4 pt-4 sm:px-6 sm:pt-6">
         <button
           v-if="authStore.hasAccess('create_client')"
@@ -92,7 +92,7 @@ onMounted(fetchClients);
                 {{ row.client_name }}
               </p>
               <span
-                class="inline-flex shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                class="inline-flex shrink-0 items-center rounded-sm px-2.5 py-0.5 text-xs font-medium"
                 :class="
                   row.client_active === 'yes'
                     ? 'bg-teal-50 text-teal-600'
@@ -113,7 +113,7 @@ onMounted(fetchClients);
               <button
                 v-if="authStore.hasAccess('edit_client')"
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-md border border-yellow-400 bg-white px-3 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-50"
+                class="flex items-center justify-center gap-1.5 rounded-sm border border-yellow-400 bg-white px-3 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-50"
                 aria-label="Edit client"
                 @click="handleEdit(row)">
                 <svg
@@ -134,7 +134,7 @@ onMounted(fetchClients);
               <button
                 v-if="authStore.hasAccess('delete_client')"
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-md border border-red-400 bg-white px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
+                class="flex items-center justify-center gap-1.5 rounded-sm border border-red-400 bg-white px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
                 aria-label="Hapus client"
                 @click="handleDelete(row)">
                 <svg
@@ -168,7 +168,7 @@ onMounted(fetchClients);
           <template #client_active="{ row }">
             <div class="flex justify-center">
               <span
-                class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                class="inline-flex items-center rounded-sm px-2.5 py-0.5 text-xs font-medium"
                 :class="
                   row.client_active === 'yes'
                     ? 'bg-teal-50 text-teal-600'

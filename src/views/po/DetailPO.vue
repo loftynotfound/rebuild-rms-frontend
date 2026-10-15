@@ -136,7 +136,7 @@ onMounted(fetchAll);
     <div v-if="loading" class="py-16 text-center text-sm text-slate-400">
       Loading Purchase Order...
     </div>
-    <div v-else-if="error && !po" class="rounded-md bg-red-50 px-4 py-3 text-sm text-red-600">
+    <div v-else-if="error && !po" class="rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
       {{ error }}
     </div>
 
@@ -148,12 +148,12 @@ onMounted(fetchAll);
             {{ po.po_id }}
           </h1>
         </div>
-        <span class="text-md rounded-full px-3 py-1 font-semibold" :class="badgeClass">{{
+        <span class="text-md rounded-sm px-3 py-1 font-semibold" :class="badgeClass">{{
           statusLabel
         }}</span>
       </div>
 
-      <p v-if="error" class="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-600">
+      <p v-if="error" class="mb-4 rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
         {{ error }}
       </p>
 
@@ -232,7 +232,7 @@ onMounted(fetchAll);
           <!-- Purchase Order Info -->
           <div>
             <h2 class="mb-3 text-sm font-semibold text-slate-800">Purchase Order Info</h2>
-            <div class="rounded-md border border-slate-200 bg-white p-5 text-sm">
+            <div class="rounded-sm border border-slate-200 bg-white p-5 text-sm shadow-xs">
               <p class="text-slate-800">
                 <span class="font-bold">Purchase Order ID : </span>{{ po.po_id }}
               </p>
@@ -253,7 +253,7 @@ onMounted(fetchAll);
           <!-- Client Info -->
           <div>
             <h2 class="mb-3 text-sm font-semibold text-slate-800">Client Info</h2>
-            <div class="rounded-md border border-slate-200 bg-white p-5 text-sm">
+            <div class="rounded-sm border border-slate-200 bg-white p-5 text-sm shadow-xs">
               <p v-if="po.client_name" class="font-bold text-slate-800">
                 {{ po.client_name }}
               </p>
@@ -277,7 +277,7 @@ onMounted(fetchAll);
         </div>
 
         <!-- Purchase Order Items -->
-        <section class="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
+        <section class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
           <h2 class="mb-4 text-sm font-semibold tracking-wide text-teal-600 uppercase">
             Purchase Order Items
           </h2>
@@ -287,7 +287,7 @@ onMounted(fetchAll);
             <div
               v-for="(item, index) in items"
               :key="item.item_id ?? index"
-              class="rounded-xl border border-slate-100 p-3">
+              class="rounded-sm border border-slate-100 p-3">
               <div class="mb-1 flex items-start justify-between gap-2">
                 <span class="text-sm font-medium text-slate-800">{{ item.item_product }}</span>
                 <span class="shrink-0 text-xs text-slate-400">#{{ index + 1 }}</span>
@@ -360,7 +360,7 @@ onMounted(fetchAll);
         </section>
 
         <!-- Notes -->
-        <section class="rounded-md bg-white p-6 shadow-sm">
+        <section class="rounded-sm border border-slate-200 bg-white p-6 shadow-xs">
           <div class="mb-3 flex items-center justify-between">
             <h2 class="text-sm font-semibold tracking-wide text-teal-600 uppercase">
               Purchase Order Notes
@@ -389,7 +389,7 @@ onMounted(fetchAll);
                 v-for="activity in activities.slice(0, 8)"
                 :key="activity.activity_id"
                 class="flex gap-3 text-sm">
-                <span class="mt-1 h-2 w-2 shrink-0 rounded-full bg-teal-400"></span>
+                <span class="mt-1 h-2 w-2 shrink-0 rounded-sm bg-teal-400"></span>
                 <div>
                   <p class="text-slate-700">
                     <span class="font-medium">{{ activity.admin_name ?? "System" }}</span>
@@ -489,7 +489,7 @@ onMounted(fetchAll);
 
       <!-- TAB: EDIT PO -->
       <div v-else-if="activeTab === 'edit'" class="space-y-6">
-        <section class="rounded-md bg-white p-6 shadow-sm">
+        <section class="rounded-sm border border-slate-200 bg-white p-6 shadow-xs">
           <h2 class="mb-5 text-sm font-semibold tracking-wide text-teal-600 uppercase">
             PO Information
           </h2>
@@ -500,13 +500,13 @@ onMounted(fetchAll);
               <input
                 v-model="editForm.order_num"
                 type="text"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
             </div>
             <div>
               <label class="mb-1.5 block text-sm font-medium text-slate-700">PIC Office</label>
               <select
                 v-model="editForm.pic_id"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
                 <option value="" disabled>Choose PIC</option>
                 <option v-for="pic in picOptions" :key="pic.admin_id" :value="pic.admin_id">
                   {{ pic.admin_email }}
@@ -520,7 +520,7 @@ onMounted(fetchAll);
                 <label class="mb-1.5 block text-sm font-medium text-slate-700">Region</label>
                 <select
                   v-model="editForm.region_id"
-                  class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
+                  class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
                   <option value="" disabled>Choose region</option>
                   <option
                     v-for="region in regionOptions"
@@ -534,7 +534,7 @@ onMounted(fetchAll);
                 <label class="mb-1.5 block text-sm font-medium text-slate-700">Division</label>
                 <select
                   v-model="editForm.division_id"
-                  class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
+                  class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
                   <option value="" disabled>Choose division</option>
                   <option
                     v-for="division in divisionOptions"
@@ -549,13 +549,13 @@ onMounted(fetchAll);
                 <input
                   v-model="editForm.date"
                   type="date"
-                  class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                  class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
               </div>
             </div>
           </div>
         </section>
 
-        <section class="rounded-md bg-white p-6 shadow-sm">
+        <section class="rounded-sm border border-slate-200 bg-white p-6 shadow-xs">
           <h2 class="mb-5 text-sm font-semibold tracking-wide text-teal-600 uppercase">
             Client Information
           </h2>
@@ -568,7 +568,7 @@ onMounted(fetchAll);
                   type="text"
                   autocomplete="off"
                   placeholder="Search for or Create a New Client"
-                  class="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                  class="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
                 <button
                   v-if="editForm.client_id"
                   type="button"
@@ -591,7 +591,7 @@ onMounted(fetchAll);
               </div>
               <ul
                 v-if="clientOptions.length > 0"
-                class="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg">
+                class="absolute z-10 mt-1 w-full overflow-hidden rounded-sm border border-slate-200 bg-white shadow-lg">
                 <li v-if="clientSearchLoading" class="px-3 py-2 text-sm text-slate-400">
                   Searching...
                 </li>
@@ -612,7 +612,7 @@ onMounted(fetchAll);
                 v-model="editForm.client_email"
                 type="email"
                 :disabled="!!editForm.client_id"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
             </div>
             <div>
               <label class="mb-1.5 block text-xs font-medium tracking-wide text-slate-500 uppercase"
@@ -622,20 +622,20 @@ onMounted(fetchAll);
                 v-model="editForm.client_phone"
                 type="text"
                 :disabled="!!editForm.client_id"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
             </div>
             <div>
               <label class="mb-1.5 block text-sm font-medium text-slate-700">Sub Client</label>
               <input
                 v-model="editForm.sub_client"
                 type="text"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
             </div>
             <div>
               <label class="mb-1.5 block text-sm font-medium text-slate-700">PIC Client</label>
               <select
                 v-model="editForm.pic_client_id"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
                 <option value="" disabled>Choose PIC client</option>
                 <option v-for="pic in picClientOptions" :key="pic.admin_id" :value="pic.admin_id">
                   {{ pic.admin_email }}
@@ -650,19 +650,19 @@ onMounted(fetchAll);
                 v-model="editForm.client_address"
                 type="text"
                 :disabled="!!editForm.client_id"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
             </div>
           </div>
         </section>
 
-        <section class="rounded-2xl bg-white p-4 shadow-sm sm:p-6">
+        <section class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
           <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-sm font-semibold tracking-wide text-teal-600 uppercase">
               Purchase Order Items
             </h2>
             <button
               type="button"
-              class="flex w-full items-center justify-center gap-1.5 rounded-lg bg-teal-500 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600 sm:w-auto"
+              class="flex w-full items-center justify-center gap-1.5 rounded-sm bg-teal-500 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600 sm:w-auto"
               @click="openAddItem">
               <svg
                 class="h-4 w-4"
@@ -688,7 +688,7 @@ onMounted(fetchAll);
             <div
               v-for="(item, index) in editItems"
               :key="item._localId"
-              class="rounded-xl border border-slate-100 p-3">
+              class="rounded-sm border border-slate-100 p-3">
               <div class="mb-1 flex items-start justify-between gap-2">
                 <span class="text-sm font-medium text-slate-800">{{ item.product }}</span>
                 <span class="shrink-0 text-xs text-slate-400">#{{ index + 1 }}</span>
@@ -703,7 +703,7 @@ onMounted(fetchAll);
               <div class="flex justify-end gap-2 border-t border-slate-50 pt-2">
                 <button
                   type="button"
-                  class="rounded-md p-1.5 text-amber-500 hover:bg-amber-50"
+                  class="rounded-sm p-1.5 text-amber-500 hover:bg-amber-50"
                   aria-label="Edit item"
                   @click="openEditItem(item)">
                   <svg
@@ -721,7 +721,7 @@ onMounted(fetchAll);
                 </button>
                 <button
                   type="button"
-                  class="rounded-md p-1.5 text-red-500 hover:bg-red-50"
+                  class="rounded-sm p-1.5 text-red-500 hover:bg-red-50"
                   aria-label="Delete item"
                   @click="removeEditItem(item._localId)">
                   <svg
@@ -780,7 +780,7 @@ onMounted(fetchAll);
                     <div class="flex items-center gap-2">
                       <button
                         type="button"
-                        class="rounded-md p-1 text-amber-500 hover:bg-amber-50"
+                        class="rounded-sm p-1 text-amber-500 hover:bg-amber-50"
                         aria-label="Edit item"
                         @click="openEditItem(item)">
                         <svg
@@ -798,7 +798,7 @@ onMounted(fetchAll);
                       </button>
                       <button
                         type="button"
-                        class="rounded-md p-1 text-red-500 hover:bg-red-50"
+                        class="rounded-sm p-1 text-red-500 hover:bg-red-50"
                         aria-label="Delete item"
                         @click="removeEditItem(item._localId)">
                         <svg
@@ -862,7 +862,7 @@ onMounted(fetchAll);
 
       <!-- TAB: ACTIVITY -->
       <div v-else-if="activeTab === 'activity'" class="space-y-6">
-        <section class="rounded-md bg-white p-6 shadow-sm">
+        <section class="rounded-sm border border-slate-200 bg-white p-6 shadow-xs">
           <div class="mb-5 flex items-center justify-between">
             <h2 class="text-sm font-semibold tracking-wide text-teal-600 uppercase">
               Activity Timeline
@@ -885,7 +885,7 @@ onMounted(fetchAll);
               v-for="activity in activities"
               :key="activity.activity_id"
               class="flex gap-3 border-b border-slate-50 pb-4 text-sm last:border-0">
-              <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-teal-400"></span>
+              <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-sm bg-teal-400"></span>
               <div>
                 <p class="text-slate-700">
                   <span class="font-medium">{{ activity.admin_name ?? "System" }}</span>
@@ -930,7 +930,7 @@ onMounted(fetchAll);
 
       <!-- TAB: DOCUMENT -->
       <div v-else-if="activeTab === 'document'" class="space-y-6">
-        <section class="rounded-md bg-white p-6 shadow-sm">
+        <section class="rounded-sm bg-white p-6 shadow-sm">
           <div class="mb-5 flex items-center justify-between">
             <h2 class="text-sm font-semibold tracking-wide text-teal-600 uppercase">Documents</h2>
             <button
@@ -962,7 +962,7 @@ onMounted(fetchAll);
             <div
               v-for="(doc, index) in documents"
               :key="doc.document_id"
-              class="rounded-xl border border-slate-100 p-3">
+              class="rounded-sm border border-slate-100 p-3">
               <div class="mb-2 flex items-start justify-between gap-2">
                 <span class="text-sm font-medium text-slate-800">{{
                   doc.document_title ?? doc.document_name
@@ -1086,7 +1086,7 @@ onMounted(fetchAll);
 
       <!-- TAB: QUOTATION -->
       <div v-else-if="activeTab === 'quotation' && showQuotationTab" class="space-y-6">
-        <section class="rounded-md bg-white p-6 shadow-sm">
+        <section class="rounded-sm bg-white p-6 shadow-sm">
           <div class="mb-5 flex items-center justify-between">
             <h2 class="text-sm font-semibold tracking-wide text-teal-600 uppercase">
               Linked Quotations
@@ -1109,7 +1109,7 @@ onMounted(fetchAll);
             </div>
           </div>
 
-          <p v-if="quotationError" class="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-600">
+          <p v-if="quotationError" class="mb-4 rounded-sm bg-red-50 px-4 py-3 text-sm text-red-600">
             {{ quotationError }}
           </p>
 
@@ -1197,12 +1197,12 @@ onMounted(fetchAll);
       v-if="showNotesModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showNotesModal = false">
-      <div class="w-full max-w-md rounded-md bg-white p-6 shadow-lg">
+      <div class="w-full max-w-md rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-4 text-base font-semibold text-slate-800">Edit Purchase Order Notes</h3>
         <textarea
           v-model="notesDraft"
           rows="4"
-          class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"></textarea>
+          class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"></textarea>
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
@@ -1226,13 +1226,13 @@ onMounted(fetchAll);
       v-if="showLeaveNoteModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showLeaveNoteModal = false">
-      <div class="w-full max-w-md rounded-md bg-white p-6 shadow-lg">
+      <div class="w-full max-w-md rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-4 text-base font-semibold text-slate-800">Leave Notes</h3>
         <textarea
           v-model="leaveNoteDraft"
           rows="4"
           placeholder="Write a note..."
-          class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"></textarea>
+          class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"></textarea>
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
@@ -1256,13 +1256,13 @@ onMounted(fetchAll);
       v-if="showInvoiceModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showInvoiceModal = false">
-      <div class="w-full max-w-sm rounded-md bg-white p-6 shadow-lg">
+      <div class="w-full max-w-sm rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-4 text-base font-semibold text-slate-800">Update Invoice Number</h3>
         <input
           v-model="invoiceDraft"
           type="text"
           placeholder="INV-2026-XXXX"
-          class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+          class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
@@ -1286,7 +1286,7 @@ onMounted(fetchAll);
       v-if="showItemModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showItemModal = false">
-      <div class="w-full max-w-md rounded-md bg-white p-6 shadow-lg">
+      <div class="w-full max-w-md rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-4 text-base font-semibold text-slate-800">
           {{ editingItemLocalId ? "Edit Item" : "Add Item" }}
         </h3>
@@ -1295,7 +1295,7 @@ onMounted(fetchAll);
             <label class="mb-1.5 block text-sm font-medium text-slate-700">Product</label>
             <select
               v-model="itemDraft.product"
-              class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
+              class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
               <option value="" disabled>Choose product</option>
               <option v-for="product in PRODUCT_OPTIONS" :key="product" :value="product">
                 {{ product }}
@@ -1307,7 +1307,7 @@ onMounted(fetchAll);
             <input
               v-model="itemDraft.desc"
               type="text"
-              class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+              class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -1316,13 +1316,13 @@ onMounted(fetchAll);
                 v-model.number="itemDraft.qty"
                 type="number"
                 min="1"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
             </div>
             <div>
               <label class="mb-1.5 block text-sm font-medium text-slate-700">Unit</label>
               <select
                 v-model="itemDraft.unit_id"
-                class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
+                class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
                 <option value="" disabled>Choose unit</option>
                 <option v-for="unit in unitOptions" :key="unit.unit_id" :value="unit.unit_id">
                   {{ unit.unit_title }}
@@ -1333,7 +1333,7 @@ onMounted(fetchAll);
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-700">Price</label>
             <div
-              class="flex overflow-hidden rounded-md border border-slate-200 focus-within:border-teal-400">
+              class="flex overflow-hidden rounded-sm border border-slate-200 focus-within:border-teal-400">
               <span class="flex items-center bg-slate-50 px-3 text-sm font-medium text-slate-500"
                 >IDR</span
               >
@@ -1367,7 +1367,7 @@ onMounted(fetchAll);
       v-if="showUploadModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showUploadModal = false">
-      <div class="w-full max-w-md rounded-md bg-white p-6 shadow-lg">
+      <div class="w-full max-w-md rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-4 text-base font-semibold text-slate-800">Upload New Document</h3>
         <div class="space-y-4">
           <div>
@@ -1376,14 +1376,14 @@ onMounted(fetchAll);
               v-model="uploadTitle"
               type="text"
               placeholder="e.g. Signed Contract"
-              class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+              class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
           </div>
           <div>
             <label class="mb-1.5 block text-sm font-medium text-slate-700">File</label>
             <input
               type="file"
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
-              class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"
+              class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"
               @change="onFileChange" />
             <p class="mt-1 text-xs text-slate-400">
               PDF, DOC, DOCX, JPG, JPEG, PNG, GIF — max 10MB
@@ -1413,10 +1413,10 @@ onMounted(fetchAll);
       v-if="showPRsModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showPRsModal = false">
-      <div class="max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-md bg-white p-6 shadow-lg">
+      <div class="max-h-[85vh] w-full max-w-4xl overflow-y-auto rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-1 text-base font-semibold text-slate-800">Purchase Requests</h3>
         <p class="mb-4 text-sm text-slate-500">Quotation {{ selectedQuotation?.quotation_no }}</p>
-        <p v-if="quotationError" class="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p v-if="quotationError" class="mb-3 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600">
           {{ quotationError }}
         </p>
         <div v-if="prsLoading" class="py-8 text-center text-sm text-slate-400">Loading...</div>
@@ -1476,21 +1476,21 @@ onMounted(fetchAll);
       v-if="showLinkModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showLinkModal = false">
-      <div class="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-md bg-white p-6 shadow-lg">
+      <div class="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-4 text-base font-semibold text-slate-800">Link Quotation</h3>
         <form class="mb-4 flex gap-2" @submit.prevent="searchCandidates">
           <input
             v-model="candidateKeyword"
             type="text"
             placeholder="Search quotation number"
-            class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
+            class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none" />
           <button
             type="submit"
             class="rounded-sm bg-teal-500 px-4 py-2 text-sm font-medium text-white hover:bg-teal-600">
             Search
           </button>
         </form>
-        <p v-if="quotationError" class="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p v-if="quotationError" class="mb-3 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600">
           {{ quotationError }}
         </p>
         <div v-if="candidatesLoading" class="py-8 text-center text-sm text-slate-400">
@@ -1503,7 +1503,7 @@ onMounted(fetchAll);
           <div
             v-for="c in candidates"
             :key="c.quotation_id"
-            class="rounded-md border border-slate-200 p-4">
+            class="rounded-sm border border-slate-200 p-4">
             <div class="mb-2 flex items-center justify-between gap-3">
               <div>
                 <p class="text-sm font-semibold text-slate-800">
@@ -1547,12 +1547,12 @@ onMounted(fetchAll);
       v-if="showUnlinkModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showUnlinkModal = false">
-      <div class="w-full max-w-md rounded-md bg-white p-6 shadow-lg">
+      <div class="w-full max-w-md rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-1 text-base font-semibold text-slate-800">Unlink Quotation</h3>
         <p class="mb-4 text-sm text-slate-500">
           Quotation {{ unlinkTarget?.quotation_no }} will be unlinked from this PO.
         </p>
-        <p v-if="quotationError" class="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p v-if="quotationError" class="mb-3 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600">
           {{ quotationError }}
         </p>
         <label class="mb-1.5 block text-sm font-medium text-slate-700"
@@ -1562,7 +1562,7 @@ onMounted(fetchAll);
           v-model="unlinkNotes"
           rows="4"
           placeholder="Why is this link being removed?"
-          class="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"></textarea>
+          class="w-full rounded-sm border border-slate-200 px-3 py-2.5 text-sm focus:border-teal-400 focus:outline-none"></textarea>
         <div class="mt-6 flex justify-end gap-3">
           <button
             type="button"
@@ -1586,7 +1586,7 @@ onMounted(fetchAll);
       v-if="confirmModal.show"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="confirmModal.show = false">
-      <div class="w-full max-w-sm rounded-md bg-white p-6 shadow-lg">
+      <div class="w-full max-w-sm rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-2 text-base font-semibold text-slate-800">
           {{ confirmModal.title }}
         </h3>

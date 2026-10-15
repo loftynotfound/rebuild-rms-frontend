@@ -37,14 +37,14 @@ const submit = () => {
       <div class="flex justify-end gap-2 pt-2">
         <button
           type="button"
-          class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+          class="rounded-sm border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           :disabled="loading"
           @click="emit('close')">
           Cancel
         </button>
         <button
           type="button"
-          class="rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
+          class="rounded-sm bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
           :disabled="loading"
           @click="submit">
           {{ loading ? "Saving..." : "Reject PR" }}

@@ -61,7 +61,7 @@ onMounted(async () => {
     <h1 class="text-2xl font-bold text-slate-800">PPN (Pajak Pertambahan Nilai)</h1>
 
     <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
-      <div class="rounded-md bg-white p-4 shadow-sm sm:p-6">
+      <div class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
         <div class="mb-4 flex items-center gap-2 sm:mb-6">
           <span class="text-base font-medium text-slate-800">PPN Default *</span>
         </div>
@@ -125,7 +125,7 @@ onMounted(async () => {
         </template>
       </div>
 
-      <div class="rounded-md bg-white p-4 shadow-sm sm:p-6">
+      <div class="rounded-sm bg-white p-4 shadow-sm sm:p-6">
         <h2 class="mb-1 text-base font-medium text-slate-800">Calculation Preview</h2>
         <p class="mb-6 text-sm text-slate-500">
           Calculation preview based on the current PPN rate.
@@ -142,7 +142,7 @@ onMounted(async () => {
             <span class="text-slate-800">{{ formatCurrency(previewPpnAmount) }}</span>
           </div>
 
-          <hr class="my-4 h-0.5 rounded-xl border-0 bg-slate-200" />
+          <hr class="my-4 h-0.5 rounded-sm border-0 bg-slate-200" />
 
           <div class="flex items-center justify-between">
             <span class="text-sm text-slate-600">Total</span>

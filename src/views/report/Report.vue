@@ -235,7 +235,7 @@ onMounted(fetchAll);
     <h1 class="text-2xl font-bold text-slate-800">Report Purchase Order</h1>
 
     <!-- Summary + Trend Chart -->
-    <div class="rounded-md bg-white p-4 shadow-sm sm:p-6">
+    <div class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs sm:p-6">
       <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <h2 class="text-base font-semibold text-slate-800">Purchase Order Summary</h2>
 
@@ -288,7 +288,7 @@ onMounted(fetchAll);
 
       <!-- Summary Cards -->
       <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div class="rounded-xl border border-slate-100 p-4">
+        <div class="rounded-sm border border-slate-100 p-4">
           <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Highest PO</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.highest ? `${summary.highest.total}` : "-" }}
@@ -298,7 +298,7 @@ onMounted(fetchAll);
           </p>
         </div>
 
-        <div class="rounded-xl border border-slate-100 p-4">
+        <div class="rounded-sm border border-slate-100 p-4">
           <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Lowest PO</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.lowest ? `${summary.lowest.total}` : "-" }}
@@ -308,7 +308,7 @@ onMounted(fetchAll);
           </p>
         </div>
 
-        <div class="rounded-xl border border-slate-100 p-4">
+        <div class="rounded-sm border border-slate-100 p-4">
           <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Average PO</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ Math.round(summary.average) }}
@@ -338,7 +338,7 @@ onMounted(fetchAll);
     </div>
 
     <!-- Region Bar Chart -->
-    <div class="mt-6 rounded-md bg-white p-4 shadow-sm sm:p-6">
+    <div class="mt-6 rounded-sm bg-white p-4 shadow-sm sm:p-6">
       <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <h2 class="text-base font-semibold text-slate-800">Region Report Summary</h2>
         <div class="flex flex-col gap-2">
@@ -395,7 +395,7 @@ onMounted(fetchAll);
     </div>
 
     <!-- Status Table -->
-    <div class="mt-6 rounded-md bg-white shadow-sm">
+    <div class="mt-6 rounded-sm bg-white shadow-sm">
       <div class="p-4 pb-0 sm:p-6 sm:pb-0">
         <h2 class="mb-5 text-base font-semibold text-slate-800">Status Purchase Order Report</h2>
       </div>

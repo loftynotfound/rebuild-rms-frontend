@@ -52,7 +52,7 @@ const emit = defineEmits(["action", "toggle"]);
               :checked="props.selected.includes(row.prId)"
               @change="$emit('toggle', row)" />
             #{{ row.prId }}
-            <span class="size-1 rounded-full bg-slate-800"></span>
+            <span class="size-1 rounded-sm bg-slate-800"></span>
             {{ row.prRfpNumber }}
           </span>
         </div>

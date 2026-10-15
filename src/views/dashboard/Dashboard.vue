@@ -25,13 +25,13 @@ const recentPOColumns = [
     <!-- Error state -->
     <div
       v-if="error"
-      class="rounded-md border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-600 sm:px-6">
+      class="rounded-sm border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-600 sm:px-6">
       Gagal memuat data: {{ error }}
     </div>
 
     <!-- Total Purchase Order -->
     <div
-      class="relative overflow-hidden rounded-sm border-b-4 bg-white px-4 py-5 shadow-sm transition-all duration-200 ease-out sm:px-6 sm:py-6"
+      class="relative overflow-hidden rounded-sm border border-b-4 border-slate-200 bg-white px-4 py-4 shadow-xs transition-all duration-200 ease-out sm:px-6 sm:py-6"
       style="border-bottom-color: #14aea1">
       <div class="flex items-center justify-between gap-4">
         <!-- Kiri -->
@@ -74,10 +74,7 @@ const recentPOColumns = [
 
     <!-- Status Cards -->
     <div v-if="loading" class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-      <div
-        v-for="n in 6"
-        :key="n"
-        class="h-24 animate-pulse rounded-sm bg-white shadow-sm sm:h-28" />
+      <div v-for="n in 6" :key="n" class="h-24 animate-pulse rounded-sm bg-white sm:h-28" />
     </div>
 
     <div v-else class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
@@ -190,7 +187,7 @@ const recentPOColumns = [
     </div>
 
     <!-- Recent Open PO -->
-    <div class="overflow-hidden rounded-md bg-white shadow-sm">
+    <div class="overflow-hidden rounded-sm border border-slate-200 bg-white shadow-xs">
       <div class="border-slate-200 px-4 py-3 sm:px-6 sm:py-4">
         <h2 class="text-base font-semibold text-gray-800 sm:text-lg">Recent Open PO</h2>
       </div>

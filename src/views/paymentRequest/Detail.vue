@@ -481,7 +481,7 @@ watch(
 
   <div
     v-else-if="!detailLoading"
-    class="rounded-xl border border-slate-200 bg-white py-16 text-center text-sm text-slate-400">
+    class="rounded-sm border border-slate-200 bg-white py-16 text-center text-sm text-slate-400">
     {{ loadError || "Payment request not found." }}
   </div>
 </template>

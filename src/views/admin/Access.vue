@@ -51,7 +51,7 @@ onMounted(fetchAccess);
   <div class="space-y-4">
     <h1 class="text-2xl font-bold text-slate-800">Role Access</h1>
 
-    <div class="rounded-md bg-white shadow-sm">
+    <div class="rounded-sm border border-slate-200 bg-white shadow-xs">
       <div class="flex justify-end px-4 pt-4 sm:px-6 sm:pt-6">
         <button
           v-if="authStore.hasAccess('create_access')"
@@ -99,7 +99,7 @@ onMounted(fetchAccess);
               <button
                 v-if="authStore.hasAccess('edit_access')"
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-md border border-yellow-400 bg-white px-3 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-50"
+                class="flex items-center justify-center gap-1.5 rounded-sm border border-yellow-400 bg-white px-3 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-50"
                 aria-label="Edit access"
                 @click="handleEdit(row)">
                 <svg
@@ -120,7 +120,7 @@ onMounted(fetchAccess);
               <button
                 v-if="authStore.hasAccess('delete_access')"
                 type="button"
-                class="flex items-center justify-center gap-1.5 rounded-md border border-red-400 bg-white px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
+                class="flex items-center justify-center gap-1.5 rounded-sm border border-red-400 bg-white px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
                 aria-label="Hapus access"
                 @click="handleDelete(row)">
                 <svg

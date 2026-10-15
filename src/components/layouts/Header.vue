@@ -23,7 +23,7 @@ defineEmits([
   <header class="flex h-14 items-center justify-between border-b border-slate-200 bg-white px-6">
     <button
       type="button"
-      class="cursor-pointer rounded-lg text-[#119E92] transition-colors hover:text-[#0d7a70]"
+      class="cursor-pointer rounded-sm text-[#119E92] transition-colors hover:text-[#0d7a70]"
       aria-label="Toggle sidebar"
       @click="$emit('toggle-sidebar')">
       <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -48,7 +48,7 @@ defineEmits([
 
       <div
         v-if="profileMenuOpen"
-        class="absolute top-full right-0 z-50 mt-2 w-44 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+        class="absolute top-full right-0 z-50 mt-2 w-44 rounded-sm border border-slate-200 bg-white py-1 shadow-lg">
         <button
           type="button"
           class="flex w-full cursor-pointer items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"

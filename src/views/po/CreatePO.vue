@@ -85,7 +85,7 @@ onMounted(() => {
       </p>
 
       <!-- PO Information -->
-      <section class="rounded-2xl bg-white p-6 shadow-sm">
+      <section class="rounded-sm border border-slate-200 bg-white p-6 shadow-xs">
         <h2
           class="mb-5 flex items-center gap-2 text-sm font-semibold tracking-wide text-teal-600 uppercase">
           <svg
@@ -185,7 +185,7 @@ onMounted(() => {
       </section>
 
       <!-- Client Information -->
-      <section class="rounded-2xl bg-white p-6 shadow-sm">
+      <section class="rounded-sm border border-slate-200 bg-white p-6 shadow-xs">
         <h2
           class="mb-5 flex items-center gap-2 text-sm font-semibold tracking-wide text-teal-600 uppercase">
           <svg
@@ -320,7 +320,7 @@ onMounted(() => {
       </section>
 
       <!-- Purchase Order Items -->
-      <section class="rounded-2xl bg-white p-6 shadow-sm">
+      <section class="rounded-sm border border-slate-200 bg-white p-6 shadow-xs">
         <div class="mb-5 flex items-center justify-between">
           <h2
             class="flex items-center gap-2 text-sm font-semibold tracking-wide text-teal-600 uppercase">
@@ -439,7 +439,7 @@ onMounted(() => {
           <div
             v-for="(item, index) in items"
             :key="item._localId"
-            class="rounded-xl border border-slate-100 p-4">
+            class="rounded-sm border border-slate-100 p-4">
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
                 <span class="text-xs font-medium text-slate-400">#{{ index + 1 }}</span>
@@ -554,7 +554,7 @@ onMounted(() => {
       v-if="showItemModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
       @click.self="showItemModal = false">
-      <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+      <div class="w-full max-w-md rounded-sm bg-white p-6 shadow-lg">
         <h3 class="mb-4 text-base font-semibold text-slate-800">
           {{ editingItemId ? "Edit Item" : "Add Item" }}
         </h3>

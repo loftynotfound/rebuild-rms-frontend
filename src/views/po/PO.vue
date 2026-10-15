@@ -182,7 +182,7 @@ onMounted(() => {
     <div class="space-y-4">
       <h1 class="text-2xl font-bold text-slate-800">Purchase Order</h1>
 
-      <div class="rounded-md bg-white shadow-sm">
+      <div class="rounded-sm border border-slate-200 bg-white shadow-xs">
         <!-- Header actions -->
         <div
           class="flex flex-col gap-3 border-b-[1.5px] border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-end sm:p-6">
@@ -236,7 +236,7 @@ onMounted(() => {
             @click="setStatus(tab.key)">
             {{ tab.label }}
             <span
-              class="flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-semibold text-white"
+              class="flex h-5 min-w-5 items-center justify-center rounded-sm px-1 text-xs font-semibold text-white"
               :class="filters.status === tab.key ? 'bg-teal-500' : 'bg-slate-300'">
               {{ totalByStatus[tab.key] }}
             </span>
@@ -313,7 +313,7 @@ onMounted(() => {
                   </p>
                 </div>
                 <span
-                  class="inline-flex shrink-0 items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 capitalize">
+                  class="inline-flex shrink-0 items-center rounded-sm bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 capitalize">
                   {{ row.po_status }}
                 </span>
               </div>
@@ -332,7 +332,7 @@ onMounted(() => {
                   formatCurrency(row.po_total)
                 }}</span>
                 <span
-                  class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                  class="inline-flex items-center rounded-sm px-2 py-0.5 text-[11px] font-semibold"
                   :class="
                     row.po_paid === 'yes'
                       ? 'bg-teal-50 text-teal-600'
@@ -349,7 +349,7 @@ onMounted(() => {
 
               <button
                 type="button"
-                class="flex w-full items-center justify-center gap-1.5 rounded-md border border-slate-200 py-2 text-sm font-medium text-indigo-500 hover:bg-indigo-50"
+                class="flex w-full items-center justify-center gap-1.5 rounded-sm border border-slate-200 py-2 text-sm font-medium text-indigo-500 hover:bg-indigo-50"
                 aria-label="Lihat detail PO"
                 @click="goToDetail(row.po_id)">
                 <svg
@@ -410,7 +410,7 @@ onMounted(() => {
             <template #po_paid="{ row }">
               <div class="flex justify-center">
                 <span
-                  class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                  class="inline-flex items-center rounded-sm px-2 py-0.5 text-[11px] font-semibold"
                   :class="
                     row.po_paid === 'yes'
                       ? 'bg-teal-50 text-teal-600'
@@ -424,7 +424,7 @@ onMounted(() => {
             <template #po_status="{ row }">
               <div class="flex justify-center">
                 <span
-                  class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 capitalize">
+                  class="inline-flex items-center rounded-sm bg-slate-100 px-2 py-0.5 text-[11px] font-semibold text-slate-600 capitalize">
                   {{ row.po_status }}
                 </span>
               </div>
@@ -434,7 +434,7 @@ onMounted(() => {
               <div class="flex justify-center">
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 rounded-md p-1.5 text-indigo-400 hover:bg-indigo-50 hover:text-indigo-600"
+                  class="inline-flex items-center gap-1.5 rounded-sm p-1.5 text-indigo-400 hover:bg-indigo-50 hover:text-indigo-600"
                   aria-label="Lihat detail PO"
                   @click="goToDetail(row.po_id)">
                   <svg
@@ -477,7 +477,7 @@ onMounted(() => {
       class="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/50 sm:items-center sm:px-4"
       @click.self="closeExportModal">
       <div
-        class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-4 shadow-lg sm:rounded-md sm:p-6">
+        class="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-white p-4 shadow-lg sm:rounded-sm sm:p-6">
         <h3 class="mb-1 text-base font-semibold text-slate-800">Export Purchase Order</h3>
         <p class="mb-5 text-sm text-slate-500">
           Download the per-item breakdown as an Excel (.xlsx) file based on the filters below

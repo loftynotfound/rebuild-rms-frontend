@@ -24,7 +24,7 @@ const {
 <template>
   <div
     class="flex min-h-screen items-center justify-center bg-linear-to-br from-[#17BDAF] to-[#119E92] p-4">
-    <div class="w-full max-w-md rounded-md bg-white p-8 shadow-xl">
+    <div class="w-full max-w-md rounded-sm bg-white p-8 shadow-xl">
       <!-- Logo -->
       <div class="mb-8 flex flex-col items-center">
         <div class="mb-2 flex h-34 w-auto items-center justify-center overflow-hidden">
@@ -194,7 +194,7 @@ const {
       <!-- Success step -->
       <div v-else class="py-2 text-center">
         <div
-          class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+          class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-sm bg-emerald-100 text-emerald-600">
           <svg
             class="h-6 w-6"
             viewBox="0 0 24 24"

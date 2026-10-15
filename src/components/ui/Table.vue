@@ -16,7 +16,7 @@ defineProps({
         <th
           v-for="col in columns"
           :key="col.key"
-          class="px-2 py-3 text-[11px] font-semibold tracking-wide break-words text-slate-400 uppercase"
+          class="px-2 py-3 text-[11px] font-semibold tracking-wide wrap-break-word text-slate-400 uppercase"
           :class="col.class">
           <slot :name="`header-${col.key}`" :col="col">{{ col.label }}</slot>
         </th>
@@ -46,7 +46,7 @@ defineProps({
           <td
             v-for="col in columns"
             :key="col.key"
-            class="px-3 py-3 align-top text-xs break-words text-slate-700"
+            class="px-3 py-3 align-top text-xs wrap-break-word text-slate-700"
             :class="col.tdClass">
             <slot :name="col.key" :row="row">
               {{ row[col.key] }}
@@ -70,7 +70,7 @@ defineProps({
       <div
         v-for="(row, index) in rows"
         :key="row[rowKey]"
-        class="rounded-lg border border-slate-200 p-4">
+        class="rounded-sm border border-slate-200 p-4">
         <slot name="card" :row="row" :index="index" />
       </div>
     </div>
