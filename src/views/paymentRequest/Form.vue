@@ -37,13 +37,6 @@ const {
   addResponsible,
 } = usePaymentRequest();
 const authStore = useAuthStore();
-const {
-  responsibles,
-  responsibleOptions,
-  preparedBy,
-  load: loadLookups,
-  addResponsible,
-} = useApproval();
 
 const showSubmit = ref(false);
 const submitTarget = ref(null);
