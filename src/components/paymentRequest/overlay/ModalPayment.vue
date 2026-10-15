@@ -35,9 +35,7 @@ const form = reactive({
   priority_date: "",
 });
 
-const remaining = computed(() =>
-  Math.max(0, props.requestedAmount - props.recordedAmount),
-);
+const remaining = computed(() => Math.max(0, props.requestedAmount - props.recordedAmount));
 
 const saving = ref(false);
 const error = ref("");
@@ -46,8 +44,7 @@ const submit = async () => {
   error.value = "";
   if (!form.stage) return (error.value = "Payment stage required.");
   if (!form.type) return (error.value = "Payment method required.");
-  if (!(Number(form.amount) > 0))
-    return (error.value = "Amount must be greater than 0.");
+  if (!(Number(form.amount) > 0)) return (error.value = "Amount must be greater than 0.");
 
   saving.value = true;
   try {
@@ -76,8 +73,8 @@ const field =
   <Modal title="Record Payment" @close="emit('close')">
     <div class="space-y-3">
       <p class="rounded-sm bg-slate-50 p-3 text-xs text-slate-500">
-        Requested {{ money(requestedAmount) }} · Recorded
-        {{ money(recordedAmount) }} · Remaining {{ money(remaining) }}
+        Requested {{ money(requestedAmount) }} · Recorded {{ money(recordedAmount) }} · Remaining
+        {{ money(remaining) }}
       </p>
 
       <div class="grid grid-cols-2 gap-3">
@@ -110,44 +107,27 @@ const field =
         <span class="mb-1 block text-sm font-medium text-slate-600">
           Amount <span class="text-red-500">*</span>
         </span>
-        <input
-          v-model="form.amount"
-          type="number"
-          min="0"
-          placeholder="0"
-          :class="field"
-        />
+        <input v-model="form.amount" type="number" min="0" placeholder="0" :class="field" />
       </label>
 
       <div class="grid grid-cols-2 gap-3">
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-600"
-            >Bank</span
-          >
+          <span class="mb-1 block text-sm font-medium text-slate-600">Bank</span>
           <input v-model="form.bank" placeholder="Bank Name" :class="field" />
         </label>
         <label class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-600"
-            >Account No.</span
-          >
+          <span class="mb-1 block text-sm font-medium text-slate-600">Account No.</span>
           <input
             v-model="form.bank_account_no"
             inputmode="numeric"
             placeholder="Bank Account Number"
-            :class="field"
-          />
+            :class="field" />
         </label>
       </div>
 
       <label class="block">
-        <span class="mb-1 block text-sm font-medium text-slate-600"
-          >Account Name</span
-        >
-        <input
-          v-model="form.bank_account_name"
-          placeholder="Bank Account Name"
-          :class="field"
-        />
+        <span class="mb-1 block text-sm font-medium text-slate-600">Account Name</span>
+        <input v-model="form.bank_account_name" placeholder="Bank Account Name" :class="field" />
       </label>
 
       <label class="block">
@@ -164,16 +144,14 @@ const field =
           type="button"
           class="rounded-sm border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           :disabled="saving"
-          @click="emit('close')"
-        >
+          @click="emit('close')">
           Cancel
         </button>
         <button
           type="button"
           class="rounded-sm bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-50"
           :disabled="saving"
-          @click="submit"
-        >
+          @click="submit">
           {{ saving ? "Saving..." : "Record" }}
         </button>
       </div>

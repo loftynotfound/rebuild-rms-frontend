@@ -19,8 +19,7 @@ export function useDashboard() {
     } catch (err) {
       // Axios melempar error untuk status non-2xx;
       // clearSession sudah ditangani interceptor saat refresh gagal
-      error.value =
-        err.response?.data?.message || err.message || "Terjadi kesalahan";
+      error.value = err.response?.data?.message || err.message || "Terjadi kesalahan";
     } finally {
       loading.value = false;
     }

@@ -60,8 +60,7 @@ export function useAccess() {
       await fetchAccess();
       return true;
     } catch (err) {
-      deleteError.value =
-        err.response?.data?.message || "Failed to delete access";
+      deleteError.value = err.response?.data?.message || "Failed to delete access";
       return false;
     }
   }

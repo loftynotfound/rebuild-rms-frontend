@@ -86,10 +86,7 @@ const exportWord = async (item) => {
   try {
     const blob = await fetchBlob(`/pr/${item.prId}/export`);
 
-    saveBlob(
-      blob,
-      `${item.prRfpNumber || item.rfpNumber || item.prId}-request-for-payment.docx`,
-    );
+    saveBlob(blob, `${item.prRfpNumber || item.rfpNumber || item.prId}-request-for-payment.docx`);
   } catch (error) {
     throw new Error(await getErrorMessage(error, "Gagal mengekspor Word."));
   }

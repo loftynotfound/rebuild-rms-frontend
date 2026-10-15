@@ -35,9 +35,7 @@ const onOutsideClick = (event) => {
 };
 
 onMounted(() => document.addEventListener("mousedown", onOutsideClick));
-onBeforeUnmount(() =>
-  document.removeEventListener("mousedown", onOutsideClick),
-);
+onBeforeUnmount(() => document.removeEventListener("mousedown", onOutsideClick));
 </script>
 
 <template>
@@ -50,30 +48,24 @@ onBeforeUnmount(() =>
     <div ref="root" class="relative w-full">
       <button
         type="button"
-        class="block w-full cursor-pointer rounded-sm border font-medium border-slate-200 px-3 py-2 pr-8 text-left text-sm text-slate-600 focus:outline-none focus:ring-0 focus:ring-offset-0 hover:border-teal-400 focus:border-teal-400"
-        @click="open = !open"
-      >
+        class="block w-full cursor-pointer rounded-sm border border-slate-200 px-3 py-2 pr-8 text-left text-sm font-medium text-slate-600 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+        @click="open = !open">
         <span
           :class="
-            selectedLabel
-              ? 'text-slate-600 tracking-tight'
-              : 'text-slate-400 tracking-normal'
-          "
-        >
+            selectedLabel ? 'tracking-tight text-slate-600' : 'tracking-normal text-slate-400'
+          ">
           {{ selectedLabel || "Payment Method" }}
         </span>
       </button>
       <Icon
         icon="hugeicons:arrow-down-01"
-        class="pointer-events-none absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-slate-600"
-      />
+        class="pointer-events-none absolute top-1/2 right-2.5 size-5 -translate-y-1/2 text-slate-600" />
       <ModalDropdown
         v-if="open"
         :options="options"
         :model-value="modelValue"
         width-class="w-full"
-        @select="select"
-      />
+        @select="select" />
     </div>
   </div>
 </template>

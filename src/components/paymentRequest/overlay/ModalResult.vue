@@ -17,9 +17,7 @@ const okCount = computed(() => props.rows.length - failed.value.length);
     <div class="space-y-4">
       <p class="text-sm text-slate-600">
         <span class="font-semibold text-teal-600"> {{ okCount }} succeded</span>
-        <span class="font-semibold text-red-600">
-          {{ failed.length }} failed</span
-        >
+        <span class="font-semibold text-red-600"> {{ failed.length }} failed</span>
         out of {{ rows.length }}
       </p>
 
@@ -34,8 +32,7 @@ const okCount = computed(() => props.rows.length - failed.value.length);
         <button
           type="button"
           class="rounded-sm bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600"
-          @click="emit('close')"
-        >
+          @click="emit('close')">
           close
         </button>
       </div>

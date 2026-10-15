@@ -59,8 +59,7 @@ export function useDivisions() {
       await fetchDivisions();
       return true;
     } catch (err) {
-      deleteError.value =
-        err.response?.data?.message || "Failed to delete division";
+      deleteError.value = err.response?.data?.message || "Failed to delete division";
       return false;
     }
   }
@@ -159,8 +158,7 @@ export function useDivisions() {
       showModal.value = false;
       await fetchDivisions();
     } catch (err) {
-      formError.value =
-        err.response?.data?.message || "Gagal menyimpan division";
+      formError.value = err.response?.data?.message || "Gagal menyimpan division";
     } finally {
       submitting.value = false;
     }

@@ -53,26 +53,23 @@ onMounted(fetchRoles);
     <h1 class="text-2xl font-bold text-slate-800">Admin Role</h1>
 
     <div class="rounded-md bg-white shadow-sm">
-      <div class="flex justify-end px-4 sm:px-6 pt-4 sm:pt-6">
+      <div class="flex justify-end px-4 pt-4 sm:px-6 sm:pt-6">
         <button
           v-if="authStore.hasAccess('create_role')"
           type="button"
-          class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-sm bg-teal-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-600"
-          @click="handleAdd"
-        >
+          class="flex w-full items-center justify-center gap-2 rounded-sm bg-teal-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-600 sm:w-auto"
+          @click="handleAdd">
           <svg
             class="h-4 w-4"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            aria-hidden="true"
-          >
+            aria-hidden="true">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
+              d="M12 4v16m8-8H4" />
           </svg>
           Add Role
         </button>
@@ -85,19 +82,14 @@ onMounted(fetchRoles);
           :loading="loading"
           :error="error"
           row-key="role_id"
-          empty-message="Belum ada role"
-        >
+          empty-message="Belum ada role">
           <template #default="{ row }">
-            <p
-              class="mb-2 wrap-break-word text-lg font-semibold text-slate-800"
-            >
+            <p class="mb-2 text-lg font-semibold wrap-break-word text-slate-800">
               {{ row.role_title }}
             </p>
 
             <div class="mb-3">
-              <span
-                class="rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700"
-              >
+              <span class="rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700">
                 {{ row.total_access }} Access
               </span>
             </div>
@@ -108,21 +100,18 @@ onMounted(fetchRoles);
                 type="button"
                 class="flex items-center justify-center gap-1.5 rounded-md border border-yellow-400 bg-white px-3 py-2 text-sm font-medium text-yellow-500 hover:bg-yellow-50"
                 aria-label="Edit role"
-                @click="handleEdit(row)"
-              >
+                @click="handleEdit(row)">
                 <svg
                   class="h-4 w-4"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  aria-hidden="true"
-                >
+                  aria-hidden="true">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
                 Edit
               </button>
@@ -132,21 +121,18 @@ onMounted(fetchRoles);
                 type="button"
                 class="flex items-center justify-center gap-1.5 rounded-md border border-red-400 bg-white px-3 py-2 text-sm font-medium text-red-500 hover:bg-red-50"
                 aria-label="Hapus role"
-                @click="handleDelete(row)"
-              >
+                @click="handleDelete(row)">
                 <svg
                   class="h-4 w-4"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  aria-hidden="true"
-                >
+                  aria-hidden="true">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"
-                  />
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
                 </svg>
                 Delete
               </button>
@@ -156,19 +142,16 @@ onMounted(fetchRoles);
       </div>
 
       <!-- DESKTOP/TABLET: table -->
-      <div class="mt-4 hidden sm:block overflow-x-auto">
+      <div class="mt-4 hidden overflow-x-auto sm:block">
         <Table
           :columns="columns"
           :rows="rows"
           :loading="loading"
           :error="error"
           row-key="role_id"
-          empty-message="Belum ada role"
-        >
+          empty-message="Belum ada role">
           <template #total_access="{ row }">
-            <span
-              class="rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700"
-            >
+            <span class="rounded-full bg-teal-50 px-3 py-1 text-sm font-medium text-teal-700">
               {{ row.total_access }} Access
             </span>
           </template>
@@ -180,21 +163,18 @@ onMounted(fetchRoles);
                 type="button"
                 class="text-yellow-400 hover:text-yellow-500"
                 aria-label="Edit role"
-                @click="handleEdit(row)"
-              >
+                @click="handleEdit(row)">
                 <svg
                   class="h-5 w-5"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  aria-hidden="true"
-                >
+                  aria-hidden="true">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
 
@@ -203,21 +183,18 @@ onMounted(fetchRoles);
                 type="button"
                 class="text-red-400 hover:text-red-500"
                 aria-label="Hapus role"
-                @click="handleDelete(row)"
-              >
+                @click="handleDelete(row)">
                 <svg
                   class="h-5 w-5"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  aria-hidden="true"
-                >
+                  aria-hidden="true">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16"
-                  />
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3M4 7h16" />
                 </svg>
               </button>
             </div>
@@ -232,28 +209,21 @@ onMounted(fetchRoles);
         :total-page="totalPage"
         :total-data="totalData"
         :per-page="item"
-        @change="goToPage"
-      />
+        @change="goToPage" />
     </div>
 
     <!-- Modal Create / Edit Role -->
     <Modal
       v-if="showModal"
       :title="modalMode === 'create' ? 'Add Role' : 'Edit Role'"
-      @close="closeModal"
-    >
+      @close="closeModal">
       <form class="space-y-4" @submit.prevent="submitForm">
-        <p
-          v-if="formError"
-          class="rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600"
-        >
+        <p v-if="formError" class="rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600">
           {{ formError }}
         </p>
 
         <div>
-          <label
-            class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-          >
+          <label class="mb-1 block text-xs font-semibold tracking-wide text-slate-400 uppercase">
             Role Name
           </label>
           <input
@@ -261,37 +231,28 @@ onMounted(fetchRoles);
             type="text"
             required
             class="w-full rounded-sm border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-teal-500 focus:bg-white focus:outline-none"
-            placeholder="e.g. Warehouse Supervisor"
-          />
+            placeholder="e.g. Warehouse Supervisor" />
         </div>
 
         <div>
-          <label
-            class="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-          >
+          <label class="mb-1 block text-xs font-semibold tracking-wide text-slate-400 uppercase">
             Access Permissions
           </label>
-          <div
-            class="max-h-72 space-y-4 overflow-y-auto rounded-sm bg-slate-50 p-3 sm:p-4"
-          >
+          <div class="max-h-72 space-y-4 overflow-y-auto rounded-sm bg-slate-50 p-3 sm:p-4">
             <div v-for="group in accessGroups" :key="group.module">
-              <p
-                class="mb-2 text-xs font-bold uppercase tracking-wide text-slate-600"
-              >
+              <p class="mb-2 text-xs font-bold tracking-wide text-slate-600 uppercase">
                 {{ group.module }}
               </p>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+              <div class="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
                 <label
                   v-for="access in group.accesses"
                   :key="access.access_id"
-                  class="flex items-center gap-2 text-sm text-slate-700"
-                >
+                  class="flex items-center gap-2 text-sm text-slate-700">
                   <input
                     type="checkbox"
                     :checked="form.access_ids.includes(access.access_id)"
                     class="h-4 w-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"
-                    @change="toggleAccess(access.access_id)"
-                  />
+                    @change="toggleAccess(access.access_id)" />
                   {{ access.access_slug }}
                 </label>
               </div>
@@ -299,19 +260,17 @@ onMounted(fetchRoles);
           </div>
         </div>
 
-        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 pt-2">
+        <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
           <button
             type="button"
-            class="w-full sm:w-auto rounded-sm border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
-            @click="closeModal"
-          >
+            class="w-full rounded-sm border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 sm:w-auto"
+            @click="closeModal">
             Cancel
           </button>
           <button
             type="submit"
             :disabled="submitting"
-            class="w-full sm:w-auto rounded-sm bg-teal-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-600 disabled:opacity-50"
-          >
+            class="w-full rounded-sm bg-teal-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-teal-600 disabled:opacity-50 sm:w-auto">
             {{ submitting ? "Saving..." : "Save" }}
           </button>
         </div>
@@ -327,20 +286,18 @@ onMounted(fetchRoles);
           >? This action cannot be undone.
         </p>
 
-        <div class="flex flex-col sm:flex-row sm:justify-end gap-3 pt-2">
+        <div class="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
           <button
             type="button"
-            class="w-full sm:w-auto rounded-sm border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100"
-            @click="closeDeleteModal"
-          >
+            class="w-full rounded-sm border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 sm:w-auto"
+            @click="closeDeleteModal">
             Cancel
           </button>
           <button
             type="button"
             :disabled="deleteSubmitting"
-            class="w-full sm:w-auto rounded-sm bg-red-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50"
-            @click="confirmDelete"
-          >
+            class="w-full rounded-sm bg-red-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50 sm:w-auto"
+            @click="confirmDelete">
             {{ deleteSubmitting ? "Deleting..." : "Delete" }}
           </button>
         </div>

@@ -25,14 +25,12 @@ const iconMap = {
 <template>
   <span
     class="inline-flex items-center gap-1 rounded-sm px-1 py-1 text-xs font-medium capitalize"
-    :class="styles[status] || 'bg-slate-100 text-slate-600'"
-  >
+    :class="styles[status] || 'bg-slate-100 text-slate-600'">
     <Icon
       v-if="iconMap[status]"
       :icon="iconMap[status]"
       class="size-3.5 shrink-0"
-      aria-hidden="true"
-    />
+      aria-hidden="true" />
     {{ status || "-" }}
   </span>
 </template>

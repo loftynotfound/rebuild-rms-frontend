@@ -22,8 +22,8 @@ const submit = () => {
   <Modal :title="title" @close="emit('close')">
     <div class="space-y-4">
       <p class="text-sm text-slate-500">
-        Add a note explaining why this payment request is rejected. The
-        requester can use this note when resubmitting.
+        Add a note explaining why this payment request is rejected. The requester can use this note
+        when resubmitting.
       </p>
       <label>
         <span class="label">Notes *</span>
@@ -31,8 +31,7 @@ const submit = () => {
           v-model="note"
           rows="5"
           class="field"
-          placeholder="Write rejection notes..."
-        ></textarea>
+          placeholder="Write rejection notes..."></textarea>
       </label>
       <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
       <div class="flex justify-end gap-2 pt-2">
@@ -40,16 +39,14 @@ const submit = () => {
           type="button"
           class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           :disabled="loading"
-          @click="emit('close')"
-        >
+          @click="emit('close')">
           Cancel
         </button>
         <button
           type="button"
           class="rounded-lg bg-red-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
           :disabled="loading"
-          @click="submit"
-        >
+          @click="submit">
           {{ loading ? "Saving..." : "Reject PR" }}
         </button>
       </div>

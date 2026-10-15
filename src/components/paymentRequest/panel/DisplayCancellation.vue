@@ -6,8 +6,7 @@ import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentReques
 import Pagination from "@/components/ui/Pagination.vue";
 import ModalCancelReview from "@/components/paymentRequest/overlay/ModalCancelReview.vue";
 
-const { getCancelRequests, reviewCancelRequest, openDocument } =
-  usePaymentRequest();
+const { getCancelRequests, reviewCancelRequest, openDocument } = usePaymentRequest();
 
 defineProps({
   money: { type: Function, required: true },
@@ -57,10 +56,7 @@ const fetchList = async () => {
     totalData.value = res?.meta?.total_data ?? rows.value.length;
     totalPage.value = res?.meta?.total_page ?? 1;
   } catch (e) {
-    error.value =
-      e.response?.data?.message ??
-      e.message ??
-      "Failed to load cancellation requests.";
+    error.value = e.response?.data?.message ?? e.message ?? "Failed to load cancellation requests.";
   } finally {
     loading.value = false;
   }
@@ -82,10 +78,7 @@ const viewDocument = async (row) => {
   error.value = "";
 
   try {
-    await openDocument(
-      `/pr/cancel-requests/${row.cancel_id}/document`,
-      row.cancel_document_name,
-    );
+    await openDocument(`/pr/cancel-requests/${row.cancel_id}/document`, row.cancel_document_name);
   } catch (e) {
     error.value = e.message ?? "Failed to open the document.";
   }
@@ -115,10 +108,7 @@ const confirmReview = async (notes) => {
     await fetchList();
     emit("changed");
   } catch (e) {
-    reviewError.value =
-      e.response?.data?.message ??
-      e.message ??
-      "Failed to process the request.";
+    reviewError.value = e.response?.data?.message ?? e.message ?? "Failed to process the request.";
   } finally {
     reviewLoading.value = false;
   }
@@ -138,39 +128,31 @@ const confirmReview = async (notes) => {
             ? 'border-teal-200 bg-teal-50 text-teal-600'
             : 'border-slate-200 text-slate-600 hover:bg-slate-100'
         "
-        @click="status = f.key"
-      >
+        @click="status = f.key">
         {{ f.label }}
       </button>
     </div>
 
     <p
       v-if="error"
-      class="rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500"
-    >
+      class="rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500">
       {{ error }}
     </p>
 
-    <p v-if="loading" class="py-12 text-center text-sm text-slate-400">
-      Loading...
-    </p>
+    <p v-if="loading" class="py-12 text-center text-sm text-slate-400">Loading...</p>
 
     <div
       v-else-if="!rows.length"
-      class="flex flex-col items-center justify-center gap-2 py-16 text-center"
-    >
+      class="flex flex-col items-center justify-center gap-2 py-16 text-center">
       <Icon icon="hugeicons:file-block" class="size-10 text-slate-400" />
-      <p class="text-sm font-medium text-slate-800">
-        No cancellation requests.
-      </p>
+      <p class="text-sm font-medium text-slate-800">No cancellation requests.</p>
     </div>
 
     <div v-else class="grid grid-cols-1 gap-4 xl:grid-cols-2">
       <article
         v-for="row in rows"
         :key="row.cancel_id"
-        class="flex flex-col gap-3 rounded-sm border border-slate-200 bg-white p-4 shadow-xs"
-      >
+        class="flex flex-col gap-3 rounded-sm border border-slate-200 bg-white p-4 shadow-xs">
         <div class="flex items-start justify-between gap-2">
           <div>
             <p class="text-sm font-semibold text-slate-800">{{ row.rfp_no }}</p>
@@ -178,10 +160,7 @@ const confirmReview = async (notes) => {
           </div>
           <span
             class="inline-flex shrink-0 rounded-sm px-1.5 py-1 text-xs font-medium capitalize"
-            :class="
-              STATUS_STYLE[row.cancel_status] || 'bg-slate-100 text-slate-600'
-            "
-          >
+            :class="STATUS_STYLE[row.cancel_status] || 'bg-slate-100 text-slate-600'">
             {{ row.cancel_status }}
           </span>
         </div>
@@ -207,7 +186,7 @@ const confirmReview = async (notes) => {
           </div>
           <div>
             <dt class="text-slate-400">PR Status</dt>
-            <dd class="font-medium capitalize text-slate-800">
+            <dd class="font-medium text-slate-800 capitalize">
               {{ row.pr_status }}
             </dd>
           </div>
@@ -220,23 +199,14 @@ const confirmReview = async (notes) => {
           </p>
         </div>
 
-        <div
-          v-if="row.cancel_status !== 'pending'"
-          class="rounded-sm bg-slate-50 p-3 text-xs"
-        >
+        <div v-if="row.cancel_status !== 'pending'" class="rounded-sm bg-slate-50 p-3 text-xs">
           <p class="mb-1 font-medium text-slate-600">
             Reviewed by {{ row.reviewer_name || "-" }}
-            <span
-              v-if="row.cancel_review_date"
-              class="font-normal text-slate-400"
-            >
+            <span v-if="row.cancel_review_date" class="font-normal text-slate-400">
               · {{ date(row.cancel_review_date) }}
             </span>
           </p>
-          <p
-            v-if="row.cancel_review_notes"
-            class="whitespace-pre-line text-slate-700"
-          >
+          <p v-if="row.cancel_review_notes" class="whitespace-pre-line text-slate-700">
             {{ row.cancel_review_notes }}
           </p>
         </div>
@@ -245,32 +215,26 @@ const confirmReview = async (notes) => {
           <button
             type="button"
             class="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-700"
-            @click="viewDocument(row)"
-          >
+            @click="viewDocument(row)">
             <Icon icon="hugeicons:file-view" class="size-4" />
             {{ row.cancel_document_name || "View document" }}
           </button>
 
           <div v-if="row.cancel_status === 'pending'" class="flex gap-2">
-            <p
-              v-if="row.requester_id === me"
-              class="self-center text-[11px] text-slate-400"
-            >
+            <p v-if="row.requester_id === me" class="self-center text-[11px] text-slate-400">
               You cannot review your own request.
             </p>
             <template v-else>
               <button
                 type="button"
                 class="rounded-sm border border-slate-200 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50"
-                @click="openReview(row, 'reject')"
-              >
+                @click="openReview(row, 'reject')">
                 Reject
               </button>
               <button
                 type="button"
                 class="rounded-sm bg-teal-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-600"
-                @click="openReview(row, 'approve')"
-              >
+                @click="openReview(row, 'approve')">
                 Approve
               </button>
             </template>
@@ -286,8 +250,7 @@ const confirmReview = async (notes) => {
       :total-page="totalPage"
       :total-data="totalData"
       :per-page="perPage"
-      @change="goToPage"
-    />
+      @change="goToPage" />
 
     <ModalCancelReview
       v-if="review"
@@ -296,7 +259,6 @@ const confirmReview = async (notes) => {
       :loading="reviewLoading"
       :error="reviewError"
       @close="review = null"
-      @confirm="confirmReview"
-    />
+      @confirm="confirmReview" />
   </section>
 </template>

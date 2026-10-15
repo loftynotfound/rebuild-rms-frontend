@@ -81,9 +81,7 @@ watch(
 // Mode otomatis:
 //   - Filter aktif (kedua tanggal terisi) → per tanggal (chartData)
 //   - Tidak difilter                       → per bulan  (monthlyChartData)
-const isDateFiltered = computed(
-  () => !!chartStartDate.value && !!chartEndDate.value,
-);
+const isDateFiltered = computed(() => !!chartStartDate.value && !!chartEndDate.value);
 
 const trendCanvas = ref(null);
 const trendChartConfig = computed(() => {
@@ -95,9 +93,7 @@ const trendChartConfig = computed(() => {
     ? daily.map((d) => formatDate(d.date))
     : monthly.map((d) => d.label);
 
-  const values = isDateFiltered.value
-    ? daily.map((d) => d.total)
-    : monthly.map((d) => d.total);
+  const values = isDateFiltered.value ? daily.map((d) => d.total) : monthly.map((d) => d.total);
 
   return {
     type: "line",
@@ -130,9 +126,7 @@ const trendChartConfig = computed(() => {
               ? undefined
               : (items) => {
                   const days = monthly[items[0].dataIndex]?.days ?? [];
-                  return days.map(
-                    (d) => `  ${formatDate(d.date)}: ${d.total} PO`,
-                  );
+                  return days.map((d) => `  ${formatDate(d.date)}: ${d.total} PO`);
                 },
           },
         },
@@ -242,35 +236,25 @@ onMounted(fetchAll);
 
     <!-- Summary + Trend Chart -->
     <div class="rounded-md bg-white p-4 shadow-sm sm:p-6">
-      <div
-        class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-      >
-        <h2 class="text-base font-semibold text-slate-800">
-          Purchase Order Summary
-        </h2>
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <h2 class="text-base font-semibold text-slate-800">Purchase Order Summary</h2>
 
         <!-- Filter bar -->
         <div class="flex flex-col gap-2">
-          <div
-            class="flex flex-col gap-2 sm:flex-row xs:flex-wrap xs:items-center"
-          >
+          <div class="xs:flex-wrap xs:items-center flex flex-col gap-2 sm:flex-row">
             <DateRange
               class="w-full sm:w-52 sm:shrink-0"
               :model-value="chartRange"
               :error="chartDateError"
               placeholder="Date Range Filter"
               @update:model-value="onChartRangeChange"
-              @error="chartDateError = $event"
-            />
+              @error="chartDateError = $event" />
             <select
               :value="filters.year"
-              class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300 xs:w-auto"
-              :disabled="
-                !!(chartRange || (filters.start_date && filters.end_date))
-              "
+              class="xs:w-auto w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300"
+              :disabled="!!(chartRange || (filters.start_date && filters.end_date))"
               @focus="fetchReportYears"
-              @change="onChartYearChange"
-            >
+              @change="onChartYearChange">
               <option value="">All Years</option>
               <option v-for="y in yearOptions" :key="y" :value="y">
                 {{ y }}
@@ -278,22 +262,16 @@ onMounted(fetchAll);
             </select>
             <select
               v-model="filters.region"
-              class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none xs:w-auto"
-              @focus="fetchRegionOptions"
-            >
+              class="xs:w-auto w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none"
+              @focus="fetchRegionOptions">
               <option value="">All Regions</option>
-              <option
-                v-for="region in regionOptions"
-                :key="region.id"
-                :value="region.id"
-              >
+              <option v-for="region in regionOptions" :key="region.id" :value="region.id">
                 {{ region.title }}
               </option>
             </select>
             <select
               v-model="filters.status"
-              class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none xs:w-auto"
-            >
+              class="xs:w-auto w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
               <option value="">All Status</option>
               <option value="open">Open</option>
               <option value="progress">Progress</option>
@@ -311,9 +289,7 @@ onMounted(fetchAll);
       <!-- Summary Cards -->
       <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="rounded-xl border border-slate-100 p-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Highest PO
-          </p>
+          <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Highest PO</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.highest ? `${summary.highest.total}` : "-" }}
           </p>
@@ -323,9 +299,7 @@ onMounted(fetchAll);
         </div>
 
         <div class="rounded-xl border border-slate-100 p-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Lowest PO
-          </p>
+          <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Lowest PO</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.lowest ? `${summary.lowest.total}` : "-" }}
           </p>
@@ -335,9 +309,7 @@ onMounted(fetchAll);
         </div>
 
         <div class="rounded-xl border border-slate-100 p-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Average PO
-          </p>
+          <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Average PO</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ Math.round(summary.average) }}
           </p>
@@ -348,25 +320,16 @@ onMounted(fetchAll);
       </div>
 
       <!-- Trend Chart -->
-      <h3 class="mb-4 text-sm font-semibold text-slate-700">
-        Total Purchase Order Trend
-      </h3>
-      <div
-        v-if="loading"
-        class="flex h-72 items-center justify-center text-sm text-slate-400"
-      >
+      <h3 class="mb-4 text-sm font-semibold text-slate-700">Total Purchase Order Trend</h3>
+      <div v-if="loading" class="flex h-72 items-center justify-center text-sm text-slate-400">
         Load data...
       </div>
-      <div
-        v-else-if="error"
-        class="flex h-72 items-center justify-center text-sm text-red-500"
-      >
+      <div v-else-if="error" class="flex h-72 items-center justify-center text-sm text-red-500">
         {{ error }}
       </div>
       <div
         v-else-if="chartData.length === 0"
-        class="flex h-72 items-center justify-center text-sm text-slate-400"
-      >
+        class="flex h-72 items-center justify-center text-sm text-slate-400">
         No data
       </div>
       <div v-else class="relative h-56 sm:h-72">
@@ -376,31 +339,23 @@ onMounted(fetchAll);
 
     <!-- Region Bar Chart -->
     <div class="mt-6 rounded-md bg-white p-4 shadow-sm sm:p-6">
-      <div
-        class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-      >
-        <h2 class="text-base font-semibold text-slate-800">
-          Region Report Summary
-        </h2>
+      <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <h2 class="text-base font-semibold text-slate-800">Region Report Summary</h2>
         <div class="flex flex-col gap-2">
-          <div
-            class="flex flex-col gap-2 sm:flex-row xs:flex-wrap xs:items-center"
-          >
+          <div class="xs:flex-wrap xs:items-center flex flex-col gap-2 sm:flex-row">
             <DateRange
               class="w-full sm:w-52 sm:shrink-0"
               :model-value="barRange"
               :error="barDateError"
               placeholder="Date Range Filter"
               @update:model-value="onBarRangeChange"
-              @error="barDateError = $event"
-            />
+              @error="barDateError = $event" />
             <select
               :value="barYear"
-              class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300 xs:w-auto"
+              class="xs:w-auto w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300"
               :disabled="!!barRange"
               @focus="fetchReportYears"
-              @change="onBarYearChange"
-            >
+              @change="onBarYearChange">
               <option value="">All Years</option>
               <option v-for="y in yearOptions" :key="y" :value="y">
                 {{ y }}
@@ -408,8 +363,7 @@ onMounted(fetchAll);
             </select>
             <select
               v-model="barStatus"
-              class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none xs:w-auto"
-            >
+              class="xs:w-auto w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
               <option value="">All Status</option>
               <option value="open">Open</option>
               <option value="progress">Progress</option>
@@ -424,22 +378,15 @@ onMounted(fetchAll);
         </div>
       </div>
 
-      <div
-        v-if="loading"
-        class="flex h-64 items-center justify-center text-sm text-slate-400"
-      >
+      <div v-if="loading" class="flex h-64 items-center justify-center text-sm text-slate-400">
         Load data...
       </div>
-      <div
-        v-else-if="error"
-        class="flex h-64 items-center justify-center text-sm text-red-500"
-      >
+      <div v-else-if="error" class="flex h-64 items-center justify-center text-sm text-red-500">
         {{ error }}
       </div>
       <div
         v-else-if="barData.length === 0"
-        class="flex h-64 items-center justify-center text-sm text-slate-400"
-      >
+        class="flex h-64 items-center justify-center text-sm text-slate-400">
         No data
       </div>
       <div v-else class="relative h-56 sm:h-64">
@@ -450,9 +397,7 @@ onMounted(fetchAll);
     <!-- Status Table -->
     <div class="mt-6 rounded-md bg-white shadow-sm">
       <div class="p-4 pb-0 sm:p-6 sm:pb-0">
-        <h2 class="text-base font-semibold text-slate-800 mb-5">
-          Status Purchase Order Report
-        </h2>
+        <h2 class="mb-5 text-base font-semibold text-slate-800">Status Purchase Order Report</h2>
       </div>
 
       <!-- MOBILE: card list (replaces table below sm), driven by the same statusColumns/statsData as the Table -->
@@ -464,20 +409,15 @@ onMounted(fetchAll);
           :error="error"
           row-key="region_id"
           title-key="region_title"
-          empty-message="Belum ada data laporan"
-        >
+          empty-message="Belum ada data laporan">
           <template #region_title="{ row }">
             {{ row.region_title }}
           </template>
           <template #total_complete="{ row }">
-            <span class="font-semibold text-teal-600">{{
-              row.total_complete
-            }}</span>
+            <span class="font-semibold text-teal-600">{{ row.total_complete }}</span>
           </template>
           <template #total_cancel="{ row }">
-            <span class="font-semibold text-red-500">{{
-              row.total_cancel
-            }}</span>
+            <span class="font-semibold text-red-500">{{ row.total_cancel }}</span>
           </template>
           <template #total_po="{ row }">
             <span class="font-semibold text-slate-800">{{ row.total_po }}</span>
@@ -493,22 +433,15 @@ onMounted(fetchAll);
           :loading="loading"
           :error="error"
           row-key="region_id"
-          empty-message="Belum ada data laporan"
-        >
+          empty-message="Belum ada data laporan">
           <template #region_title="{ row }">
-            <span class="font-medium text-slate-700">{{
-              row.region_title
-            }}</span>
+            <span class="font-medium text-slate-700">{{ row.region_title }}</span>
           </template>
           <template #total_complete="{ row }">
-            <span class="font-semibold text-teal-600">{{
-              row.total_complete
-            }}</span>
+            <span class="font-semibold text-teal-600">{{ row.total_complete }}</span>
           </template>
           <template #total_cancel="{ row }">
-            <span class="font-semibold text-red-500">{{
-              row.total_cancel
-            }}</span>
+            <span class="font-semibold text-red-500">{{ row.total_cancel }}</span>
           </template>
           <template #total_po="{ row }">
             <span class="font-semibold text-slate-800">{{ row.total_po }}</span>
@@ -518,12 +451,9 @@ onMounted(fetchAll);
 
       <div
         v-if="statsData.length"
-        class="flex items-center justify-between border-t border-slate-100 px-4 py-4 sm:px-6"
-      >
+        class="flex items-center justify-between border-t border-slate-100 px-4 py-4 sm:px-6">
         <span class="text-sm font-medium text-slate-500">Total</span>
-        <span class="text-sm font-semibold text-orange-500">{{
-          totalPoAllRegion
-        }}</span>
+        <span class="text-sm font-semibold text-orange-500">{{ totalPoAllRegion }}</span>
       </div>
     </div>
   </div>

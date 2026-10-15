@@ -52,8 +52,7 @@ const tone = computed(() => {
   <span
     v-if="days !== null"
     class="inline-flex items-center gap-1 rounded-sm border px-1.5 py-0.5 text-[11px] font-medium"
-    :class="tone"
-  >
+    :class="tone">
     <Icon icon="hugeicons:clock-01" class="size-3.5 shrink-0" />
     {{ label }}
   </span>

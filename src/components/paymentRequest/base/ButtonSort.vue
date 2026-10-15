@@ -28,18 +28,15 @@ function onOutsideClick(e) {
 }
 
 onMounted(() => document.addEventListener("mousedown", onOutsideClick));
-onBeforeUnmount(() =>
-  document.removeEventListener("mousedown", onOutsideClick),
-);
+onBeforeUnmount(() => document.removeEventListener("mousedown", onOutsideClick));
 </script>
 
 <template>
   <div ref="el" class="relative inline-flex">
     <button
       type="button"
-      class="flex h-10 px-3 text-[14px] leading-none tracking-tight font-medium gap-1 items-center justify-center rounded-sm border border-slate-200 hover:bg-slate-100 text-slate-600 transition-colors duration-150 cursor-pointer"
-      @click="isOpen = !isOpen"
-    >
+      class="flex h-10 cursor-pointer items-center justify-center gap-1 rounded-sm border border-slate-200 px-3 text-[14px] leading-none font-medium tracking-tight text-slate-600 transition-colors duration-150 hover:bg-slate-100"
+      @click="isOpen = !isOpen">
       <Icon icon="hugeicons:arrow-up-down" class="size-5 shrink-0" />
       {{ selectedLabel }}
     </button>
@@ -50,7 +47,6 @@ onBeforeUnmount(() =>
       :model-value="modelValue"
       width-class="w-36"
       max-height-class="max-h-60"
-      @select="select"
-    />
+      @select="select" />
   </div>
 </template>

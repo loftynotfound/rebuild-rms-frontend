@@ -46,17 +46,10 @@ export function useResetPassword() {
   });
 
   const isFormValid = computed(() => {
-    return (
-      password.value &&
-      confirmPassword.value &&
-      !passwordError.value &&
-      !confirmError.value
-    );
+    return password.value && confirmPassword.value && !passwordError.value && !confirmError.value;
   });
 
-  const pageTitle = computed(() =>
-    mode === "activate" ? "Set Your Password" : "Reset Password",
-  );
+  const pageTitle = computed(() => (mode === "activate" ? "Set Your Password" : "Reset Password"));
 
   const pageSubtitle = computed(() =>
     mode === "activate"
@@ -91,8 +84,7 @@ export function useResetPassword() {
       }, 2000);
     } catch (err) {
       error.value =
-        err.response?.data?.message ||
-        "Something went wrong. This link may have expired.";
+        err.response?.data?.message || "Something went wrong. This link may have expired.";
     } finally {
       loading.value = false;
     }

@@ -100,8 +100,7 @@ export function useAdmins() {
       await api.post(`/admins/${id}/resend-activation`);
       return true;
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Gagal mengirim ulang email aktivasi";
+      error.value = err.response?.data?.message || "Gagal mengirim ulang email aktivasi";
       return false;
     }
   }
@@ -136,9 +135,7 @@ export function useAdmins() {
 
   // Kirim ulang email aktivasi dari baris tabel
   async function handleResendActivation(admin) {
-    const confirmed = confirm(
-      `Kirim ulang email aktivasi ke "${admin.admin_email}"?`,
-    );
+    const confirmed = confirm(`Kirim ulang email aktivasi ke "${admin.admin_email}"?`);
     if (!confirmed) return;
     await resendActivation(admin.admin_id);
   }
@@ -183,8 +180,7 @@ export function useAdmins() {
       email: admin.admin_email,
       username: admin.admin_name,
       role_id: admin.admin_ref_role != null ? Number(admin.admin_ref_role) : "",
-      region_id:
-        admin.admin_ref_region != null ? Number(admin.admin_ref_region) : "",
+      region_id: admin.admin_ref_region != null ? Number(admin.admin_ref_region) : "",
       pic: admin.admin_pic ?? "no",
       pic_client: admin.admin_pic_client ?? "no",
     };

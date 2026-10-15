@@ -58,16 +58,11 @@ const send = async () => {
 </script>
 
 <template>
-  <div
-    v-if="!forbidden"
-    class="rounded-sm border border-slate-200 bg-white px-6 py-4"
-  >
+  <div v-if="!forbidden" class="rounded-sm border border-slate-200 bg-white px-6 py-4">
     <h2 class="mb-2 text-sm font-semibold text-slate-900">Comments</h2>
 
     <p v-if="loading" class="text-sm text-slate-400">Loading...</p>
-    <p v-else-if="!comments.length" class="text-sm text-slate-400">
-      No comments yet.
-    </p>
+    <p v-else-if="!comments.length" class="text-sm text-slate-400">No comments yet.</p>
 
     <ul v-else class="divide-y divide-slate-200 text-sm">
       <li v-for="c in comments" :key="c.comment_id" class="space-y-1 py-3">
@@ -76,14 +71,11 @@ const send = async () => {
             {{ c.admin_name || "-" }}
             <span
               v-if="TYPE_LABEL[c.comment_type]"
-              class="ml-1 rounded-sm border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600"
-            >
+              class="ml-1 rounded-sm border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
               {{ TYPE_LABEL[c.comment_type] }}
             </span>
           </span>
-          <span class="text-xs text-slate-400">{{
-            date(c.comment_create_date)
-          }}</span>
+          <span class="text-xs text-slate-400">{{ date(c.comment_create_date) }}</span>
         </div>
         <p class="whitespace-pre-line text-slate-600">{{ c.comment_text }}</p>
       </li>
@@ -94,8 +86,7 @@ const send = async () => {
         v-model="text"
         rows="3"
         class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm focus:border-teal-400 focus:outline-none"
-        placeholder="Write a comment..."
-      />
+        placeholder="Write a comment..." />
       <div class="flex items-center justify-between">
         <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
         <span v-else />
@@ -103,8 +94,7 @@ const send = async () => {
           type="button"
           class="rounded-sm bg-teal-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-50"
           :disabled="sending || !text.trim()"
-          @click="send"
-        >
+          @click="send">
           {{ sending ? "Sending..." : "Send" }}
         </button>
       </div>

@@ -25,13 +25,10 @@ const confirm = () => {
 <template>
   <div
     class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4"
-    @click.self="emit('close')"
-  >
+    @click.self="emit('close')">
     <div class="w-full max-w-md rounded-xl bg-white shadow-2xl">
       <div class="border-b border-slate-200 px-6 py-4">
-        <h2 class="text-lg font-semibold text-slate-800">
-          Cancel Payment Request
-        </h2>
+        <h2 class="text-lg font-semibold text-slate-800">Cancel Payment Request</h2>
       </div>
 
       <div class="space-y-3 px-6 py-5 text-sm text-slate-600">
@@ -54,8 +51,7 @@ const confirm = () => {
             v-model="notes"
             rows="3"
             class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm focus:border-teal-400 focus:outline-none"
-            placeholder="Why is this request cancelled?"
-          />
+            placeholder="Why is this request cancelled?" />
         </label>
 
         <p v-if="localError || error" class="text-xs text-red-500">
@@ -68,8 +64,7 @@ const confirm = () => {
           type="button"
           class="rounded-sm border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600"
           :disabled="loading"
-          @click="emit('close')"
-        >
+          @click="emit('close')">
           Close
         </button>
 
@@ -77,8 +72,7 @@ const confirm = () => {
           type="button"
           class="rounded-sm bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-50"
           :disabled="loading"
-          @click="confirm"
-        >
+          @click="confirm">
           {{ loading ? "Cancelling..." : "Yes, Cancel PR" }}
         </button>
       </div>

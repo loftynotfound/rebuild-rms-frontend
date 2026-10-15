@@ -20,21 +20,13 @@ const selectClass =
 const dayOf = (item) => String(item.prCreateDate ?? "").slice(0, 10);
 
 const yearOptions = computed(() =>
-  [
-    ...new Set(
-      requests.value.map((item) => dayOf(item).slice(0, 4)).filter(Boolean),
-    ),
-  ]
+  [...new Set(requests.value.map((item) => dayOf(item).slice(0, 4)).filter(Boolean))]
     .sort()
     .reverse(),
 );
 
 const responsibleOptions = computed(() =>
-  [
-    ...new Set(
-      requests.value.map((item) => item.responsibleName).filter(Boolean),
-    ),
-  ].sort(),
+  [...new Set(requests.value.map((item) => item.responsibleName).filter(Boolean))].sort(),
 );
 
 function onRangeChange(value) {
@@ -51,12 +43,10 @@ const filtered = computed(() =>
   requests.value.filter((item) => {
     const day = dayOf(item);
 
-    if (range.value && (day < range.value.start || day > range.value.end))
-      return false;
+    if (range.value && (day < range.value.start || day > range.value.end)) return false;
     if (!range.value && year.value && !day.startsWith(year.value)) return false;
     if (status.value && item.prStatus !== status.value) return false;
-    if (responsible.value && item.responsibleName !== responsible.value)
-      return false;
+    if (responsible.value && item.responsibleName !== responsible.value) return false;
 
     return true;
   }),
@@ -107,10 +97,7 @@ const summary = computed(() => {
 });
 
 const totalAmount = computed(() =>
-  filtered.value.reduce(
-    (sum, item) => sum + Number(item.prRequestedAmount || 0),
-    0,
-  ),
+  filtered.value.reduce((sum, item) => sum + Number(item.prRequestedAmount || 0), 0),
 );
 
 const trendCanvas = ref(null);
@@ -216,29 +203,19 @@ onMounted(fetchRequests);
     <h1 class="text-2xl font-bold text-slate-800">Request Summary</h1>
 
     <div class="rounded-md border border-slate-200 bg-white p-4 sm:p-6">
-      <div
-        class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
-      >
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <h2 class="text-base font-semibold text-slate-800">Filter</h2>
 
         <div class="flex flex-col gap-2">
-          <div
-            class="flex flex-col gap-2 sm:flex-row xs:flex-wrap xs:items-center"
-          >
+          <div class="xs:flex-wrap xs:items-center flex flex-col gap-2 sm:flex-row">
             <DateRange
               class="w-full sm:w-52 sm:shrink-0"
               :model-value="range"
               :error="rangeError"
               placeholder="Date Range Filter"
               @update:model-value="onRangeChange"
-              @error="rangeError = $event"
-            />
-            <select
-              :value="year"
-              :class="selectClass"
-              :disabled="!!range"
-              @change="onYearChange"
-            >
+              @error="rangeError = $event" />
+            <select :value="year" :class="selectClass" :disabled="!!range" @change="onYearChange">
               <option value="">All Years</option>
               <option v-for="y in yearOptions" :key="y" :value="y">
                 {{ y }}
@@ -263,15 +240,11 @@ onMounted(fetchRequests);
     </div>
 
     <div class="rounded-md border border-slate-200 bg-white p-4 sm:p-6">
-      <h2 class="mb-6 text-base font-semibold text-slate-800">
-        Payment Request Summary
-      </h2>
+      <h2 class="mb-6 text-base font-semibold text-slate-800">Payment Request Summary</h2>
 
       <div class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div class="rounded-xl border border-slate-200 p-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Highest PR
-          </p>
+          <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Highest PR</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.highest ? summary.highest.total : "-" }}
           </p>
@@ -281,9 +254,7 @@ onMounted(fetchRequests);
         </div>
 
         <div class="rounded-xl border border-slate-200 p-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Lowest PR
-          </p>
+          <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Lowest PR</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ summary.lowest ? summary.lowest.total : "-" }}
           </p>
@@ -293,9 +264,7 @@ onMounted(fetchRequests);
         </div>
 
         <div class="rounded-xl border border-slate-200 p-4">
-          <p class="text-xs font-medium uppercase tracking-wide text-slate-400">
-            Average PR
-          </p>
+          <p class="text-xs font-medium tracking-wide text-slate-400 uppercase">Average PR</p>
           <p class="mt-2 text-2xl font-bold text-slate-800">
             {{ Math.round(summary.average) }}
           </p>
@@ -306,25 +275,16 @@ onMounted(fetchRequests);
         </div>
       </div>
 
-      <h3 class="mb-4 text-sm font-semibold text-slate-700">
-        Total Payment Request Trend
-      </h3>
-      <div
-        v-if="listLoading"
-        class="flex h-72 items-center justify-center text-sm text-slate-400"
-      >
+      <h3 class="mb-4 text-sm font-semibold text-slate-700">Total Payment Request Trend</h3>
+      <div v-if="listLoading" class="flex h-72 items-center justify-center text-sm text-slate-400">
         Load data...
       </div>
-      <div
-        v-else-if="listError"
-        class="flex h-72 items-center justify-center text-sm text-red-500"
-      >
+      <div v-else-if="listError" class="flex h-72 items-center justify-center text-sm text-red-500">
         {{ listError }}
       </div>
       <div
         v-else-if="dailyData.length === 0"
-        class="flex h-72 items-center justify-center text-sm text-slate-400"
-      >
+        class="flex h-72 items-center justify-center text-sm text-slate-400">
         No data
       </div>
       <div v-else class="relative h-56 sm:h-72">
@@ -333,26 +293,17 @@ onMounted(fetchRequests);
     </div>
 
     <div class="rounded-md border border-slate-200 bg-white p-4 sm:p-6">
-      <h2 class="mb-6 text-base font-semibold text-slate-800">
-        Responsible Amount Summary
-      </h2>
+      <h2 class="mb-6 text-base font-semibold text-slate-800">Responsible Amount Summary</h2>
 
-      <div
-        v-if="listLoading"
-        class="flex h-64 items-center justify-center text-sm text-slate-400"
-      >
+      <div v-if="listLoading" class="flex h-64 items-center justify-center text-sm text-slate-400">
         Load data...
       </div>
-      <div
-        v-else-if="listError"
-        class="flex h-64 items-center justify-center text-sm text-red-500"
-      >
+      <div v-else-if="listError" class="flex h-64 items-center justify-center text-sm text-red-500">
         {{ listError }}
       </div>
       <div
         v-else-if="tableRows.length === 0"
-        class="flex h-64 items-center justify-center text-sm text-slate-400"
-      >
+        class="flex h-64 items-center justify-center text-sm text-slate-400">
         No data
       </div>
       <div v-else class="relative h-56 sm:h-64">
@@ -362,9 +313,7 @@ onMounted(fetchRequests);
 
     <div class="rounded-md border border-slate-200 bg-white">
       <div class="p-4 pb-0 sm:p-6 sm:pb-0">
-        <h2 class="mb-5 text-base font-semibold text-slate-800">
-          Status Payment Request Report
-        </h2>
+        <h2 class="mb-5 text-base font-semibold text-slate-800">Status Payment Request Report</h2>
       </div>
 
       <Table
@@ -373,8 +322,7 @@ onMounted(fetchRequests);
         :loading="listLoading"
         :error="listError"
         row-key="responsible"
-        empty-message="Belum ada data laporan"
-      >
+        empty-message="Belum ada data laporan">
         <template #responsible="{ row }">
           <span class="font-medium text-slate-700">{{ row.responsible }}</span>
         </template>
@@ -391,12 +339,9 @@ onMounted(fetchRequests);
 
       <div
         v-if="tableRows.length"
-        class="flex items-center justify-between border-t border-slate-200 px-4 py-4 sm:px-6"
-      >
+        class="flex items-center justify-between border-t border-slate-200 px-4 py-4 sm:px-6">
         <span class="text-sm font-medium text-slate-500">Total</span>
-        <span class="text-sm font-semibold text-orange-500">{{
-          filtered.length
-        }}</span>
+        <span class="text-sm font-semibold text-orange-500">{{ filtered.length }}</span>
       </div>
     </div>
   </div>

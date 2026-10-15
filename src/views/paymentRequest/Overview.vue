@@ -73,9 +73,7 @@ const isChecker = computed(() => authStore.hasAccess("checker"));
 const isDirector = computed(() => authStore.hasAccess("director"));
 const isFinance = computed(() => authStore.hasAccess("finance"));
 
-const isApprover = computed(
-  () => isChecker.value || isDirector.value || isFinance.value,
-);
+const isApprover = computed(() => isChecker.value || isDirector.value || isFinance.value);
 
 const tabRole = computed(() => {
   if (!isApprover.value) return "requester";
@@ -102,8 +100,7 @@ const tabKeys = computed(() =>
 );
 
 const initialStatus =
-  typeof route.query.status === "string" &&
-  tabKeys.value.includes(route.query.status)
+  typeof route.query.status === "string" && tabKeys.value.includes(route.query.status)
     ? route.query.status
     : tabKeys.value[0];
 
@@ -177,9 +174,7 @@ const fetchApproverData = async () => {
       });
 
       pendingCancelCount.value =
-        cancelResponse?.meta?.total_data ??
-        cancelResponse?.data?.meta?.total_data ??
-        0;
+        cancelResponse?.meta?.total_data ?? cancelResponse?.data?.meta?.total_data ?? 0;
 
       const rows = await Promise.all(
         approved.map(async (pr) => {
@@ -187,9 +182,7 @@ const fetchApproverData = async () => {
 
           const payments = normalizeList(paymentResponse);
 
-          const pendingPayment = payments.find(
-            (payment) => payment.payment_status === "pending",
-          );
+          const pendingPayment = payments.find((payment) => payment.payment_status === "pending");
 
           return cardFromPR(pr, {
             pendingPayment: pendingPayment ?? null,
@@ -286,9 +279,7 @@ const paymentText = (item) =>
   (item.payments ?? [])
     .map(
       (payment) =>
-        `${payment.paymentBankAccountName ?? ""} ${
-          payment.paymentBankAccountNumber ?? ""
-        }`,
+        `${payment.paymentBankAccountName ?? ""} ${payment.paymentBankAccountNumber ?? ""}`,
     )
     .join(" ");
 
@@ -331,9 +322,7 @@ const filteredCard = computed(() => {
     }
 
     if (sort.value === "date") {
-      return String(b.prCreateDate ?? "").localeCompare(
-        String(a.prCreateDate ?? ""),
-      );
+      return String(b.prCreateDate ?? "").localeCompare(String(a.prCreateDate ?? ""));
     }
 
     return 0;
@@ -345,10 +334,7 @@ const totalPages = computed(() =>
 );
 
 const card = computed(() =>
-  filteredCard.value.slice(
-    (page.value - 1) * perPage.value,
-    page.value * perPage.value,
-  ),
+  filteredCard.value.slice((page.value - 1) * perPage.value, page.value * perPage.value),
 );
 
 const goToPage = (value) => {
@@ -398,9 +384,7 @@ const toggleSelect = (row) => {
 };
 
 const selectAll = () => {
-  selectedIds.value = selectableItems.value
-    .slice(0, MAX_BULK)
-    .map((item) => item.prId);
+  selectedIds.value = selectableItems.value.slice(0, MAX_BULK).map((item) => item.prId);
 
   if (selectableItems.value.length > MAX_BULK) {
     actionError.value = `Only the first ${MAX_BULK} requests were selected.`;
@@ -420,8 +404,7 @@ const showFailures = (title, results, labels, idKey) => {
   };
 };
 
-const loadRequests = () =>
-  isApprover.value ? Promise.resolve() : fetchRequests();
+const loadRequests = () => (isApprover.value ? Promise.resolve() : fetchRequests());
 
 const refresh = async () => {
   actionError.value = "";
@@ -438,10 +421,7 @@ const refresh = async () => {
 onMounted(refresh);
 
 const isEmpty = computed(
-  () =>
-    !data.loading.value &&
-    !data.error.value &&
-    data.filteredCard.value.length === 0,
+  () => !data.loading.value && !data.error.value && data.filteredCard.value.length === 0,
 );
 
 const hasFilter = computed(() =>
@@ -504,8 +484,7 @@ const tabs = computed(() => {
   return REQUESTER_TABS.map((item) => ({
     key: item,
     label: capitalize(item),
-    count:
-      item === "All" ? requests.value.length : (countByStatus.value[item] ?? 0),
+    count: item === "All" ? requests.value.length : (countByStatus.value[item] ?? 0),
   }));
 });
 
@@ -561,8 +540,7 @@ const runDecision = async (kind, item, notes = "") => {
 
     await refresh();
   } catch (error) {
-    actionError.value =
-      error.response?.data?.message ?? "Failed to process the decision.";
+    actionError.value = error.response?.data?.message ?? "Failed to process the decision.";
   }
 };
 
@@ -582,9 +560,7 @@ const runBulkDecision = async (decision, notes = "") => {
       })),
     });
 
-    const labels = Object.fromEntries(
-      picked.map((item) => [item.approvalId, item.prRfpNumber]),
-    );
+    const labels = Object.fromEntries(picked.map((item) => [item.approvalId, item.prRfpNumber]));
 
     showFailures(
       decision === "approved" ? "Bulk Approve" : "Bulk Reject",
@@ -595,8 +571,7 @@ const runBulkDecision = async (decision, notes = "") => {
 
     await refresh();
   } catch (error) {
-    actionError.value =
-      error.response?.data?.message ?? "Failed to process the decisions.";
+    actionError.value = error.response?.data?.message ?? "Failed to process the decisions.";
   }
 };
 
@@ -688,8 +663,7 @@ const confirmCancel = async (notes) => {
       return;
     }
 
-    cancelError.value =
-      error.response?.data?.message ?? "Failed to cancel the request.";
+    cancelError.value = error.response?.data?.message ?? "Failed to cancel the request.";
   } finally {
     cancelLoading.value = false;
   }
@@ -749,9 +723,7 @@ const payFirst = async (item) => {
     await refresh();
   } catch (error) {
     actionError.value =
-      error.response?.data?.message ??
-      error.message ??
-      "Failed to confirm the payment.";
+      error.response?.data?.message ?? error.message ?? "Failed to confirm the payment.";
   }
 };
 
@@ -779,9 +751,7 @@ const savePriorityDate = async (priorityDate) => {
     await refresh();
   } catch (error) {
     actionError.value =
-      error.response?.data?.message ??
-      error.message ??
-      "Failed to set the priority date.";
+      error.response?.data?.message ?? error.message ?? "Failed to set the priority date.";
   }
 };
 
@@ -801,12 +771,7 @@ const requesterActions = (item) => {
   };
 
   if (requestStatus === "draft" || requestStatus === "revision") {
-    return [
-      VIEW,
-      { key: "edit", label: "Edit" },
-      { key: "submit", label: "Submit" },
-      cancel,
-    ];
+    return [VIEW, { key: "edit", label: "Edit" }, { key: "submit", label: "Submit" }, cancel];
   }
 
   if (requestStatus === "submitted") {
@@ -865,8 +830,7 @@ const approverActions = (item) => {
   }
 };
 
-const getActions = (item) =>
-  isApprover.value ? approverActions(item) : requesterActions(item);
+const getActions = (item) => (isApprover.value ? approverActions(item) : requesterActions(item));
 
 const handleAction = (item, key) => {
   switch (key) {
@@ -917,22 +881,18 @@ const confirmAction = () => {
   <div class="space-y-4">
     <h1 class="text-2xl font-bold text-slate-800">Request Overview</h1>
 
-    <div
-      class="flex flex-col rounded-sm border border-slate-200 bg-white px-4 py-4 shadow-xs"
-    >
+    <div class="flex flex-col rounded-sm border border-slate-200 bg-white px-4 py-4 shadow-xs">
       <div class="pb-6">
         <DisplayTab
           :model-value="status"
           :items="tabs"
           :role="tabRole"
-          @update:model-value="switchStatus"
-        />
+          @update:model-value="switchStatus" />
 
         <div class="mt-4">
           <p
             v-if="actionError || listError"
-            class="rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500"
-          >
+            class="rounded-sm border border-red-200 bg-red-100 px-3 py-2 text-xs text-red-500">
             {{ actionError || listError }}
           </p>
         </div>
@@ -940,8 +900,7 @@ const confirmAction = () => {
 
       <div
         v-if="status !== 'cancel-requests'"
-        class="flex flex-col pb-6 lg:flex-row lg:items-center lg:justify-between"
-      >
+        class="flex flex-col pb-6 lg:flex-row lg:items-center lg:justify-between">
         <div class="flex flex-wrap items-center gap-2">
           <InputSearch class="w-72" v-model="data.search.value" />
 
@@ -949,8 +908,7 @@ const confirmAction = () => {
             class="w-50"
             v-model="dateRangeModel"
             :error="dateRangeError"
-            @error="dateRangeError = $event"
-          />
+            @error="dateRangeError = $event" />
 
           <ButtonSort v-model="data.sort.value" />
         </div>
@@ -964,8 +922,7 @@ const confirmAction = () => {
       <section v-if="status !== 'cancel-requests'">
         <div
           v-if="isEmpty"
-          class="flex flex-col items-center justify-center gap-2 py-16 text-center"
-        >
+          class="flex flex-col items-center justify-center gap-2 py-16 text-center">
           <Icon icon="hugeicons:invoice-01" class="size-10 text-slate-400" />
           <p class="text-sm font-medium text-slate-800">
             {{ emptyMessage }}
@@ -975,14 +932,12 @@ const confirmAction = () => {
         <template v-else>
           <div
             v-if="selectableItems.length"
-            class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm"
-          >
+            class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm">
             <div class="flex items-center gap-3 text-slate-600">
               <button
                 type="button"
                 class="font-medium text-teal-600 hover:text-teal-700"
-                @click="selectAll"
-              >
+                @click="selectAll">
                 Select all ({{ selectableItems.length }})
               </button>
 
@@ -990,14 +945,11 @@ const confirmAction = () => {
                 v-if="selectedIds.length"
                 type="button"
                 class="font-medium hover:text-slate-800"
-                @click="selectedIds = []"
-              >
+                @click="selectedIds = []">
                 Clear
               </button>
 
-              <span v-if="selectedIds.length">
-                {{ selectedIds.length }} selected
-              </span>
+              <span v-if="selectedIds.length"> {{ selectedIds.length }} selected </span>
             </div>
 
             <div v-if="selectedIds.length" class="flex gap-2">
@@ -1005,8 +957,7 @@ const confirmAction = () => {
                 v-if="!isApprover"
                 type="button"
                 class="rounded-sm bg-teal-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-600"
-                @click="bulkSubmit"
-              >
+                @click="bulkSubmit">
                 Submit Selected
               </button>
 
@@ -1015,16 +966,14 @@ const confirmAction = () => {
                   v-if="isChecker"
                   type="button"
                   class="rounded-sm border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50"
-                  @click="bulkReject"
-                >
+                  @click="bulkReject">
                   Reject Selected
                 </button>
 
                 <button
                   type="button"
                   class="rounded-sm bg-teal-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-600"
-                  @click="bulkApprove"
-                >
+                  @click="bulkApprove">
                   Approve Selected
                 </button>
               </template>
@@ -1040,8 +989,7 @@ const confirmAction = () => {
             :status="getStatus"
             :get-actions="getActions"
             @toggle="toggleSelect"
-            @action="handleAction"
-          />
+            @action="handleAction" />
 
           <Pagination
             class="pt-4"
@@ -1049,17 +997,11 @@ const confirmAction = () => {
             :total-page="data.totalPages.value"
             :total-data="data.filteredCard.value.length"
             :per-page="data.perPage.value"
-            @change="data.goToPage"
-          />
+            @change="data.goToPage" />
         </template>
       </section>
 
-      <DisplayCancellation
-        v-else
-        :money="money"
-        :date="date"
-        @changed="fetchApproverData"
-      />
+      <DisplayCancellation v-else :money="money" :date="date" @changed="fetchApproverData" />
     </div>
   </div>
 
@@ -1067,8 +1009,7 @@ const confirmAction = () => {
     v-if="showExportModal"
     :start-date="data.dateFrom.value"
     :end-date="data.dateTo.value"
-    @close="showExportModal = false"
-  />
+    @close="showExportModal = false" />
 
   <ModalCancel
     v-if="showCancelModal"
@@ -1076,8 +1017,7 @@ const confirmAction = () => {
     :loading="cancelLoading"
     :error="cancelError"
     @close="closeCancel"
-    @confirm="confirmCancel"
-  />
+    @confirm="confirmCancel" />
 
   <ModalSignature
     v-if="modal === 'confirm'"
@@ -1085,30 +1025,26 @@ const confirmAction = () => {
     role-label="Confirmed By"
     submit-label="Confirm"
     @close="closeModal"
-    @submit="confirmAction"
-  />
+    @submit="confirmAction" />
 
   <ModalReject
     v-if="['reject', 'revise', 'bulk-reject'].includes(modal)"
     :title="rejectTitle"
     @close="closeModal"
-    @submit="rejectAction"
-  />
+    @submit="rejectAction" />
 
   <ModalSubmit
     v-if="showSubmit"
     :target="submitTarget"
     :targets="submitTargets"
     @close="showSubmit = false"
-    @done="onSubmitted"
-  />
+    @done="onSubmitted" />
 
   <ModalResult
     v-if="bulkResult"
     :title="bulkResult.title"
     :rows="bulkResult.rows"
-    @close="bulkResult = null"
-  />
+    @close="bulkResult = null" />
 
   <ModalCancelRequest
     v-if="showCancelRequest"
@@ -1116,12 +1052,7 @@ const confirmAction = () => {
     :loading="cancelRequestLoading"
     :error="cancelRequestError"
     @close="showCancelRequest = false"
-    @submit="submitCancelRequest"
-  />
+    @submit="submitCancelRequest" />
 
-  <ModalAssign
-    v-model="showAssign"
-    :item="assignTarget"
-    @confirm="savePriorityDate"
-  />
+  <ModalAssign v-model="showAssign" :item="assignTarget" @confirm="savePriorityDate" />
 </template>

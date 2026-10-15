@@ -16,17 +16,11 @@ defineProps({
 </script>
 
 <template>
-  <article
-    class="rounded-sm border border-slate-200 bg-white px-6 py-6 sm:px-8 sm:py-8"
-  >
+  <article class="rounded-sm border border-slate-200 bg-white px-6 py-6 sm:px-8 sm:py-8">
     <div class="text-center">
-      <h2 class="text-[20px] font-extrabold leading-6 text-slate-900">
-        REQUEST FOR PAYMENT
-      </h2>
+      <h2 class="text-[20px] leading-6 font-extrabold text-slate-900">REQUEST FOR PAYMENT</h2>
 
-      <p class="text-[20px] font-extrabold leading-7 text-slate-900">
-        PT REZEKI UTAMI SEJAHTERA
-      </p>
+      <p class="text-[20px] leading-7 font-extrabold text-slate-900">PT REZEKI UTAMI SEJAHTERA</p>
     </div>
 
     <div class="mt-6 grid gap-7 md:grid-cols-2">
@@ -34,8 +28,7 @@ defineProps({
         <tbody>
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               No RFP
             </th>
 
@@ -46,8 +39,7 @@ defineProps({
 
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               Date
             </th>
 
@@ -58,8 +50,7 @@ defineProps({
 
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               No Quot
             </th>
 
@@ -70,8 +61,7 @@ defineProps({
 
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               PO Number
             </th>
 
@@ -86,8 +76,7 @@ defineProps({
         <tbody>
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               Payment Type
             </th>
 
@@ -98,8 +87,7 @@ defineProps({
 
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               Bank
             </th>
 
@@ -110,8 +98,7 @@ defineProps({
 
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               Bank Account No.
             </th>
 
@@ -122,8 +109,7 @@ defineProps({
 
           <tr>
             <th
-              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium"
-            >
+              class="w-[31%] border border-slate-200 bg-slate-100 px-2.5 py-2 text-left font-medium">
               Bank Account Name
             </th>
 
@@ -135,20 +121,16 @@ defineProps({
       </table>
     </div>
 
-    <table
-      class="mt-6 w-full table-fixed border-collapse text-xs text-slate-800"
-    >
+    <table class="mt-6 w-full table-fixed border-collapse text-xs text-slate-800">
       <thead>
         <tr>
           <th
-            class="w-1/2 border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white"
-          >
+            class="w-1/2 border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white">
             DESCRIPTION
           </th>
 
           <th
-            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white"
-          >
+            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white">
             AMOUNT
           </th>
         </tr>
@@ -171,9 +153,7 @@ defineProps({
               </div>
 
               <div class="grid grid-cols-[138px_1fr] border-t border-slate-200">
-                <span class="bg-slate-100 px-2.5 py-1.5 font-medium">
-                  HPP
-                </span>
+                <span class="bg-slate-100 px-2.5 py-1.5 font-medium"> HPP </span>
 
                 <strong class="px-2.5 py-1.5 font-normal">
                   {{ money(item.cogs) }}
@@ -181,9 +161,7 @@ defineProps({
               </div>
 
               <div class="grid grid-cols-[138px_1fr] border-t border-slate-200">
-                <span class="bg-slate-100 px-2.5 py-1.5 font-medium">
-                  Margin
-                </span>
+                <span class="bg-slate-100 px-2.5 py-1.5 font-medium"> Margin </span>
 
                 <strong class="px-2.5 py-1.5 font-normal">
                   {{ money(item.margin) }} ({{ item.marginPct }}%)
@@ -191,11 +169,8 @@ defineProps({
               </div>
 
               <div
-                class="grid grid-cols-[105px_1fr] border-t border-slate-200 sm:grid-cols-[138px_1fr]"
-              >
-                <span class="bg-slate-100 px-2.5 py-1.5 font-medium">
-                  Target Invoice
-                </span>
+                class="grid grid-cols-[105px_1fr] border-t border-slate-200 sm:grid-cols-[138px_1fr]">
+                <span class="bg-slate-100 px-2.5 py-1.5 font-medium"> Target Invoice </span>
 
                 <strong class="px-2.5 py-1.5 font-normal">
                   {{ date(item.targetInvoiceDate) }}
@@ -204,55 +179,45 @@ defineProps({
             </div>
           </td>
 
-          <td
-            class="border border-slate-200 bg-white px-2.5 py-3 text-center align-top font-bold"
-          >
+          <td class="border border-slate-200 bg-white px-2.5 py-3 text-center align-top font-bold">
             {{ money(item.totalAmount) }}
           </td>
         </tr>
 
         <tr>
           <th
-            class="border border-slate-200 bg-white px-2.5 py-2.5 text-right font-bold text-slate-800"
-          >
+            class="border border-slate-200 bg-white px-2.5 py-2.5 text-right font-bold text-slate-800">
             TOTAL AMOUNT
           </th>
 
           <th
-            class="border border-slate-200 bg-white px-2.5 py-2.5 text-center font-bold text-slate-800"
-          >
+            class="border border-slate-200 bg-white px-2.5 py-2.5 text-center font-bold text-slate-800">
             {{ money(item.totalAmount) }}
           </th>
         </tr>
       </tbody>
     </table>
 
-    <table
-      class="mt-6 w-full table-fixed border-collapse text-xs text-slate-800"
-    >
+    <table class="mt-6 w-full table-fixed border-collapse text-xs text-slate-800">
       <thead>
         <tr>
           <th
-            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white"
-          >
+            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white">
             Prepared by :
           </th>
 
           <th
-            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white"
-          >
+            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white">
             Reviewed by :
           </th>
 
           <th
-            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white"
-          >
+            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white">
             Approve by :
           </th>
 
           <th
-            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white"
-          >
+            class="border border-slate-200 bg-blue-600 px-2.5 py-2.5 text-center font-bold text-white">
             Posted by :
           </th>
         </tr>
@@ -260,16 +225,13 @@ defineProps({
 
       <tbody>
         <tr>
-          <td
-            class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom"
-          >
+          <td class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom">
             <div class="flex h-23 items-center justify-center">
               <img
                 v-if="item.signature"
                 :src="item.signature"
                 alt="Prepared by signature"
-                class="max-h-16.25 max-w-33.75 object-contain"
-              />
+                class="max-h-16.25 max-w-33.75 object-contain" />
             </div>
 
             <span class="block min-h-4.5">
@@ -277,16 +239,13 @@ defineProps({
             </span>
           </td>
 
-          <td
-            class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom"
-          >
+          <td class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom">
             <div class="flex h-23 items-center justify-center">
               <img
                 v-if="item.reviewedSignature"
                 :src="item.reviewedSignature"
                 alt="Checked by signature"
-                class="max-h-16.25 max-w-33.75 object-contain"
-              />
+                class="max-h-16.25 max-w-33.75 object-contain" />
             </div>
 
             <span class="block min-h-4.5">
@@ -294,16 +253,13 @@ defineProps({
             </span>
           </td>
 
-          <td
-            class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom"
-          >
+          <td class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom">
             <div class="flex h-23 items-center justify-center">
               <img
                 v-if="item.approvedSignature"
                 :src="item.approvedSignature"
                 alt="Approve by signature"
-                class="max-h-16.25 max-w-33.75 object-contain"
-              />
+                class="max-h-16.25 max-w-33.75 object-contain" />
             </div>
 
             <span class="block min-h-4.5">
@@ -311,16 +267,13 @@ defineProps({
             </span>
           </td>
 
-          <td
-            class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom"
-          >
+          <td class="h-33 border border-slate-200 px-2 pb-2.5 text-center align-bottom">
             <div class="flex h-23 items-center justify-center">
               <img
                 v-if="item.postedSignature"
                 :src="item.postedSignature"
                 alt="Posted by signature"
-                class="max-h-16.25 max-w-33.75 object-contain"
-              />
+                class="max-h-16.25 max-w-33.75 object-contain" />
             </div>
 
             <span class="block min-h-4.5">

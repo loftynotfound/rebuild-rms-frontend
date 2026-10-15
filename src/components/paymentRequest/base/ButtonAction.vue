@@ -54,12 +54,11 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
     <BadgeLabel :label="label" :disabled="open">
       <button
         type="button"
-        class="group flex cursor-pointer items-center justify-center border border-slate-200 h-8 w-8 rounded-sm text-slate-600 hover:bg-slate-100"
+        class="group flex h-8 w-8 cursor-pointer items-center justify-center rounded-sm border border-slate-200 text-slate-600 hover:bg-slate-100"
         :aria-label="label"
         :aria-expanded="open"
         aria-haspopup="menu"
-        @click="open = !open"
-      >
+        @click="open = !open">
         <Icon icon="hugeicons:more-vertical" class="size-5" />
       </button>
     </BadgeLabel>
@@ -69,7 +68,6 @@ onBeforeUnmount(() => document.removeEventListener("click", onClickOutside));
       :options="options"
       placement="up"
       width-class="w-48"
-      @select="onSelect"
-    />
+      @select="onSelect" />
   </div>
 </template>

@@ -17,14 +17,13 @@ export function usePOFormOptions() {
   // division, ppn). Unit sengaja dipisah — hanya dipakai di modal Add/Edit Item
   async function fetchFormOptions() {
     try {
-      const [regionRes, picRes, picClientRes, divisionRes, ppnRes] =
-        await Promise.all([
-          api.get("/regions/select"),
-          api.get("/admins/pic"),
-          api.get("/admins/pic-client"),
-          api.get("/divisions/select"),
-          api.get("/ppn/current"),
-        ]);
+      const [regionRes, picRes, picClientRes, divisionRes, ppnRes] = await Promise.all([
+        api.get("/regions/select"),
+        api.get("/admins/pic"),
+        api.get("/admins/pic-client"),
+        api.get("/divisions/select"),
+        api.get("/ppn/current"),
+      ]);
       regionOptions.value = regionRes.data ?? [];
       picOptions.value = picRes.data ?? [];
       picClientOptions.value = picClientRes.data ?? [];

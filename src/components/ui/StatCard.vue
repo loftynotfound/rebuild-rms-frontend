@@ -25,15 +25,13 @@ defineProps({
 
 <template>
   <div
-    class="group relative overflow-hidden rounded-md bg-white p-5 shadow-sm border-l-4 transition-all duration-200 ease-out cursor-pointer hover:-translate-y-1 hover:shadow-lg"
-    :style="{ borderLeftColor: accent }"
-  >
+    class="group relative cursor-pointer overflow-hidden rounded-md border-l-4 bg-white p-5 shadow-sm transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg"
+    :style="{ borderLeftColor: accent }">
     <div class="flex items-start justify-between">
       <span
-        class="hidden sm:flex items-center justify-center w-11 h-11 rounded-lg transition-transform duration-200 ease-out group-hover:scale-110"
+        class="hidden h-11 w-11 items-center justify-center rounded-lg transition-transform duration-200 ease-out group-hover:scale-110 sm:flex"
         :style="{ backgroundColor: iconBg, color: accent }"
-        aria-hidden="true"
-      >
+        aria-hidden="true">
         <slot name="icon" />
       </span>
 
@@ -42,15 +40,12 @@ defineProps({
       </span>
     </div>
 
-    <p
-      class="mt-4 sm:mt-4 text-sm font-medium tracking-wide text-gray-500 uppercase"
-    >
+    <p class="mt-4 text-sm font-medium tracking-wide text-gray-500 uppercase sm:mt-4">
       {{ label }}
     </p>
     <span
-      class="value-text text-2xl font-bold text-gray-800 leading-none transition-colors duration-200"
-      :style="{ '--accent-color': accent }"
-    >
+      class="value-text text-2xl leading-none font-bold text-gray-800 transition-colors duration-200"
+      :style="{ '--accent-color': accent }">
       {{ value }}
     </span>
   </div>

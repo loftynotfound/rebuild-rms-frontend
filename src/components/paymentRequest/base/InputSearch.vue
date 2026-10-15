@@ -10,13 +10,11 @@ defineEmits(["update:modelValue"]);
   <div class="relative lg:min-w-0 lg:flex-1">
     <Icon
       icon="hugeicons:search-01"
-      class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 cursor-pointer text-slate-600"
-    />
+      class="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 cursor-pointer text-slate-600" />
     <input
       :value="modelValue"
-      class="w-full h-10 tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal rounded-sm border border-slate-200 hover:border-teal-400 pl-9 text-[14px] font-medium leading-none focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
+      class="h-10 w-full rounded-sm border border-slate-200 pl-9 text-[14px] leading-none font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none"
       :placeholder="placeholder"
-      @input="$emit('update:modelValue', $event.target.value)"
-    />
+      @input="$emit('update:modelValue', $event.target.value)" />
   </div>
 </template>

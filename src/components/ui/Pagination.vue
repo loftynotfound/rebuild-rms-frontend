@@ -42,28 +42,27 @@ const visiblePages = computed(() => {
 });
 
 function goTo(newPage) {
-  if (newPage < 1 || newPage > props.totalPage || newPage === props.page)
-    return;
+  if (newPage < 1 || newPage > props.totalPage || newPage === props.page) return;
   emit("change", newPage);
 }
 </script>
 
 <template>
   <div class="flex items-center justify-between">
-    <div class="text-sm flex items-center gap-1.5 font-medium text-slate-600">
+    <div class="flex items-center gap-1.5 text-sm font-medium text-slate-600">
       <span>Showing</span>
       <span
-        class="text-slate-600 h-8 min-w-8 px-2 flex items-center justify-center rounded-sm border border-slate-200"
+        class="flex h-8 min-w-8 items-center justify-center rounded-sm border border-slate-200 px-2 text-slate-600"
         >{{ startData }}</span
       >
       <span>to</span>
       <span
-        class="text-slate-600 h-8 min-w-8 px-2 flex items-center justify-center rounded-sm border border-slate-200"
+        class="flex h-8 min-w-8 items-center justify-center rounded-sm border border-slate-200 px-2 text-slate-600"
         >{{ endData }}</span
       >
       <span>of</span>
       <span
-        class="text-slate-600 h-8 min-w-8 px-2 flex items-center justify-center rounded-sm border border-slate-200"
+        class="flex h-8 min-w-8 items-center justify-center rounded-sm border border-slate-200 px-2 text-slate-600"
         >{{ totalData }}</span
       >
       <span>entries</span>
@@ -72,11 +71,10 @@ function goTo(newPage) {
     <div class="flex items-center gap-2">
       <button
         type="button"
-        class="flex h-8 w-8 items-center justify-center rounded-sm text-slate-600 border border-slate-200 cursor-pointer hover:bg-slate-100 disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-sm border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-75 disabled:hover:bg-transparent"
         :disabled="page === 1"
         aria-label="Previous page"
-        @click="goTo(page - 1)"
-      >
+        @click="goTo(page - 1)">
         <Icon icon="hugeicons:arrow-left-01" class="size-5" />
       </button>
 
@@ -84,24 +82,18 @@ function goTo(newPage) {
         v-for="p in visiblePages"
         :key="p"
         type="button"
-        class="flex h-8 w-8 items-center justify-center rounded-sm text-sm font-medium cursor-pointer transition-colors"
-        :class="
-          p === page
-            ? 'bg-teal-500 text-white'
-            : 'text-slate-600 hover:bg-slate-100'
-        "
-        @click="goTo(p)"
-      >
+        class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-sm text-sm font-medium transition-colors"
+        :class="p === page ? 'bg-teal-500 text-white' : 'text-slate-600 hover:bg-slate-100'"
+        @click="goTo(p)">
         {{ p }}
       </button>
 
       <button
         type="button"
-        class="flex h-8 w-8 items-center justify-center rounded-sm text-slate-600 border border-slate-200 cursor-pointer hover:bg-slate-100 disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+        class="flex h-8 w-8 cursor-pointer items-center justify-center rounded-sm border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-75 disabled:hover:bg-transparent"
         :disabled="page === totalPage"
         aria-label="Next page"
-        @click="goTo(page + 1)"
-      >
+        @click="goTo(page + 1)">
         <Icon icon="hugeicons:arrow-right-01" class="size-5" />
       </button>
     </div>

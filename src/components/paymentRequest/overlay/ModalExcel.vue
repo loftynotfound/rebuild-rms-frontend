@@ -66,19 +66,13 @@ const close = () => {
 <template>
   <div
     class="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/60 sm:items-center sm:px-4"
-    @click.self="close"
-  >
-    <div
-      class="max-h-[90vh] w-full max-w-lg overflow-y-auto bg-white p-6 shadow-lg sm:rounded-md"
-    >
+    @click.self="close">
+    <div class="max-h-[90vh] w-full max-w-lg overflow-y-auto bg-white p-6 shadow-lg sm:rounded-md">
       <div class="flex flex-col gap-1 border-b border-slate-200 pb-3">
-        <span class="text-base font-semibold text-slate-800">
-          Export File .xlsx
-        </span>
+        <span class="text-base font-semibold text-slate-800"> Export File .xlsx </span>
 
         <span class="text-sm text-slate-500">
-          Download payment requests data. Leave both dates empty to export all
-          data.
+          Download payment requests data. Leave both dates empty to export all data.
         </span>
       </div>
 
@@ -99,20 +93,16 @@ const close = () => {
       <p
         v-if="exportError"
         role="alert"
-        class="mt-4 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600"
-      >
+        class="mt-4 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600">
         {{ exportError }}
       </p>
 
-      <div
-        class="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:items-center sm:justify-end"
-      >
+      <div class="flex flex-col-reverse gap-3 pt-6 sm:flex-row sm:items-center sm:justify-end">
         <button
           type="button"
           :disabled="exporting"
           class="w-full cursor-pointer rounded-sm border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-          @click="close"
-        >
+          @click="close">
           Cancel
         </button>
 
@@ -120,8 +110,7 @@ const close = () => {
           type="button"
           :disabled="exporting"
           class="w-full cursor-pointer rounded-sm bg-teal-500 px-4 py-2 text-sm font-medium text-white hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
-          @click="submit"
-        >
+          @click="submit">
           {{ exporting ? "Generating..." : "Export" }}
         </button>
       </div>

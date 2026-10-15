@@ -53,8 +53,7 @@ export function useUnits() {
       await fetchUnits();
       return true;
     } catch (err) {
-      deleteError.value =
-        err.response?.data?.message || "Failed to delete unit";
+      deleteError.value = err.response?.data?.message || "Failed to delete unit";
       return false;
     }
   }

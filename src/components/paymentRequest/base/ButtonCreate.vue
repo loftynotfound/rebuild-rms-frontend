@@ -8,9 +8,8 @@ const router = useRouter();
   <div>
     <button
       type="button"
-      class="flex w-full leading-none lg:w-auto items-center justify-center gap-1.5 rounded-sm bg-teal-500 px-3 h-10 text-[14px] tracking-tight font-medium text-white hover:bg-teal-600 cursor-pointer"
-      @click="router.push('/payment-request/form')"
-    >
+      class="flex h-10 w-full cursor-pointer items-center justify-center gap-1.5 rounded-sm bg-teal-500 px-3 text-[14px] leading-none font-medium tracking-tight text-white hover:bg-teal-600 lg:w-auto"
+      @click="router.push('/payment-request/form')">
       <Icon icon="hugeicons:file-add" class="size-5" />
       Create Payment Request
     </button>

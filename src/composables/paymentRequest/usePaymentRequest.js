@@ -8,7 +8,7 @@ import {
   cardFromPR,
 } from "@/composables/paymentRequest/useRequest";
 import { useApproval } from "@/composables/paymentRequest/useApproval";
-import { usePayment } from "@/composables/paymentRequest/usePayment"; 
+import { usePayment } from "@/composables/paymentRequest/usePayment";
 import { useCancellation } from "@/composables/paymentRequest/useCancellation";
 import { useActivity } from "@/composables/paymentRequest/useActivity";
 import { useExport } from "@/composables/paymentRequest/useExport";

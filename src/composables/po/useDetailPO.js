@@ -41,36 +41,20 @@ export function usePODetail(poId) {
   // ── Permission & visibility rules ─────────────────
   const canEdit = computed(() => authStore.hasAccess("edit_po"));
   const canCreateNotes = computed(() => authStore.hasAccess("create_notes"));
-  const canUploadDocument = computed(() =>
-    authStore.hasAccess("upload_document"),
-  );
-  const canChangeStatPaid = computed(() =>
-    authStore.hasAccess("change_stat_paid"),
-  );
-  const canUpdateInvoice = computed(() =>
-    authStore.hasAccess("update_invoice"),
-  );
+  const canUploadDocument = computed(() => authStore.hasAccess("upload_document"));
+  const canChangeStatPaid = computed(() => authStore.hasAccess("change_stat_paid"));
+  const canUpdateInvoice = computed(() => authStore.hasAccess("update_invoice"));
   const canDeletePo = computed(() => authStore.hasAccess("delete_po"));
 
-  const showEditTab = computed(
-    () => canEdit.value && po.value?.po_status === "open",
-  );
-  const showDocumentTab = computed(() =>
-    ["progress", "complete"].includes(po.value?.po_status),
-  );
-  const showQuotationTab = computed(() =>
-    QUOTATION_TAB_STATUSES.includes(po.value?.po_status),
-  );
+  const showEditTab = computed(() => canEdit.value && po.value?.po_status === "open");
+  const showDocumentTab = computed(() => ["progress", "complete"].includes(po.value?.po_status));
+  const showQuotationTab = computed(() => QUOTATION_TAB_STATUSES.includes(po.value?.po_status));
   const canLinkQuotation = computed(
-    () =>
-      authStore.hasAccess("link_pr_po") &&
-      LINKABLE_STATUSES.includes(po.value?.po_status),
+    () => authStore.hasAccess("link_pr_po") && LINKABLE_STATUSES.includes(po.value?.po_status),
   );
 
   const canCreatePR = computed(
-    () =>
-      authStore.hasAccess("create_pr") &&
-      LINKABLE_STATUSES.includes(po.value?.po_status),
+    () => authStore.hasAccess("create_pr") && LINKABLE_STATUSES.includes(po.value?.po_status),
   );
 
   // quotationNo kosong = tombol Create PR biasa (soft link ke PO saja)
@@ -89,9 +73,7 @@ export function usePODetail(poId) {
     return !!po.value?.po_invoice && idx > STATUS_FLOW.indexOf("prepared");
   });
 
-  const statusLabel = computed(
-    () => STATUS_LABEL[po.value?.po_status] ?? po.value?.po_status,
-  );
+  const statusLabel = computed(() => STATUS_LABEL[po.value?.po_status] ?? po.value?.po_status);
 
   const nextStatus = computed(() => {
     const idx = STATUS_FLOW.indexOf(po.value?.po_status);
@@ -107,9 +89,7 @@ export function usePODetail(poId) {
   });
 
   const showCancelButton = computed(() => po.value?.po_status !== "cancel");
-  const showDeleteButton = computed(
-    () => po.value?.po_status === "cancel" && canDeletePo.value,
-  );
+  const showDeleteButton = computed(() => po.value?.po_status === "cancel" && canDeletePo.value);
 
   const isPaid = computed(() => po.value?.po_paid === "yes");
 
@@ -122,8 +102,7 @@ export function usePODetail(poId) {
       po.value = res.data?.po ?? null;
       items.value = res.data?.items ?? [];
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Failed to load Purchase Order detail";
+      error.value = err.response?.data?.message || "Failed to load Purchase Order detail";
     } finally {
       loading.value = false;
     }
@@ -185,8 +164,7 @@ export function usePODetail(poId) {
       linkedQuotations.value = res.data ?? [];
     } catch (err) {
       linkedQuotations.value = [];
-      quotationError.value =
-        err.response?.data?.message || "Failed to load linked quotations";
+      quotationError.value = err.response?.data?.message || "Failed to load linked quotations";
     } finally {
       quotationsLoading.value = false;
     }
@@ -203,13 +181,10 @@ export function usePODetail(poId) {
     quotationError.value = "";
     quotationPRs.value = [];
     try {
-      const res = await api.get(
-        `/po/${poId}/linked-quotations/${quotationId}/prs`,
-      );
+      const res = await api.get(`/po/${poId}/linked-quotations/${quotationId}/prs`);
       quotationPRs.value = res.data ?? [];
     } catch (err) {
-      quotationError.value =
-        err.response?.data?.message || "Failed to load purchase requests";
+      quotationError.value = err.response?.data?.message || "Failed to load purchase requests";
     } finally {
       prsLoading.value = false;
     }
@@ -224,8 +199,7 @@ export function usePODetail(poId) {
       candidates.value = res.data ?? [];
     } catch (err) {
       candidates.value = [];
-      quotationError.value =
-        err.response?.data?.message || "Failed to load quotation candidates";
+      quotationError.value = err.response?.data?.message || "Failed to load quotation candidates";
     } finally {
       candidatesLoading.value = false;
     }
@@ -241,17 +215,14 @@ export function usePODetail(poId) {
       await Promise.all([fetchLinkedQuotations(), fetchActivities()]);
       return true;
     } catch (err) {
-      quotationError.value =
-        err.response?.data?.message || "Failed to link quotation";
+      quotationError.value = err.response?.data?.message || "Failed to link quotation";
       return false;
     } finally {
       actionLoading.value = false;
     }
   }
 
-  const canUnlinkQuotation = computed(() =>
-    authStore.hasAccess("unlink_pr_po"),
-  );
+  const canUnlinkQuotation = computed(() => authStore.hasAccess("unlink_pr_po"));
   const unlinkDisabledByStatus = computed(() =>
     UNLINK_DISABLED_STATUSES.includes(po.value?.po_status),
   );
@@ -267,8 +238,7 @@ export function usePODetail(poId) {
       await Promise.all([fetchLinkedQuotations(), fetchActivities()]);
       return true;
     } catch (err) {
-      quotationError.value =
-        err.response?.data?.message || "Failed to unlink quotation";
+      quotationError.value = err.response?.data?.message || "Failed to unlink quotation";
       return false;
     } finally {
       actionLoading.value = false;
@@ -313,8 +283,7 @@ export function usePODetail(poId) {
       router.push("/po");
       return true;
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Failed to delete Purchase Order";
+      error.value = err.response?.data?.message || "Failed to delete Purchase Order";
       return false;
     } finally {
       actionLoading.value = false;
@@ -330,8 +299,7 @@ export function usePODetail(poId) {
       await fetchActivities();
       return true;
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Failed to update payment status";
+      error.value = err.response?.data?.message || "Failed to update payment status";
       return false;
     } finally {
       actionLoading.value = false;
@@ -346,8 +314,7 @@ export function usePODetail(poId) {
       await fetchActivities();
       return true;
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Failed to update invoice number";
+      error.value = err.response?.data?.message || "Failed to update invoice number";
       return false;
     } finally {
       actionLoading.value = false;
@@ -419,12 +386,9 @@ export function usePODetail(poId) {
 
   async function downloadDocument(doc, mode = "download") {
     try {
-      const blob = await api.get(
-        `/po/${poId}/documents/${doc.document_id}/download`,
-        {
-          responseType: "blob",
-        },
-      );
+      const blob = await api.get(`/po/${poId}/documents/${doc.document_id}/download`, {
+        responseType: "blob",
+      });
       // 'blob' di sini SUDAH berupa Blob asli (interceptor api.js sudah unwrap
       // response.data untuk kita) — tidak perlu lagi bungkus ulang atau baca
       // res.headers, karena axios otomatis set blob.type dari Content-Type.
@@ -476,8 +440,7 @@ export function usePODetail(poId) {
     sub_client: "",
   });
 
-  const { selectClient, clearSelectedClient, presetClientKeyword } =
-    makeClientSearch(editForm);
+  const { selectClient, clearSelectedClient, presetClientKeyword } = makeClientSearch(editForm);
 
   // Item baru (belum tersimpan) vs existing dibedakan oleh item_id. Item baru:
   // POST saat Save. Item existing yang diubah: PUT. Item existing yang dihapus:
@@ -536,8 +499,7 @@ export function usePODetail(poId) {
 
   function updateEditItem(localId, item) {
     const index = editItems.value.findIndex((i) => i._localId === localId);
-    if (index !== -1)
-      editItems.value[index] = { ...editItems.value[index], ...item };
+    if (index !== -1) editItems.value[index] = { ...editItems.value[index], ...item };
   }
 
   function removeEditItem(localId) {
@@ -606,9 +568,7 @@ export function usePODetail(poId) {
   }
 
   function unitLabel(unitId) {
-    return (
-      unitOptions.value.find((u) => u.unit_id === unitId)?.unit_title ?? "-"
-    );
+    return unitOptions.value.find((u) => u.unit_id === unitId)?.unit_title ?? "-";
   }
 
   return {
@@ -689,6 +649,6 @@ export function usePODetail(poId) {
     unlinkDisabledByStatus,
     unlinkQuotation,
     canCreatePR,
-    createPR
+    createPR,
   };
 }

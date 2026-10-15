@@ -42,20 +42,14 @@ export function useReports() {
       return { highest: null, lowest: null, average: 0 };
     }
 
-    const highest = chartData.value.reduce((a, b) =>
-      b.total > a.total ? b : a,
-    );
-    const lowest = chartData.value.reduce((a, b) =>
-      b.total < a.total ? b : a,
-    );
+    const highest = chartData.value.reduce((a, b) => (b.total > a.total ? b : a));
+    const lowest = chartData.value.reduce((a, b) => (b.total < a.total ? b : a));
     const total = chartData.value.reduce((sum, d) => sum + d.total, 0);
 
     return { highest, lowest, average: total / chartData.value.length };
   });
 
-  const totalPoAllRegion = computed(() =>
-    statsData.value.reduce((sum, r) => sum + r.total_po, 0),
-  );
+  const totalPoAllRegion = computed(() => statsData.value.reduce((sum, r) => sum + r.total_po, 0));
 
   // Group data harian menjadi per bulan, selalu 12 bulan penuh (Jan-Des)
   // untuk tahun yang datanya ada — bulan tanpa transaksi diisi `total: null`
@@ -136,11 +130,7 @@ export function useReports() {
     error.value = "";
 
     try {
-      await Promise.all([
-        fetchReportChart(),
-        fetchReportBars(),
-        fetchReportStats(),
-      ]);
+      await Promise.all([fetchReportChart(), fetchReportBars(), fetchReportStats()]);
     } catch (err) {
       error.value = err.response?.data?.message || "Gagal memuat data laporan";
     } finally {

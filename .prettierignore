@@ -1,6 +1,10 @@
-node_modules
+# File in root folder
+.prettierrc
+Dockerfile
 index.html
-package-lock.json
+Jenkinsfile
+nginx.container.conf
 package.json
+package-lock.json
 README.md
 vite.config.js

@@ -26,9 +26,7 @@ export function useLogin() {
       router.push("/dashboard");
     } catch (error) {
       errorMessage.value =
-        error.response?.data?.message ??
-        error.message ??
-        "Invalid email or password.";
+        error.response?.data?.message ?? error.message ?? "Invalid email or password.";
     } finally {
       loading.value = false;
     }
@@ -69,8 +67,7 @@ export function useLogin() {
       // Backend always responds with success to prevent email enumeration,
       // but this still guards against network/validation errors.
       forgotError.value =
-        error.response?.data?.message ??
-        "Failed to send email, please try again.";
+        error.response?.data?.message ?? "Failed to send email, please try again.";
     } finally {
       forgotLoading.value = false;
     }

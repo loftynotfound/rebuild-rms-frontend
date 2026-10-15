@@ -3,8 +3,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { usePaymentRequest } from "@/composables/paymentRequest/usePaymentRequest";
 
-const { getDocuments, uploadDocument, deleteDocument, openDocument } =
-  usePaymentRequest();
+const { getDocuments, uploadDocument, deleteDocument, openDocument } = usePaymentRequest();
 
 const props = defineProps({
   prId: { type: Number, required: true },
@@ -31,14 +30,11 @@ const DOC_TYPES = [
   { value: "other", label: "Other" },
 ];
 
-const label = (value) =>
-  DOC_TYPES.find((type) => type.value === value)?.label ?? value;
+const label = (value) => DOC_TYPES.find((type) => type.value === value)?.label ?? value;
 
 const authStore = useAuthStore();
 const me = computed(() => authStore.admin?.admin_id);
-const isOwner = computed(
-  () => Boolean(me.value) && String(me.value) === String(props.ownerId),
-);
+const isOwner = computed(() => Boolean(me.value) && String(me.value) === String(props.ownerId));
 
 const docs = ref([]);
 const loading = ref(false);
@@ -49,8 +45,7 @@ const docType = ref("other");
 const file = ref(null);
 const fileInput = ref(null);
 
-const getErrorMessage = (e, fallback) =>
-  e?.response?.data?.message ?? e?.message ?? fallback;
+const getErrorMessage = (e, fallback) => e?.response?.data?.message ?? e?.message ?? fallback;
 
 const fetchDocs = async () => {
   loading.value = true;
@@ -146,8 +141,7 @@ const view = async (doc) => {
 
 const canDelete = (doc) =>
   String(doc.document_ref_admin) === String(me.value) &&
-  (doc.document_type !== "cost_control" ||
-    ["draft", "revision"].includes(props.status));
+  (doc.document_type !== "cost_control" || ["draft", "revision"].includes(props.status));
 
 const remove = async (doc) => {
   if (!window.confirm(`Delete ${doc.document_file_name}?`)) return;
@@ -169,22 +163,18 @@ const remove = async (doc) => {
 
     <p v-if="error" class="mb-2 text-xs text-red-500">{{ error }}</p>
     <p v-if="loading" class="text-sm text-slate-400">Loading...</p>
-    <p v-else-if="!docs.length" class="text-sm text-slate-400">
-      No attachments.
-    </p>
+    <p v-else-if="!docs.length" class="text-sm text-slate-400">No attachments.</p>
 
     <ul v-else class="divide-y divide-slate-200 text-sm">
       <li
         v-for="doc in docs"
         :key="doc.document_id"
-        class="flex items-center justify-between gap-2 py-2"
-      >
+        class="flex items-center justify-between gap-2 py-2">
         <div class="min-w-0">
           <button
             type="button"
             class="block max-w-full truncate text-left font-medium text-teal-600 hover:text-teal-700"
-            @click="view(doc)"
-          >
+            @click="view(doc)">
             {{ doc.document_file_name }}
           </button>
 
@@ -199,8 +189,7 @@ const remove = async (doc) => {
           v-if="canDelete(doc)"
           type="button"
           class="shrink-0 text-xs font-medium text-red-500 hover:text-red-600"
-          @click="remove(doc)"
-        >
+          @click="remove(doc)">
           Delete
         </button>
       </li>
@@ -210,13 +199,8 @@ const remove = async (doc) => {
       <div class="flex flex-wrap items-center gap-2">
         <select
           v-model="docType"
-          class="rounded-sm border border-slate-200 px-2 py-1.5 text-sm text-slate-600"
-        >
-          <option
-            v-for="type in DOC_TYPES"
-            :key="type.value"
-            :value="type.value"
-          >
+          class="rounded-sm border border-slate-200 px-2 py-1.5 text-sm text-slate-600">
+          <option v-for="type in DOC_TYPES" :key="type.value" :value="type.value">
             {{ type.label }}
           </option>
         </select>
@@ -226,22 +210,18 @@ const remove = async (doc) => {
           type="file"
           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
           class="text-sm"
-          @change="onFile"
-        />
+          @change="onFile" />
 
         <button
           type="button"
           class="rounded-sm bg-teal-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-50"
           :disabled="uploading"
-          @click="upload"
-        >
+          @click="upload">
           {{ uploading ? "Uploading..." : "Upload" }}
         </button>
       </div>
 
-      <p class="text-[11px] text-slate-500">
-        PDF, Word, JPG or PNG. Maximum file size is 10 MB.
-      </p>
+      <p class="text-[11px] text-slate-500">PDF, Word, JPG or PNG. Maximum file size is 10 MB.</p>
     </div>
   </div>
 </template>

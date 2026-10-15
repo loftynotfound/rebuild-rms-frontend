@@ -115,46 +115,39 @@ async function handlePasswordReset() {
 <template>
   <div>
     <!-- Header -->
-    <div class="mb-4 sm:mb-6 flex items-center gap-3">
+    <div class="mb-4 flex items-center gap-3 sm:mb-6">
       <button
         type="button"
         class="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm border border-slate-200 text-slate-500 hover:bg-slate-50"
         aria-label="Back to dashboard"
-        @click="goBack"
-      >
+        @click="goBack">
         <svg
           class="h-5 w-5"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
-          aria-hidden="true"
-        >
+          aria-hidden="true">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
             stroke-width="2"
-            d="M15 19l-7-7 7-7"
-          />
+            d="M15 19l-7-7 7-7" />
         </svg>
       </button>
-      <h1 class="text-lg sm:text-xl font-semibold text-slate-800">
-        My Profile
-      </h1>
+      <h1 class="text-lg font-semibold text-slate-800 sm:text-xl">My Profile</h1>
     </div>
 
     <!-- Loading State -->
     <div
       v-if="loading"
-      class="rounded-md border border-slate-200 bg-white p-12 text-center text-sm text-slate-400"
-    >
+      class="rounded-md border border-slate-200 bg-white p-12 text-center text-sm text-slate-400">
       Loading...
     </div>
 
     <!-- Error State (no data loaded at all) -->
     <div
       v-else-if="error && !form.email"
-      class="rounded-md border border-slate-200 bg-white p-12 text-center text-sm text-red-500"
-    >
+      class="rounded-md border border-slate-200 bg-white p-12 text-center text-sm text-red-500">
       {{ error }}
     </div>
 
@@ -162,17 +155,13 @@ async function handlePasswordReset() {
     <form
       v-else
       class="rounded-md border border-slate-200 bg-white shadow-sm"
-      @submit.prevent="handleSave"
-    >
-      <div
-        class="grid grid-cols-1 gap-x-6 gap-y-5 px-4 sm:px-6 py-4 sm:py-6 sm:grid-cols-2"
-      >
+      @submit.prevent="handleSave">
+      <div class="grid grid-cols-1 gap-x-6 gap-y-5 px-4 py-4 sm:grid-cols-2 sm:px-6 sm:py-6">
         <!-- Email -->
         <div>
           <label
-            class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500"
-            for="email"
-          >
+            class="mb-1 block text-xs font-medium tracking-wide text-slate-500 uppercase"
+            for="email">
             Email *
           </label>
           <input
@@ -180,16 +169,14 @@ async function handlePasswordReset() {
             v-model="form.email"
             type="email"
             required
-            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-          />
+            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none" />
         </div>
 
         <!-- Username -->
         <div>
           <label
-            class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500"
-            for="username"
-          >
+            class="mb-1 block text-xs font-medium tracking-wide text-slate-500 uppercase"
+            for="username">
             Username *
           </label>
           <input
@@ -197,30 +184,23 @@ async function handlePasswordReset() {
             v-model="form.username"
             type="text"
             required
-            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-          />
+            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none" />
         </div>
 
         <!-- Admin Role -->
         <div>
           <label
-            class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500"
-            for="role"
-          >
+            class="mb-1 block text-xs font-medium tracking-wide text-slate-500 uppercase"
+            for="role">
             Admin Role *
           </label>
           <select
             id="role"
             v-model="form.role_id"
             required
-            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-          >
+            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none">
             <option :value="null" disabled>Select role</option>
-            <option
-              v-for="role in roleOptions"
-              :key="role.role_id"
-              :value="role.role_id"
-            >
+            <option v-for="role in roleOptions" :key="role.role_id" :value="role.role_id">
               {{ role.role_title }}
             </option>
           </select>
@@ -229,23 +209,20 @@ async function handlePasswordReset() {
         <!-- Region -->
         <div>
           <label
-            class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500"
-            for="region"
-          >
+            class="mb-1 block text-xs font-medium tracking-wide text-slate-500 uppercase"
+            for="region">
             Region *
           </label>
           <select
             id="region"
             v-model="form.region_id"
             required
-            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:outline-none focus:ring-1 focus:ring-teal-500"
-          >
+            class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none">
             <option :value="null" disabled>Select region</option>
             <option
               v-for="region in regionOptions"
               :key="region.region_id"
-              :value="region.region_id"
-            >
+              :value="region.region_id">
               {{ region.region_title }}
             </option>
           </select>
@@ -253,36 +230,26 @@ async function handlePasswordReset() {
 
         <!-- Account Signature -->
         <div class="sm:col-span-2">
-          <label
-            class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500"
+          <label class="mb-1 block text-xs font-medium tracking-wide text-slate-500 uppercase"
             >Signature</label
           >
-          <div
-            class="rounded-sm border border-slate-200 bg-slate-50 p-4 space-y-4"
-          >
+          <div class="space-y-4 rounded-sm border border-slate-200 bg-slate-50 p-4">
             <div
-              class="flex min-h-24 items-center justify-center rounded-sm border border-slate-200 bg-white p-3"
-            >
+              class="flex min-h-24 items-center justify-center rounded-sm border border-slate-200 bg-white p-3">
               <img
                 v-if="form.signature || signatureUrl"
                 :src="form.signature || signatureUrl"
                 alt="Account signature"
-                class="max-h-20 max-w-full object-contain"
-              />
-              <span v-else class="text-xs text-slate-400"
-                >No signature saved</span
-              >
+                class="max-h-20 max-w-full object-contain" />
+              <span v-else class="text-xs text-slate-400">No signature saved</span>
             </div>
             <div>
-              <p class="mb-2 text-sm font-semibold text-slate-700">
-                Draw your signature
-              </p>
+              <p class="mb-2 text-sm font-semibold text-slate-700">Draw your signature</p>
               <div
-                class="overflow-hidden rounded-sm border border-dashed border-slate-300 bg-white"
-              >
+                class="overflow-hidden rounded-sm border border-dashed border-slate-300 bg-white">
                 <canvas
                   ref="canvas"
-                  class="block h-45 w-full touch-none cursor-crosshair"
+                  class="block h-45 w-full cursor-crosshair touch-none"
                   @mousedown="startDraw"
                   @mousemove="draw"
                   @mouseup="stopDraw"
@@ -290,22 +257,19 @@ async function handlePasswordReset() {
                   @touchstart.prevent="startDraw"
                   @touchmove.prevent="draw"
                   @touchend.prevent="stopDraw"
-                  @vue:mounted="resizeCanvas"
-                />
+                  @vue:mounted="resizeCanvas" />
               </div>
               <div class="mt-2 flex flex-wrap gap-2">
                 <button
                   type="button"
                   class="rounded-sm border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-                  @click="clearDraw"
-                >
+                  @click="clearDraw">
                   Clear
                 </button>
                 <button
                   type="button"
                   class="rounded-sm bg-teal-500 px-3 py-2 text-sm font-medium text-white hover:bg-teal-600"
-                  @click="useDrawnSignature"
-                >
+                  @click="useDrawnSignature">
                   Use Drawn Signature
                 </button>
                 <label
@@ -320,8 +284,8 @@ async function handlePasswordReset() {
             </div>
           </div>
           <p class="mt-1 text-xs text-slate-400">
-            One account uses one saved signature. Draw directly or upload an
-            image, then Save Changes.
+            One account uses one saved signature. Draw directly or upload an image, then Save
+            Changes.
           </p>
         </div>
 
@@ -331,11 +295,8 @@ async function handlePasswordReset() {
             id="pic"
             v-model="isPic"
             type="checkbox"
-            class="h-4 w-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"
-          />
-          <label class="text-sm text-slate-700" for="pic"
-            >Active PIC RMS *</label
-          >
+            class="h-4 w-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500" />
+          <label class="text-sm text-slate-700" for="pic">Active PIC RMS *</label>
         </div>
 
         <!-- Admin Client -->
@@ -344,51 +305,43 @@ async function handlePasswordReset() {
             id="picClient"
             v-model="isPicClient"
             type="checkbox"
-            class="h-4 w-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500"
-          />
-          <label class="text-sm text-slate-700" for="picClient"
-            >Admin Client *</label
-          >
+            class="h-4 w-4 rounded border-slate-300 text-teal-500 focus:ring-teal-500" />
+          <label class="text-sm text-slate-700" for="picClient">Admin Client *</label>
         </div>
       </div>
 
       <!-- Inline error (e.g. save failed but data still shown) -->
-      <p v-if="error && form.email" class="px-4 sm:px-6 text-sm text-red-500">
+      <p v-if="error && form.email" class="px-4 text-sm text-red-500 sm:px-6">
         {{ error }}
       </p>
 
       <!-- Actions -->
       <div
-        class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 border-t border-slate-200 px-4 sm:px-6 py-4"
-      >
+        class="flex flex-col-reverse gap-3 border-t border-slate-200 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <button
           type="button"
-          class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-sm border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+          class="flex w-full items-center justify-center gap-2 rounded-sm border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           :disabled="sendingReset"
-          @click="handlePasswordReset"
-        >
+          @click="handlePasswordReset">
           <svg
             class="h-4 w-4"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            aria-hidden="true"
-          >
+            aria-hidden="true">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-            />
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
           {{ sendingReset ? "Sending..." : "Change Password" }}
         </button>
 
         <button
           type="submit"
-          class="flex w-full sm:w-auto items-center justify-center gap-2 rounded-sm bg-teal-500 px-4 py-2 text-sm font-medium text-white hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
-          :disabled="saving"
-        >
+          class="flex w-full items-center justify-center gap-2 rounded-sm bg-teal-500 px-4 py-2 text-sm font-medium text-white hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+          :disabled="saving">
           {{ saving ? "Saving..." : "Save Changes" }}
         </button>
       </div>

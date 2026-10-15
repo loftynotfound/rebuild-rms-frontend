@@ -40,7 +40,7 @@ const submit = async () => {
   <Modal title="Cancel Payment" @close="emit('close')">
     <div class="space-y-4">
       <div class="rounded-sm bg-slate-50 p-3 text-sm">
-        <p class="font-semibold capitalize text-slate-800">
+        <p class="font-semibold text-slate-800 capitalize">
           {{ payment.payment_stage.replace("_", " ") }}
         </p>
         <p class="text-slate-500">{{ money(payment.payment_amount) }}</p>
@@ -54,8 +54,7 @@ const submit = async () => {
           v-model="notes"
           rows="4"
           class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm focus:border-teal-400 focus:outline-none"
-          placeholder="Why is this payment cancelled?"
-        />
+          placeholder="Why is this payment cancelled?" />
         <span class="text-[11px] text-slate-500">
           The reason is saved as a comment on the request.
         </span>
@@ -68,16 +67,14 @@ const submit = async () => {
           type="button"
           class="rounded-sm border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           :disabled="saving"
-          @click="emit('close')"
-        >
+          @click="emit('close')">
           Close
         </button>
         <button
           type="button"
           class="rounded-sm bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-600 disabled:opacity-50"
           :disabled="saving"
-          @click="submit"
-        >
+          @click="submit">
           {{ saving ? "Saving..." : "Cancel Payment" }}
         </button>
       </div>

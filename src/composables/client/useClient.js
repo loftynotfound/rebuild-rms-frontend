@@ -74,8 +74,7 @@ export function useClients() {
       await fetchClients();
       return true;
     } catch (err) {
-      deleteError.value =
-        err.response?.data?.message || "Failed to delete client";
+      deleteError.value = err.response?.data?.message || "Failed to delete client";
       return false;
     }
   }
@@ -159,10 +158,7 @@ export function useClients() {
       email: client.client_email,
       phone: client.client_phone,
       address: client.client_address,
-      region_id:
-        client.client_ref_region != null
-          ? Number(client.client_ref_region)
-          : "",
+      region_id: client.client_ref_region != null ? Number(client.client_ref_region) : "",
       client_active: client.client_active ?? "no",
     };
 
@@ -184,8 +180,7 @@ export function useClients() {
       form.value.client_active = isActive ? "no" : "yes";
       await fetchClients();
     } catch (err) {
-      formError.value =
-        err.response?.data?.message || "Gagal mengubah status client";
+      formError.value = err.response?.data?.message || "Gagal mengubah status client";
     } finally {
       togglingActive.value = false;
     }

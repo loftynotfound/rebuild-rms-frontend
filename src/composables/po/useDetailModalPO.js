@@ -28,13 +28,7 @@ export function usePODetailModals(detail) {
     unlinkQuotation,
   } = detail;
 
-  const PRODUCT_OPTIONS = [
-    "Maintenance",
-    "PKWT",
-    "Project",
-    "Disnaker",
-    "Alih Daya",
-  ];
+  const PRODUCT_OPTIONS = ["Maintenance", "PKWT", "Project", "Disnaker", "Alih Daya"];
 
   // ── Notes (header PO) ────────────────────────────
   const showNotesModal = ref(false);
@@ -219,8 +213,7 @@ export function usePODetailModals(detail) {
   }
 
   async function submitLink(candidate) {
-    if (await linkQuotation(candidate.quotation_id))
-      showLinkModal.value = false;
+    if (await linkQuotation(candidate.quotation_id)) showLinkModal.value = false;
   }
 
   const showUnlinkModal = ref(false);

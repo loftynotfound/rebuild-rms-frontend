@@ -55,8 +55,7 @@ export function useRegions() {
       await fetchRegions();
       return true;
     } catch (err) {
-      deleteError.value =
-        err.response?.data?.message || "Failed to delete region";
+      deleteError.value = err.response?.data?.message || "Failed to delete region";
       return false;
     }
   }

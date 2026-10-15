@@ -1,12 +1,5 @@
 <script setup>
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 const props = defineProps({
   modelValue: { type: String, default: null },
@@ -216,29 +209,18 @@ watch(
     <button
       ref="triggerEl"
       type="button"
-      class="flex w-full items-center gap-1.5 rounded-sm border pl-3 pr-3 py-2 text-sm cursor-pointer font-medium focus:outline-none focus:ring-0 focus:ring-offset-0"
+      class="flex w-full cursor-pointer items-center gap-1.5 rounded-sm border py-2 pr-3 pl-3 text-sm font-medium focus:ring-0 focus:ring-offset-0 focus:outline-none"
       :class="[
         error
           ? 'border-red-400 text-red-500 focus:border-red-400'
           : 'border-slate-200 text-slate-600 focus:border-teal-400',
-        isOpen
-          ? 'border border-teal-400'
-          : 'hover:border hover:border-teal-400',
+        isOpen ? 'border border-teal-400' : 'hover:border hover:border-teal-400',
       ]"
-      @click="isOpen ? (isOpen = false) : onOpen()"
-    >
-      <Icon
-        icon="hugeicons:calendar-02"
-        class="size-5 text-slate-600 shrink-0"
-      />
+      @click="isOpen ? (isOpen = false) : onOpen()">
+      <Icon icon="hugeicons:calendar-02" class="size-5 shrink-0 text-slate-600" />
 
       <span
-        :class="
-          displayLabel
-            ? 'text-slate-600 tracking-tight'
-            : 'text-slate-400 tracking-normal'
-        "
-      >
+        :class="displayLabel ? 'tracking-tight text-slate-600' : 'tracking-normal text-slate-400'">
         {{ displayLabel || placeholder }}
       </span>
 
@@ -246,68 +228,57 @@ watch(
         v-if="selectedDate"
         class="ml-auto flex h-4 w-4 shrink-0 items-center justify-center rounded-sm text-slate-600 hover:bg-slate-100"
         @mousedown.prevent
-        @click.stop="clear"
-      >
+        @click.stop="clear">
         <Icon icon="boxicons:x" class="size-5" />
       </span>
     </button>
 
     <Teleport to="body">
-      <div
-        v-if="isOpen"
-        class="fixed inset-0 z-40 sm:hidden"
-        @click="isOpen = false"
-      />
+      <div v-if="isOpen" class="fixed inset-0 z-40 sm:hidden" @click="isOpen = false" />
 
       <div
         v-if="isOpen"
         ref="popupEl"
         class="z-50 overflow-y-auto rounded-md border border-slate-200 bg-white p-3 shadow-xs sm:overflow-visible"
-        :style="popupStyle"
-      >
+        :style="popupStyle">
         <div class="mb-2 flex items-center justify-between gap-1">
           <div class="flex items-center gap-0.5">
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 text-slate-600 hover:bg-slate-100 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Tahun sebelumnya"
               title="Tahun sebelumnya"
-              @click="prevYear"
-            >
+              @click="prevYear">
               <Icon icon="hugeicons:arrow-left-double" class="size-5" />
             </button>
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 hover:bg-slate-100 text-slate-600 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Bulan sebelumnya"
-              @click="prevMonth"
-            >
+              @click="prevMonth">
               <Icon icon="hugeicons:arrow-left-01" class="size-5" />
             </button>
           </div>
 
           <div
-            class="flex flex-1 justify-center text-xs sm:text-sm font-bold text-slate-600 truncate"
-          >
+            class="flex flex-1 justify-center truncate text-xs font-bold text-slate-600 sm:text-sm">
             <span>{{ MONTHS[viewMonth] }} {{ viewYear }}</span>
           </div>
 
           <div class="flex items-center gap-0.5">
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 hover:bg-slate-100 text-slate-600 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Bulan berikutnya"
-              @click="nextMonth"
-            >
+              @click="nextMonth">
               <Icon icon="hugeicons:arrow-right-01" class="size-5" />
             </button>
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 text-slate-600 hover:bg-slate-100 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Tahun berikutnya"
               title="Tahun berikutnya"
-              @click="nextYear"
-            >
+              @click="nextYear">
               <Icon icon="hugeicons:arrow-right-double" class="size-5" />
             </button>
           </div>
@@ -318,7 +289,7 @@ watch(
             <span
               v-for="d in DAYS"
               :key="d"
-              class="py-1 text-[10px] font-medium uppercase tracking-wide text-slate-600"
+              class="py-1 text-[10px] font-medium tracking-wide text-slate-600 uppercase"
               >{{ d }}</span
             >
           </div>
@@ -326,16 +297,15 @@ watch(
             <template v-for="(ymd, i) in grid" :key="i">
               <div
                 v-if="ymd"
-                class="relative flex aspect-square w-full max-h-9 cursor-pointer items-center justify-center text-xs transition-colors select-none"
+                class="relative flex aspect-square max-h-9 w-full cursor-pointer items-center justify-center text-xs transition-colors select-none"
                 :class="[
                   ymd === selectedDate
                     ? 'z-10 rounded-sm bg-teal-500 font-semibold text-white'
                     : isToday(ymd)
-                      ? 'rounded-sm text-teal-600 font-semibold bg-teal-50 hover:bg-slate-100'
+                      ? 'rounded-sm bg-teal-50 font-semibold text-teal-600 hover:bg-slate-100'
                       : 'rounded-sm text-slate-700 hover:bg-slate-100',
                 ]"
-                @click="selectDay(ymd)"
-              >
+                @click="selectDay(ymd)">
                 {{ ymd.split("-")[2].replace(/^0/, "") }}
               </div>
               <div v-else />

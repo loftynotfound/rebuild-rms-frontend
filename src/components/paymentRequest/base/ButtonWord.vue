@@ -29,10 +29,9 @@ const handleExport = async () => {
   <div class="flex flex-col items-end">
     <button
       type="button"
-      class="flex w-full lg:w-auto items-center justify-center gap-2 rounded-sm border border-slate-200 bg-white px-3 h-10 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-50 cursor-pointer"
+      class="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-sm border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 hover:bg-slate-100 disabled:opacity-50 lg:w-auto"
       :disabled="loading"
-      @click="handleExport"
-    >
+      @click="handleExport">
       <Icon icon="hugeicons:arrow-down-03" class="h-5 w-5" />
       {{ loading ? "Exporting..." : "Export .docx" }}
     </button>

@@ -11,25 +11,21 @@ defineEmits(["select"]);
 
 <template>
   <div
-    class="absolute right-0 z-50 mt-2 overflow-y-auto rounded-sm border tracking-tight font-medium border-slate-200 bg-white p-1 shadow-xs flex flex-col gap-1"
+    class="absolute right-0 z-50 mt-2 flex flex-col gap-1 overflow-y-auto rounded-sm border border-slate-200 bg-white p-1 font-medium tracking-tight shadow-xs"
     :class="[
       widthClass,
       maxHeightClass,
       placement === 'up' ? 'bottom-full mb-2' : 'top-full mt-2',
-    ]"
-  >
+    ]">
     <button
       v-for="opt in options"
       :key="opt.value"
       type="button"
-      class="flex w-full items-center rounded-sm px-3 py-2 text-left text-sm cursor-pointer"
+      class="flex w-full cursor-pointer items-center rounded-sm px-3 py-2 text-left text-sm"
       :class="
-        opt.value === modelValue
-          ? 'bg-teal-500 text-white'
-          : 'text-slate-600 hover:bg-slate-100'
+        opt.value === modelValue ? 'bg-teal-500 text-white' : 'text-slate-600 hover:bg-slate-100'
       "
-      @click="$emit('select', opt.value)"
-    >
+      @click="$emit('select', opt.value)">
       <Icon v-if="opt.icon" :icon="opt.icon" class="mr-2 size-4 shrink-0" />
       {{ opt.label }}
     </button>

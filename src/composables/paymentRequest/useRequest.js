@@ -109,10 +109,7 @@ const asList = (response) => {
   return [];
 };
 
-export function useRequest(
-  source = null,
-  searchFields = DEFAULT_SEARCH_FIELDS,
-) {
+export function useRequest(source = null, searchFields = DEFAULT_SEARCH_FIELDS) {
   const authStore = useAuthStore();
 
   const requests = ref([]);
@@ -128,8 +125,7 @@ export function useRequest(
 
   const items = computed(() => source?.value ?? requests.value);
 
-  const fetchByStatus = async (status) =>
-    pickList(await api.get("/pr", { params: { status } }));
+  const fetchByStatus = async (status) => pickList(await api.get("/pr", { params: { status } }));
 
   const fetchRequests = async () => {
     listLoading.value = true;
@@ -145,9 +141,7 @@ export function useRequest(
       listError.value =
         error.response?.status === 403
           ? "Anda tidak punya akses untuk halaman ini."
-          : (error.response?.data?.message ??
-            error.message ??
-            "Gagal memuat payment request.");
+          : (error.response?.data?.message ?? error.message ?? "Gagal memuat payment request.");
     } finally {
       listLoading.value = false;
     }
@@ -157,9 +151,7 @@ export function useRequest(
     (item.payments ?? [])
       .map(
         (payment) =>
-          `${payment.paymentBankAccountName ?? ""} ${
-            payment.paymentBankAccountNumber ?? ""
-          }`,
+          `${payment.paymentBankAccountName ?? ""} ${payment.paymentBankAccountNumber ?? ""}`,
       )
       .join(" ");
 
@@ -188,9 +180,7 @@ export function useRequest(
       if (sort.value === "id") return Number(a.prId) - Number(b.prId);
 
       if (sort.value === "date") {
-        return String(b.prCreateDate ?? "").localeCompare(
-          String(a.prCreateDate ?? ""),
-        );
+        return String(b.prCreateDate ?? "").localeCompare(String(a.prCreateDate ?? ""));
       }
 
       return 0;
@@ -202,10 +192,7 @@ export function useRequest(
   );
 
   const card = computed(() =>
-    filteredCard.value.slice(
-      (page.value - 1) * perPage.value,
-      page.value * perPage.value,
-    ),
+    filteredCard.value.slice((page.value - 1) * perPage.value, page.value * perPage.value),
   );
 
   const goToPage = (value) => {
@@ -237,8 +224,7 @@ export function useRequest(
     }
   };
 
-  const getQuotations = (keyword) =>
-    api.get("/pr/quotations", { params: { keyword } });
+  const getQuotations = (keyword) => api.get("/pr/quotations", { params: { keyword } });
 
   const getPoOptions = (keyword, limit = 10) =>
     api.get("/pr/po-options", { params: { keyword, limit } });

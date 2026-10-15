@@ -30,9 +30,7 @@ const authStore = useAuthStore();
 const me = computed(() => authStore.admin?.admin_id);
 const can = (slug) => authStore.hasAccess(slug);
 
-const canRecord = computed(
-  () => can("create_pr_payment") && props.pr.status === "approved",
-);
+const canRecord = computed(() => can("create_pr_payment") && props.pr.status === "approved");
 
 const recorded = computed(() =>
   props.payments
@@ -54,10 +52,7 @@ const run = async (fn, fallback) => {
 
 const confirmPaid = (p) => {
   if (!window.confirm(`Mark ${props.money(p.payment_amount)} as paid?`)) return;
-  run(
-    () => confirmPayment(p.payment_id),
-    "Failed to confirm the payment.",
-  );
+  run(() => confirmPayment(p.payment_id), "Failed to confirm the payment.");
 };
 
 const assignTarget = ref(null);
@@ -89,9 +84,7 @@ const onDone = () => {
 };
 
 const defaults = computed(() => {
-  const last = [...props.payments]
-    .reverse()
-    .find((p) => p.payment_bank_account_no);
+  const last = [...props.payments].reverse().find((p) => p.payment_bank_account_no);
   return {
     type: last?.payment_type ?? "",
     bank: last?.payment_bank ?? "",
@@ -109,21 +102,18 @@ const defaults = computed(() => {
         v-if="canRecord"
         type="button"
         class="rounded-sm bg-teal-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-teal-600"
-        @click="showRecord = true"
-      >
+        @click="showRecord = true">
         Record Payment
       </button>
     </div>
 
     <p v-if="error" class="mb-2 text-xs text-red-500">{{ error }}</p>
-    <p v-if="!payments.length" class="text-sm text-slate-400">
-      No payment recorded.
-    </p>
+    <p v-if="!payments.length" class="text-sm text-slate-400">No payment recorded.</p>
 
     <ul v-else class="divide-y divide-slate-200 text-sm">
       <li v-for="p in payments" :key="p.payment_id" class="space-y-1 py-3">
         <div class="flex items-center justify-between gap-2">
-          <span class="capitalize text-slate-600">
+          <span class="text-slate-600 capitalize">
             {{ p.payment_stage.replace("_", " ") }}
             <span class="text-xs text-slate-400">· {{ p.payment_type }}</span>
           </span>
@@ -131,8 +121,7 @@ const defaults = computed(() => {
             {{ money(p.payment_amount) }}
             <span
               class="rounded-sm px-1.5 py-0.5 text-[11px] font-medium capitalize"
-              :class="STYLE[p.payment_status] || STYLE.draft"
-            >
+              :class="STYLE[p.payment_status] || STYLE.draft">
               {{ p.payment_status }}
             </span>
           </span>
@@ -154,50 +143,35 @@ const defaults = computed(() => {
           </template>
         </p>
         <div
-          v-if="
-            p.payment_status === 'pending' &&
-            p.payment_priority_date &&
-            can('finance')
-          "
-          class="pt-0.5"
-        >
+          v-if="p.payment_status === 'pending' && p.payment_priority_date && can('finance')"
+          class="pt-0.5">
           <BadgeCountdown :value="p.payment_priority_date" />
         </div>
 
         <div
           v-if="p.payment_status === 'pending'"
-          class="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium"
-        >
+          class="flex flex-wrap items-center gap-3 pt-1 text-xs font-medium">
           <button
             v-if="can('finance')"
             type="button"
             class="text-slate-600 hover:text-slate-800"
-            @click="openAssign(p)"
-          >
+            @click="openAssign(p)">
             Set Priority Date
           </button>
 
           <template v-if="can('confirm_pr_payment')">
-            <span
-              v-if="p.payment_ref_admin_input === me"
-              class="text-slate-400"
-            >
+            <span v-if="p.payment_ref_admin_input === me" class="text-slate-400">
               Recorded by you, another admin must confirm.
             </span>
             <button
               v-else
               type="button"
               class="text-teal-600 hover:text-teal-700"
-              @click="confirmPaid(p)"
-            >
+              @click="confirmPaid(p)">
               Confirm Paid
             </button>
 
-            <button
-              type="button"
-              class="text-red-500 hover:text-red-600"
-              @click="cancelTarget = p"
-            >
+            <button type="button" class="text-red-500 hover:text-red-600" @click="cancelTarget = p">
               Cancel Payment
             </button>
           </template>
@@ -217,21 +191,15 @@ const defaults = computed(() => {
       :defaults="defaults"
       :money="money"
       @close="showRecord = false"
-      @done="onDone"
-    />
+      @done="onDone" />
 
     <ModalCancelPayment
       v-if="cancelTarget"
       :payment="cancelTarget"
       :money="money"
       @close="cancelTarget = null"
-      @done="onDone"
-    />
+      @done="onDone" />
 
-    <ModalAssign
-      v-model="showAssign"
-      :item="assignTarget"
-      @confirm="savePriorityDate"
-    />
+    <ModalAssign v-model="showAssign" :item="assignTarget" @confirm="savePriorityDate" />
   </div>
 </template>

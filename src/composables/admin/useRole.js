@@ -85,8 +85,7 @@ export function useRoles() {
       await fetchRoles();
       return true;
     } catch (err) {
-      deleteError.value =
-        err.response?.data?.message || "Failed to delete role";
+      deleteError.value = err.response?.data?.message || "Failed to delete role";
       return false;
     }
   }
@@ -168,8 +167,7 @@ export function useRoles() {
         access_ids: res.data.access_ids ?? [],
       };
     } catch (err) {
-      formError.value =
-        err.response?.data?.message || "Gagal memuat detail role";
+      formError.value = err.response?.data?.message || "Gagal memuat detail role";
       form.value = {
         role_id: role.role_id,
         title: role.role_title,

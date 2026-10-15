@@ -74,28 +74,21 @@ onBeforeUnmount(() => {
       :disabled="disabled"
       autocomplete="off"
       @input="onInput"
-      @keydown.esc="open = false"
-    />
+      @keydown.esc="open = false" />
 
     <div
       v-if="open && !disabled"
-      class="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-sm border border-slate-200 bg-white p-1 shadow-xs"
-    >
+      class="absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-sm border border-slate-200 bg-white p-1 shadow-xs">
       <button
         v-for="opt in options"
         :key="opt.key"
         type="button"
         class="flex w-full flex-col rounded-sm px-3 py-2 text-left hover:bg-slate-100"
-        @click="pick(opt)"
-      >
+        @click="pick(opt)">
         <span class="text-sm font-medium text-slate-700">{{ opt.title }}</span>
-        <span v-if="opt.subtitle" class="text-[11px] text-slate-400">{{
-          opt.subtitle
-        }}</span>
+        <span v-if="opt.subtitle" class="text-[11px] text-slate-400">{{ opt.subtitle }}</span>
       </button>
     </div>
-    <p v-else-if="loading" class="mt-1 text-[11px] text-slate-400">
-      Searching...
-    </p>
+    <p v-else-if="loading" class="mt-1 text-[11px] text-slate-400">Searching...</p>
   </div>
 </template>

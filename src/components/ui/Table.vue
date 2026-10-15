@@ -16,35 +16,25 @@ defineProps({
         <th
           v-for="col in columns"
           :key="col.key"
-          class="px-2 py-3 text-[11px] font-semibold uppercase tracking-wide text-slate-400 break-words"
-          :class="col.class"
-        >
+          class="px-2 py-3 text-[11px] font-semibold tracking-wide break-words text-slate-400 uppercase"
+          :class="col.class">
           <slot :name="`header-${col.key}`" :col="col">{{ col.label }}</slot>
         </th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-200">
       <tr v-if="loading">
-        <td
-          :colspan="columns.length"
-          class="px-3 py-12 text-center text-xs text-slate-400"
-        >
+        <td :colspan="columns.length" class="px-3 py-12 text-center text-xs text-slate-400">
           Memuat data...
         </td>
       </tr>
       <tr v-else-if="error">
-        <td
-          :colspan="columns.length"
-          class="px-3 py-12 text-center text-xs text-red-500"
-        >
+        <td :colspan="columns.length" class="px-3 py-12 text-center text-xs text-red-500">
           {{ error }}
         </td>
       </tr>
       <tr v-else-if="rows.length === 0">
-        <td
-          :colspan="columns.length"
-          class="px-3 py-12 text-center text-xs text-slate-400"
-        >
+        <td :colspan="columns.length" class="px-3 py-12 text-center text-xs text-slate-400">
           {{ emptyMessage }}
         </td>
       </tr>
@@ -52,14 +42,12 @@ defineProps({
         <tr
           v-for="row in rows"
           :key="row[rowKey]"
-          class="divide-x divide-slate-200 border-b border-slate-200"
-        >
+          class="divide-x divide-slate-200 border-b border-slate-200">
           <td
             v-for="col in columns"
             :key="col.key"
-            class="px-3 py-3 text-xs text-slate-700 break-words align-top"
-            :class="col.tdClass"
-          >
+            class="px-3 py-3 align-top text-xs break-words text-slate-700"
+            :class="col.tdClass">
             <slot :name="col.key" :row="row">
               {{ row[col.key] }}
             </slot>
@@ -70,16 +58,11 @@ defineProps({
   </table>
 
   <div class="lg:hidden">
-    <div v-if="loading" class="px-6 py-12 text-center text-xs text-slate-400">
-      Memuat data...
-    </div>
+    <div v-if="loading" class="px-6 py-12 text-center text-xs text-slate-400">Memuat data...</div>
     <div v-else-if="error" class="px-6 py-12 text-center text-xs text-red-500">
       {{ error }}
     </div>
-    <div
-      v-else-if="rows.length === 0"
-      class="px-6 py-12 text-center text-xs text-slate-400"
-    >
+    <div v-else-if="rows.length === 0" class="px-6 py-12 text-center text-xs text-slate-400">
       {{ emptyMessage }}
     </div>
 
@@ -87,8 +70,7 @@ defineProps({
       <div
         v-for="(row, index) in rows"
         :key="row[rowKey]"
-        class="rounded-lg border border-slate-200 p-4"
-      >
+        class="rounded-lg border border-slate-200 p-4">
         <slot name="card" :row="row" :index="index" />
       </div>
     </div>

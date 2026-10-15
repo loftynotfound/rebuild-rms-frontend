@@ -1,12 +1,5 @@
 <script setup>
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  reactive,
-  ref,
-  watch,
-} from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { useAuthStore } from "@/stores/auth";
@@ -163,18 +156,12 @@ const fromPo = computed(() => route.query.po ?? "");
 const isFollowUp = computed(() => Boolean(refPrevious.value));
 const isEditing = computed(() => Boolean(editingId.value));
 
-const linkLocksResponsible = computed(() =>
-  Boolean(linkCheck.value?.responsible?.locked),
-);
+const linkLocksResponsible = computed(() => Boolean(linkCheck.value?.responsible?.locked));
 
-const responsibleLocked = computed(
-  () => isFollowUp.value || linkLocksResponsible.value,
-);
+const responsibleLocked = computed(() => isFollowUp.value || linkLocksResponsible.value);
 
 const poLocked = computed(
-  () =>
-    lockedPo.value ||
-    ["quotation_linked", "linked_match"].includes(linkCheck.value?.code),
+  () => lockedPo.value || ["quotation_linked", "linked_match"].includes(linkCheck.value?.code),
 );
 
 const showResponsibleModal = ref(false);
@@ -210,16 +197,12 @@ const handleAddResponsible = async (payload) => {
   try {
     form.responsible = await addResponsible(payload);
   } catch (e) {
-    errors.value.responsible =
-      e.response?.data?.message ?? "Failed to add responsible.";
+    errors.value.responsible = e.response?.data?.message ?? "Failed to add responsible.";
   }
 };
 
 const onOutsideClick = (event) => {
-  if (
-    responsibleDropdown.value &&
-    !responsibleDropdown.value.contains(event.target)
-  ) {
+  if (responsibleDropdown.value && !responsibleDropdown.value.contains(event.target)) {
     responsibleDropdownOpen.value = false;
   }
 };
@@ -228,9 +211,7 @@ const openResponsibleModal = () => {
   showResponsibleModal.value = true;
 };
 
-const margin = computed(
-  () => Number(form.poAmount || 0) - Number(form.cogs || 0),
-);
+const margin = computed(() => Number(form.poAmount || 0) - Number(form.cogs || 0));
 
 const marginPct = computed(() => {
   const poAmount = Number(form.poAmount || 0);
@@ -368,8 +349,7 @@ const validate = (isSubmit) => {
 };
 
 const buildPayments = () => {
-  const hasFirst =
-    form.paymentStage && form.paymentType && Number(form.requestedAmount) > 0;
+  const hasFirst = form.paymentStage && form.paymentType && Number(form.requestedAmount) > 0;
 
   const first = hasFirst
     ? [
@@ -412,8 +392,7 @@ const toPayload = () => {
   return body;
 };
 
-const send = (body) =>
-  editingId.value ? updatePR(editingId.value, body) : createPR(body);
+const send = (body) => (editingId.value ? updatePR(editingId.value, body) : createPR(body));
 
 const sendWithJoinConfirm = async (body) => {
   try {
@@ -473,8 +452,7 @@ const persist = async (isSubmit) => {
       query: { status: "draft" },
     });
   } catch (e) {
-    serverError.value =
-      e.response?.data?.message ?? "Failed to save the payment request.";
+    serverError.value = e.response?.data?.message ?? "Failed to save the payment request.";
   } finally {
     saving.value = false;
   }
@@ -486,10 +464,7 @@ const loadFollowUp = async () => {
   try {
     const refId = route.query.ref;
 
-    const [prRes, payRes] = await Promise.all([
-      getPR(refId),
-      getPayments(refId),
-    ]);
+    const [prRes, payRes] = await Promise.all([getPR(refId), getPayments(refId)]);
 
     const prev = prRes.data;
 
@@ -549,9 +524,7 @@ const loadRequest = async () => {
       return goOverview();
     }
 
-    const drafts = (payRes.data ?? []).filter(
-      (p) => p.payment_status === "draft",
-    );
+    const drafts = (payRes.data ?? []).filter((p) => p.payment_status === "draft");
 
     const [first = {}, ...rest] = drafts;
 
@@ -627,8 +600,8 @@ watch(isCostControlRequired, (required) => {
       </h1>
 
       <p v-if="isFollowUp" class="mt-1 text-sm text-slate-500">
-        Follow-up of request #{{ refPrevious }}. Responsible, quotation, and
-        purchase order number follow the previous request.
+        Follow-up of request #{{ refPrevious }}. Responsible, quotation, and purchase order number
+        follow the previous request.
       </p>
 
       <p v-if="fromPo" class="mt-1 text-sm text-slate-500">
@@ -640,14 +613,10 @@ watch(isCostControlRequired, (required) => {
     </div>
 
     <form class="space-y-4" @submit.prevent="persist(true)">
-      <section
-        class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs"
-      >
+      <section class="rounded-sm border border-slate-200 bg-white p-4 shadow-xs">
         <!-- Request Information -->
         <div class="pb-6">
-          <div
-            class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600"
-          >
+          <div class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600">
             <Icon icon="hugeicons:invoice-01" class="size-5" />
             <h2 class="leading-none">Request Information</h2>
           </div>
@@ -664,8 +633,7 @@ watch(isCostControlRequired, (required) => {
                 readonly
                 disabled
                 placeholder="Generated after saving"
-                class="w-full cursor-not-allowed select-none rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal selection:bg-transparent selection:text-slate-600"
-              />
+                class="w-full cursor-not-allowed rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 select-none selection:bg-transparent selection:text-slate-600 placeholder:tracking-normal placeholder:text-slate-400" />
 
               <span class="text-[11px] text-slate-500">
                 Generated automatically after you save it as a draft.
@@ -674,28 +642,22 @@ watch(isCostControlRequired, (required) => {
 
             <!-- Date -->
             <div>
-              <span class="mb-1 block text-sm font-medium text-slate-600">
-                Today's Date
-              </span>
+              <span class="mb-1 block text-sm font-medium text-slate-600"> Today's Date </span>
 
               <div class="relative">
                 <Icon
                   icon="hugeicons:calendar-02"
-                  class="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-slate-600"
-                />
+                  class="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-slate-600" />
 
                 <input
                   v-model="form.rfpDate"
                   type="date"
                   readonly
                   disabled
-                  class="w-full cursor-not-allowed rounded-sm border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal"
-                />
+                  class="w-full cursor-not-allowed rounded-sm border border-slate-200 bg-slate-50 py-2 pr-3 pl-9 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400" />
               </div>
 
-              <span class="text-[11px] text-slate-500">
-                Set today's date automatically.
-              </span>
+              <span class="text-[11px] text-slate-500"> Set today's date automatically. </span>
             </div>
 
             <!-- Quotation Number -->
@@ -710,16 +672,11 @@ watch(isCostControlRequired, (required) => {
                 :fetcher="searchQuotations"
                 :disabled="lockedQuotation"
                 placeholder="Quotation Number"
-                :class="[
-                  inputClass,
-                  lockedQuotation && 'cursor-not-allowed bg-slate-50',
-                ]"
-              />
+                :class="[inputClass, lockedQuotation && 'cursor-not-allowed bg-slate-50']" />
 
               <span
                 v-if="errors.quotationNumber"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.quotationNumber }}
               </span>
@@ -736,11 +693,7 @@ watch(isCostControlRequired, (required) => {
                 :fetcher="searchPOs"
                 :disabled="poLocked"
                 placeholder="Purchase Order Number"
-                :class="[
-                  inputClass,
-                  poLocked && 'cursor-not-allowed bg-slate-50',
-                ]"
-              />
+                :class="[inputClass, poLocked && 'cursor-not-allowed bg-slate-50']" />
 
               <span
                 v-if="linkCheck && linkCheck.code !== 'empty'"
@@ -750,8 +703,7 @@ watch(isCostControlRequired, (required) => {
                   'text-amber-600': linkCheck.level === 'warning',
                   'text-teal-600': linkCheck.level === 'ok',
                   'text-slate-500': linkCheck.level === 'info',
-                }"
-              >
+                }">
                 {{ linkCheck.message }}
               </span>
             </div>
@@ -760,9 +712,7 @@ watch(isCostControlRequired, (required) => {
 
         <!-- Vendor Payment -->
         <div class="border-t border-slate-200 py-6">
-          <div
-            class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600"
-          >
+          <div class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600">
             <Icon icon="hugeicons:bank" class="size-5" />
             <h2 class="leading-none">Vendor Payment</h2>
           </div>
@@ -770,15 +720,11 @@ watch(isCostControlRequired, (required) => {
           <div class="grid gap-x-4 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
             <!-- Payment Method -->
             <div>
-              <InputRequestMethod
-                v-model="form.paymentType"
-                :error="errors.paymentType"
-              />
+              <InputRequestMethod v-model="form.paymentType" :error="errors.paymentType" />
 
               <span
                 v-if="errors.paymentType"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.paymentType }}
               </span>
@@ -790,8 +736,7 @@ watch(isCostControlRequired, (required) => {
 
               <span
                 v-if="errors.paymentStage"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.paymentStage }}
               </span>
@@ -807,13 +752,11 @@ watch(isCostControlRequired, (required) => {
               <input
                 v-model="form.vendor"
                 placeholder="Vendor Name"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
 
               <span
                 v-if="errors.vendor"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.vendor }}
               </span>
@@ -821,15 +764,12 @@ watch(isCostControlRequired, (required) => {
 
             <!-- Bank Name -->
             <div>
-              <span class="mb-1 block text-sm font-medium text-slate-600">
-                Bank Name
-              </span>
+              <span class="mb-1 block text-sm font-medium text-slate-600"> Bank Name </span>
 
               <input
                 v-model="form.bankName"
                 placeholder="Bank Name"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
             </div>
 
             <!-- Bank Account Number -->
@@ -842,30 +782,24 @@ watch(isCostControlRequired, (required) => {
                 v-model="form.bankAccountNumber"
                 inputmode="numeric"
                 placeholder="Bank Account Number"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
             </div>
 
             <!-- Bank Account Name -->
             <div>
-              <span class="mb-1 block text-sm font-medium text-slate-600">
-                Bank Account Name
-              </span>
+              <span class="mb-1 block text-sm font-medium text-slate-600"> Bank Account Name </span>
 
               <input
                 v-model="form.bankAccount"
                 placeholder="Bank Account Name"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
             </div>
           </div>
         </div>
 
         <!-- Payment Details -->
         <div class="border-t border-slate-200 py-6">
-          <div
-            class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600"
-          >
+          <div class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600">
             <Icon icon="hugeicons:calculator-01" class="size-5" />
             <h2 class="leading-none">Payment Details</h2>
           </div>
@@ -882,13 +816,11 @@ watch(isCostControlRequired, (required) => {
                 v-model="form.description"
                 rows="3"
                 placeholder="Description"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
 
               <span
                 v-if="errors.description"
-                class="mt-2 flex items-center gap-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.description }}
               </span>
@@ -906,13 +838,11 @@ watch(isCostControlRequired, (required) => {
                 type="text"
                 inputmode="numeric"
                 placeholder="0"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
 
               <span
                 v-if="errors.requestedAmount"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.requestedAmount }}
               </span>
@@ -930,13 +860,11 @@ watch(isCostControlRequired, (required) => {
                 type="text"
                 inputmode="numeric"
                 placeholder="0"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
 
               <span
                 v-if="errors.poAmount"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.poAmount }}
               </span>
@@ -954,13 +882,11 @@ watch(isCostControlRequired, (required) => {
                 type="text"
                 inputmode="numeric"
                 placeholder="0"
-                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:text-slate-400 placeholder:tracking-normal hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-              />
+                class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 placeholder:tracking-normal placeholder:text-slate-400 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none" />
 
               <span
                 v-if="errors.cogs"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.cogs }}
               </span>
@@ -972,19 +898,13 @@ watch(isCostControlRequired, (required) => {
                 Target Invoice Date
               </span>
 
-              <InputDate
-                v-model="form.targetInvoiceDate"
-                placeholder="Target Invoice Date"
-              />
+              <InputDate v-model="form.targetInvoiceDate" placeholder="Target Invoice Date" />
             </div>
 
             <!-- Margin -->
             <div
-              class="flex flex-col items-start justify-center rounded-sm border border-teal-100 bg-teal-50 px-3 py-1"
-            >
-              <span class="mb-1 text-[14px] font-medium text-teal-800">
-                Margin (Rp)
-              </span>
+              class="flex flex-col items-start justify-center rounded-sm border border-teal-100 bg-teal-50 px-3 py-1">
+              <span class="mb-1 text-[14px] font-medium text-teal-800"> Margin (Rp) </span>
 
               <span class="font-semibold text-teal-800">
                 {{ money(margin) }}
@@ -993,24 +913,17 @@ watch(isCostControlRequired, (required) => {
 
             <!-- Margin Percentage -->
             <div
-              class="flex flex-col items-start justify-center rounded-sm border border-teal-100 bg-teal-50 px-3 py-1"
-            >
-              <span class="mb-1 text-[14px] font-medium text-teal-800">
-                Margin (%)
-              </span>
+              class="flex flex-col items-start justify-center rounded-sm border border-teal-100 bg-teal-50 px-3 py-1">
+              <span class="mb-1 text-[14px] font-medium text-teal-800"> Margin (%) </span>
 
-              <span class="font-semibold text-teal-800">
-                {{ marginPct }}%
-              </span>
+              <span class="font-semibold text-teal-800"> {{ marginPct }}% </span>
             </div>
           </div>
         </div>
 
         <!-- Approval Details -->
         <div class="border-t border-slate-200 py-6">
-          <div
-            class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600"
-          >
+          <div class="mb-3 flex items-center gap-1.5 text-[15px] font-semibold text-teal-600">
             <Icon icon="hugeicons:security-check" class="size-5" />
             <h2 class="leading-none">Approval Details</h2>
           </div>
@@ -1028,31 +941,22 @@ watch(isCostControlRequired, (required) => {
                   <button
                     type="button"
                     :disabled="responsibleLocked"
-                    :class="
-                      responsibleLocked && 'cursor-not-allowed bg-slate-50'
-                    "
-                    class="block w-full cursor-pointer rounded-sm border border-slate-200 px-3 py-2 pr-8 text-left text-sm font-medium text-slate-600 hover:border-teal-400 focus:border-teal-400 focus:outline-none focus:ring-0 focus:ring-offset-0"
-                    @click="responsibleDropdownOpen = !responsibleDropdownOpen"
-                  >
+                    :class="responsibleLocked && 'cursor-not-allowed bg-slate-50'"
+                    class="block w-full cursor-pointer rounded-sm border border-slate-200 px-3 py-2 pr-8 text-left text-sm font-medium text-slate-600 hover:border-teal-400 focus:border-teal-400 focus:ring-0 focus:ring-offset-0 focus:outline-none"
+                    @click="responsibleDropdownOpen = !responsibleDropdownOpen">
                     <span
                       :class="
                         selectedResponsible
-                          ? 'text-slate-600 tracking-tight'
-                          : 'text-slate-400 tracking-normal'
-                      "
-                    >
-                      {{
-                        selectedResponsible
-                          ? selectedResponsible.label
-                          : "Responsible & COA"
-                      }}
+                          ? 'tracking-tight text-slate-600'
+                          : 'tracking-normal text-slate-400'
+                      ">
+                      {{ selectedResponsible ? selectedResponsible.label : "Responsible & COA" }}
                     </span>
                   </button>
 
                   <Icon
                     icon="hugeicons:arrow-down-01"
-                    class="pointer-events-none absolute right-2.5 top-1/2 size-5 -translate-y-1/2 text-slate-600"
-                  />
+                    class="pointer-events-none absolute top-1/2 right-2.5 size-5 -translate-y-1/2 text-slate-600" />
 
                   <ModalDropdown
                     v-if="responsibleDropdownOpen"
@@ -1061,22 +965,16 @@ watch(isCostControlRequired, (required) => {
                     width-class="w-full"
                     placement="up"
                     max-height-class="max-h-30"
-                    @select="selectResponsible"
-                  />
+                    @select="selectResponsible" />
                 </div>
 
                 <BadgeLabel
-                  v-if="
-                    !responsibleLocked &&
-                    authStore.hasAccess('create_responsible')
-                  "
-                  label="Add Responsible & COA"
-                >
+                  v-if="!responsibleLocked && authStore.hasAccess('create_responsible')"
+                  label="Add Responsible & COA">
                   <button
                     type="button"
                     class="flex w-9 shrink-0 cursor-pointer items-center justify-center rounded-sm bg-teal-500 py-2 text-lg font-medium text-white hover:bg-teal-600"
-                    @click="openResponsibleModal"
-                  >
+                    @click="openResponsibleModal">
                     <Icon icon="hugeicons:add-01" class="size-5" />
                   </button>
                 </BadgeLabel>
@@ -1084,8 +982,7 @@ watch(isCostControlRequired, (required) => {
 
               <span
                 v-if="errors.responsible"
-                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-2 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.responsible }}
               </span>
@@ -1093,9 +990,7 @@ watch(isCostControlRequired, (required) => {
 
             <!-- Cost Control -->
             <div>
-              <span
-                class="mb-1 flex items-center gap-1 text-sm font-medium text-slate-600"
-              >
+              <span class="mb-1 flex items-center gap-1 text-sm font-medium text-slate-600">
                 Cost Control
                 <span v-if="isCostControlRequired" class="text-red-500">*</span>
               </span>
@@ -1107,20 +1002,17 @@ watch(isCostControlRequired, (required) => {
                   type="file"
                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                   class="peer sr-only"
-                  @change="handleCostControl"
-                />
+                  @change="handleCostControl" />
 
                 <label
                   for="costControlInput"
-                  class="flex w-full cursor-pointer items-center rounded-sm border border-slate-200 px-3 py-2 pr-9 text-sm font-medium hover:border-teal-400 peer-focus:border-teal-400"
-                >
+                  class="flex w-full cursor-pointer items-center rounded-sm border border-slate-200 px-3 py-2 pr-9 text-sm font-medium peer-focus:border-teal-400 hover:border-teal-400">
                   <span
                     :class="
                       costControlFileName
-                        ? 'text-slate-600 tracking-tight'
-                        : 'text-slate-400 tracking-normal'
-                    "
-                  >
+                        ? 'tracking-tight text-slate-600'
+                        : 'tracking-normal text-slate-400'
+                    ">
                     {{ costControlFileName || "Choose A File" }}
                   </span>
                 </label>
@@ -1128,9 +1020,8 @@ watch(isCostControlRequired, (required) => {
                 <button
                   v-if="form.costControl"
                   type="button"
-                  class="absolute right-2.5 top-1/2 flex h-4 w-4 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-slate-600 hover:bg-slate-100"
-                  @click.prevent="removeCostControl"
-                >
+                  class="absolute top-1/2 right-2.5 flex h-4 w-4 -translate-y-1/2 cursor-pointer items-center justify-center rounded-sm text-slate-600 hover:bg-slate-100"
+                  @click.prevent="removeCostControl">
                   <Icon icon="boxicons:x" class="size-5" />
                 </button>
               </div>
@@ -1141,8 +1032,7 @@ watch(isCostControlRequired, (required) => {
 
               <span
                 v-if="errors.costControl"
-                class="mt-1 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-              >
+                class="mt-1 flex items-center gap-1.5 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
                 <Icon icon="hugeicons:alert-02" class="size-4" />
                 {{ errors.costControl }}
               </span>
@@ -1150,16 +1040,13 @@ watch(isCostControlRequired, (required) => {
 
             <!-- Prepared By -->
             <div>
-              <span class="mb-1 block text-sm font-medium text-slate-600">
-                Prepared By
-              </span>
+              <span class="mb-1 block text-sm font-medium text-slate-600"> Prepared By </span>
 
               <input
                 :value="preparedBy || 'None'"
                 readonly
                 disabled
-                class="w-full cursor-not-allowed select-none rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 outline-none selection:bg-transparent selection:text-slate-600"
-              />
+                class="w-full cursor-not-allowed rounded-sm border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium tracking-tight text-slate-600 outline-none select-none selection:bg-transparent selection:text-slate-600" />
             </div>
           </div>
         </div>
@@ -1167,15 +1054,13 @@ watch(isCostControlRequired, (required) => {
         <!-- Errors -->
         <p
           v-if="serverError"
-          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-        >
+          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
           {{ serverError }}
         </p>
 
         <p
           v-if="errors.link"
-          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500"
-        >
+          class="mb-2 rounded-sm border border-red-200 bg-red-100 px-2 py-1.5 text-xs text-red-500">
           {{ errors.link }}
         </p>
 
@@ -1191,14 +1076,12 @@ watch(isCostControlRequired, (required) => {
     <ModalHandler
       v-model="showResponsibleModal"
       :responsible-options="responsibleOptions"
-      @add="handleAddResponsible"
-    />
+      @add="handleAddResponsible" />
 
     <ModalSubmit
       v-if="showSubmit"
       :target="submitTarget"
       @close="showSubmit = false"
-      @done="router.push(`/payment-request/${submitTarget.prId}`)"
-    />
+      @done="router.push(`/payment-request/${submitTarget.prId}`)" />
   </div>
 </template>

@@ -51,10 +51,7 @@ const humanize = (value) =>
     .join(" ");
 
 const sum = (list) =>
-  list.reduce(
-    (total, payment) => total + Number(payment.payment_amount || 0),
-    0,
-  );
+  list.reduce((total, payment) => total + Number(payment.payment_amount || 0), 0);
 
 const cancelRequests = ref([]);
 const docError = ref("");
@@ -63,10 +60,7 @@ const viewCancelDoc = async (cancelRequest) => {
   docError.value = "";
 
   try {
-    await openCancelDocument(
-      cancelRequest.cancel_id,
-      cancelRequest.cancel_document_name,
-    );
+    await openCancelDocument(cancelRequest.cancel_id, cancelRequest.cancel_document_name);
   } catch (error) {
     docError.value = error.message;
   }
@@ -96,24 +90,18 @@ const loadDetail = async (silent = false) => {
 
     payments.value = payRes?.data ?? [];
 
-    const livePayments = payments.value.filter(
-      (payment) => payment.payment_status !== "cancelled",
-    );
+    const livePayments = payments.value.filter((payment) => payment.payment_status !== "cancelled");
 
     const latestPayment = livePayments.at(-1) ?? payments.value.at(-1) ?? {};
 
     approvals.value = apprRes?.data ?? [];
 
-    const latestRound = Math.max(
-      0,
-      ...approvals.value.map((approval) => approval.approval_round),
-    );
+    const latestRound = Math.max(0, ...approvals.value.map((approval) => approval.approval_round));
 
     const approved = approvals.value
       .filter(
         (approval) =>
-          approval.approval_round === latestRound &&
-          approval.approval_status === "approved",
+          approval.approval_round === latestRound && approval.approval_status === "approved",
       )
       .sort((a, b) => a.approval_level - b.approval_level);
 
@@ -124,16 +112,13 @@ const loadDetail = async (silent = false) => {
     const chainIndex = chain.findIndex((entry) => entry.pr_id === pr.pr_id);
 
     const previousPayments =
-      chainIndex > 0
-        ? chain.slice(0, chainIndex).flatMap((entry) => entry.payments ?? [])
-        : [];
+      chainIndex > 0 ? chain.slice(0, chainIndex).flatMap((entry) => entry.payments ?? []) : [];
 
     const totalPreviousPayment = sum(
       previousPayments.filter((payment) => payment.payment_status === "paid"),
     );
 
-    const marginPct =
-      Math.trunc(Number(pr.pr_margin_percentage || 0) * 10) / 10;
+    const marginPct = Math.trunc(Number(pr.pr_margin_percentage || 0) * 10) / 10;
 
     item.value = {
       prId: pr.pr_id,
@@ -168,17 +153,13 @@ const loadDetail = async (silent = false) => {
       preparedBy: pr.admin_name,
       reviewedBy: checked?.admin_name ?? "",
       approvedBy: finalApprover?.admin_name ?? "",
-      postedBy:
-        latestPayment.payment_status === "paid"
-          ? latestPayment.admin_paid_name
-          : "",
+      postedBy: latestPayment.payment_status === "paid" ? latestPayment.admin_paid_name : "",
     };
   } catch (error) {
     loadError.value =
       error.response?.status === 404
         ? "Payment request not found."
-        : (error.response?.data?.message ??
-          "Failed to load the payment request.");
+        : (error.response?.data?.message ?? "Failed to load the payment request.");
   } finally {
     detailLoading.value = false;
   }
@@ -205,8 +186,7 @@ watch(
           v-if="canEditAmounts"
           type="button"
           class="flex h-10 items-center rounded-sm border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 hover:bg-slate-100"
-          @click="showEditAmounts = true"
-        >
+          @click="showEditAmounts = true">
           Edit Amounts
         </button>
 
@@ -261,9 +241,7 @@ watch(
       </div>
 
       <div>
-        <h2
-          class="border-y border-slate-200 py-2 text-sm font-semibold text-slate-900"
-        >
+        <h2 class="border-y border-slate-200 py-2 text-sm font-semibold text-slate-900">
           Payment Method:
           <span class="font-normal text-slate-600">
             {{ item.paymentType || "-" }}
@@ -382,48 +360,31 @@ watch(
       <div class="rounded-sm border border-slate-200 bg-white px-6 py-4">
         <h2 class="mb-2 text-sm font-semibold text-slate-900">Approvals</h2>
 
-        <p v-if="!approvals.length" class="text-sm text-slate-400">
-          Not submitted yet.
-        </p>
+        <p v-if="!approvals.length" class="text-sm text-slate-400">Not submitted yet.</p>
 
         <ul v-else class="divide-y divide-slate-200 text-sm">
-          <li
-            v-for="approval in approvals"
-            :key="approval.approval_id"
-            class="space-y-1 py-2"
-          >
+          <li v-for="approval in approvals" :key="approval.approval_id" class="space-y-1 py-2">
             <div class="flex items-center justify-between gap-2">
               <span class="text-slate-600">
                 L{{ approval.approval_level }} {{ approval.approval_type }}
 
-                <span
-                  v-if="approval.admin_name"
-                  class="font-medium text-slate-900"
-                >
+                <span v-if="approval.admin_name" class="font-medium text-slate-900">
                   · {{ approval.admin_name }}
                 </span>
 
-                <span class="text-xs text-slate-400">
-                  (round {{ approval.approval_round }})
-                </span>
+                <span class="text-xs text-slate-400"> (round {{ approval.approval_round }}) </span>
               </span>
 
-              <span class="capitalize text-slate-900">
+              <span class="text-slate-900 capitalize">
                 {{ approval.approval_status.replace("_", " ") }}
               </span>
             </div>
 
-            <p
-              v-if="approval.approval_notes"
-              class="whitespace-pre-line text-xs text-slate-500"
-            >
+            <p v-if="approval.approval_notes" class="text-xs whitespace-pre-line text-slate-500">
               {{ approval.approval_notes }}
             </p>
 
-            <p
-              v-if="approval.approval_decided_date"
-              class="text-[11px] text-slate-400"
-            >
+            <p v-if="approval.approval_decided_date" class="text-[11px] text-slate-400">
               {{ date(approval.approval_decided_date) }}
             </p>
           </li>
@@ -441,17 +402,11 @@ watch(
         :payments="payments"
         :money="money"
         :date="date"
-        @changed="loadDetail(true)"
-      />
+        @changed="loadDetail(true)" />
     </div>
 
-    <div
-      v-if="cancelRequests.length"
-      class="rounded-sm border border-slate-200 bg-white px-6 py-4"
-    >
-      <h2 class="mb-2 text-sm font-semibold text-slate-900">
-        Cancellation Requests
-      </h2>
+    <div v-if="cancelRequests.length" class="rounded-sm border border-slate-200 bg-white px-6 py-4">
+      <h2 class="mb-2 text-sm font-semibold text-slate-900">Cancellation Requests</h2>
 
       <p v-if="docError" class="mb-2 text-xs text-red-500">
         {{ docError }}
@@ -461,8 +416,7 @@ watch(
         <li
           v-for="cancelRequest in cancelRequests"
           :key="cancelRequest.cancel_id"
-          class="space-y-1 py-3"
-        >
+          class="space-y-1 py-3">
           <div class="flex items-center justify-between gap-2">
             <span class="text-slate-600">
               {{ date(cancelRequest.cancel_create_date) }}
@@ -472,7 +426,7 @@ watch(
               </span>
             </span>
 
-            <span class="font-medium capitalize text-slate-900">
+            <span class="font-medium text-slate-900 capitalize">
               {{ cancelRequest.cancel_status }}
             </span>
           </div>
@@ -481,10 +435,7 @@ watch(
             {{ cancelRequest.cancel_reason }}
           </p>
 
-          <p
-            v-if="cancelRequest.cancel_review_notes"
-            class="text-xs text-slate-500"
-          >
+          <p v-if="cancelRequest.cancel_review_notes" class="text-xs text-slate-500">
             Finance ({{ cancelRequest.reviewer_name || "-" }}):
             {{ cancelRequest.cancel_review_notes }}
           </p>
@@ -492,8 +443,7 @@ watch(
           <button
             type="button"
             class="text-xs font-medium text-teal-600 hover:text-teal-700"
-            @click="viewCancelDoc(cancelRequest)"
-          >
+            @click="viewCancelDoc(cancelRequest)">
             {{ cancelRequest.cancel_document_name || "View document" }}
           </button>
         </li>
@@ -505,8 +455,7 @@ watch(
         :pr-id="item.prId"
         :owner-id="item.ownerId"
         :status="item.status"
-        :date="date"
-      />
+        :date="date" />
 
       <DisplayHistory :pr-id="item.prId" :date="date" />
     </div>
@@ -527,14 +476,12 @@ watch(
       @done="
         showEditAmounts = false;
         loadDetail(true);
-      "
-    />
+      " />
   </div>
 
   <div
     v-else-if="!detailLoading"
-    class="rounded-xl border border-slate-200 bg-white py-16 text-center text-sm text-slate-400"
-  >
+    class="rounded-xl border border-slate-200 bg-white py-16 text-center text-sm text-slate-400">
     {{ loadError || "Payment request not found." }}
   </div>
 </template>

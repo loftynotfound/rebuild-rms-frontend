@@ -24,8 +24,7 @@ const dateFormatter = new Intl.DateTimeFormat("id-ID", {
 });
 
 export function formatCurrency(value) {
-  if (value === null || value === undefined || Number.isNaN(Number(value)))
-    return "-";
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "-";
   return currencyFormatter.format(Number(value));
 }
 
@@ -101,8 +100,7 @@ export function usePurchaseOrders(initialStatus) {
       pagination.totalPage = res.meta?.total_page ?? 1;
       pagination.totalData = res.meta?.total_data ?? 0;
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Gagal memuat data Purchase Order";
+      error.value = err.response?.data?.message || "Gagal memuat data Purchase Order";
       rows.value = [];
     } finally {
       loading.value = false;

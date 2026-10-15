@@ -5,14 +5,11 @@ export function usePayment() {
 
   const getPaymentChain = (prId) => api.get(`/pr/${prId}/payment-chain`);
 
-  const recordPayment = (prId, payload) =>
-    api.post(`/pr/${prId}/payments`, payload);
+  const recordPayment = (prId, payload) => api.post(`/pr/${prId}/payments`, payload);
 
-  const updateAmounts = (prId, payload) =>
-    api.post(`/pr/${prId}/amounts`, payload);
+  const updateAmounts = (prId, payload) => api.post(`/pr/${prId}/amounts`, payload);
 
-  const confirmPayment = (paymentId) =>
-    api.post(`/pr/payments/${paymentId}/confirm`);
+  const confirmPayment = (paymentId) => api.post(`/pr/payments/${paymentId}/confirm`);
 
   const updatePriorityDate = (paymentId, priorityDate) =>
     api.post(`/pr/payments/${paymentId}/priority-date`, {

@@ -19,9 +19,7 @@ const error = ref("");
 onMounted(() => {
   name.value = authStore.admin?.admin_name || authStore.admin?.username || "";
   signature.value =
-    localStorage.getItem("rms_profile_signature") ||
-    authStore.admin?.signature ||
-    "";
+    localStorage.getItem("rms_profile_signature") || authStore.admin?.signature || "";
 });
 
 const onFile = (event) => {
@@ -69,14 +67,12 @@ const submit = () => {
       <div>
         <span class="label">Signature *</span>
         <div
-          class="flex min-h-24 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 p-3"
-        >
+          class="flex min-h-24 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 p-3">
           <img
             v-if="signature"
             :src="signature"
             alt="Profile signature"
-            class="h-16 max-w-44 object-contain"
-          />
+            class="h-16 max-w-44 object-contain" />
           <span v-else class="text-xs text-red-500"
             >No signature found. Please set your signature in My Profile.</span
           >
@@ -88,16 +84,14 @@ const submit = () => {
           type="button"
           class="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           :disabled="loading"
-          @click="emit('close')"
-        >
+          @click="emit('close')">
           Cancel
         </button>
         <button
           type="button"
           class="rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-50"
           :disabled="loading"
-          @click="submit"
-        >
+          @click="submit">
           {{ loading ? "Saving..." : submitLabel }}
         </button>
       </div>

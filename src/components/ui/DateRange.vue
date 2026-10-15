@@ -1,12 +1,5 @@
 <script setup>
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 // Props & emits
 const props = defineProps({
@@ -110,12 +103,8 @@ function nextYear() {
   leftYear.value++;
 }
 
-const rightYear = computed(() =>
-  leftMonth.value === 11 ? leftYear.value + 1 : leftYear.value,
-);
-const rightMonth = computed(() =>
-  leftMonth.value === 11 ? 0 : leftMonth.value + 1,
-);
+const rightYear = computed(() => (leftMonth.value === 11 ? leftYear.value + 1 : leftYear.value));
+const rightMonth = computed(() => (leftMonth.value === 11 ? 0 : leftMonth.value + 1));
 
 function prevMonth() {
   if (leftMonth.value === 0) {
@@ -192,8 +181,7 @@ function cellState(ymd) {
   const isStart = ymd === (selecting.value ?? startDate.value);
   const isEnd = !selecting.value && ymd === endDate.value;
   const inRange = rangeStart && rangeEnd && ymd > rangeStart && ymd < rangeEnd;
-  const isHoverEnd =
-    selecting.value && ymd === hovered.value && ymd > selecting.value;
+  const isHoverEnd = selecting.value && ymd === hovered.value && ymd > selecting.value;
 
   const overLimit =
     selecting.value &&
@@ -283,28 +271,22 @@ watch(
 </script>
 
 <template>
-  <div ref="pickerEl" class="relative block-w-full">
+  <div ref="pickerEl" class="block-w-full relative">
     <button
       ref="triggerEl"
       type="button"
-      class="flex w-full items-center gap-1.5 rounded-sm border px-3 h-10 text-[14px] leading-none font-medium cursor-pointer tracking-tight focus:outline-none"
+      class="flex h-10 w-full cursor-pointer items-center gap-1.5 rounded-sm border px-3 text-[14px] leading-none font-medium tracking-tight focus:outline-none"
       :class="[
         error
           ? 'border-red-400 text-red-500 focus:border-red-400'
           : 'border-slate-200 text-slate-600 focus:border-teal-400',
         isOpen ? 'border border-teal-400' : 'border hover:border-teal-400',
       ]"
-      @click="isOpen ? (isOpen = false) : onOpen()"
-    >
+      @click="isOpen ? (isOpen = false) : onOpen()">
       <Icon icon="hugeicons:calendar-04" class="size-5 shrink-0" />
 
       <span
-        :class="
-          displayLabel
-            ? 'text-slate-600 tracking-tight'
-            : 'text-slate-400 tracking-normal'
-        "
-      >
+        :class="displayLabel ? 'tracking-tight text-slate-600' : 'tracking-normal text-slate-400'">
         {{ displayLabel || placeholder }}
       </span>
 
@@ -312,71 +294,58 @@ watch(
         v-if="startDate"
         class="ml-auto flex h-4 w-4 shrink-0 items-center justify-center rounded-sm text-slate-600 hover:bg-slate-100"
         @mousedown.prevent
-        @click.stop="clear"
-      >
+        @click.stop="clear">
         <Icon icon="boxicons:x" class="size-5" />
       </span>
     </button>
 
     <Teleport to="body">
-      <div
-        v-if="isOpen"
-        class="fixed inset-0 z-40 sm:hidden"
-        @click="isOpen = false"
-      />
+      <div v-if="isOpen" class="fixed inset-0 z-40 sm:hidden" @click="isOpen = false" />
 
       <div
         v-if="isOpen"
         ref="popupEl"
-        class="z-50 overflow-y-auto rounded-md border border-slate-200 bg-white p-3 shadow-xs sm:p-4 sm:overflow-visible"
-        :style="popupStyle"
-      >
+        class="z-50 overflow-y-auto rounded-md border border-slate-200 bg-white p-3 shadow-xs sm:overflow-visible sm:p-4"
+        :style="popupStyle">
         <div class="mb-2 flex items-center justify-between gap-1">
           <div class="flex items-center gap-0.5">
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 text-slate-600 hover:bg-slate-100 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Tahun sebelumnya"
               title="Tahun sebelumnya"
-              @click="prevYear"
-            >
+              @click="prevYear">
               <Icon icon="hugeicons:arrow-left-double" class="size-5" />
             </button>
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 hover:bg-slate-100 text-slate-600 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Bulan sebelumnya"
-              @click="prevMonth"
-            >
+              @click="prevMonth">
               <Icon icon="hugeicons:arrow-left-01" class="size-5" />
             </button>
           </div>
 
           <div
-            class="flex flex-1 justify-center gap-4 sm:gap-16 text-xs sm:text-sm font-bold text-slate-600 truncate"
-          >
+            class="flex flex-1 justify-center gap-4 truncate text-xs font-bold text-slate-600 sm:gap-16 sm:text-sm">
             <span>{{ MONTHS[leftMonth] }} {{ leftYear }}</span>
-            <span class="hidden sm:inline"
-              >{{ MONTHS[rightMonth] }} {{ rightYear }}</span
-            >
+            <span class="hidden sm:inline">{{ MONTHS[rightMonth] }} {{ rightYear }}</span>
           </div>
 
           <div class="flex items-center gap-0.5">
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 hover:bg-slate-100 text-slate-600 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Bulan berikutnya"
-              @click="nextMonth"
-            >
+              @click="nextMonth">
               <Icon icon="hugeicons:arrow-right-01" class="size-5" />
             </button>
             <button
               type="button"
-              class="shrink-0 rounded-sm cursor-pointer p-1.5 text-slate-600 hover:bg-slate-100 transition-colors"
+              class="shrink-0 cursor-pointer rounded-sm p-1.5 text-slate-600 transition-colors hover:bg-slate-100"
               aria-label="Tahun berikutnya"
               title="Tahun berikutnya"
-              @click="nextYear"
-            >
+              @click="nextYear">
               <Icon icon="hugeicons:arrow-right-double" class="size-5" />
             </button>
           </div>
@@ -386,13 +355,13 @@ watch(
           Swipe or use the arrows to view {{ MONTHS[rightMonth] }}.
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-          <div class="flex-1 min-w-0">
+        <div class="flex flex-col gap-4 sm:flex-row sm:gap-6">
+          <div class="min-w-0 flex-1">
             <div class="mb-2 grid grid-cols-7 text-center">
               <span
                 v-for="d in DAYS"
                 :key="d"
-                class="py-1 text-[10px] font-medium uppercase tracking-wide text-slate-600"
+                class="py-1 text-[10px] font-medium tracking-wide text-slate-600 uppercase"
                 >{{ d }}</span
               >
             </div>
@@ -400,12 +369,12 @@ watch(
               <template v-for="(ymd, i) in leftGrid" :key="i">
                 <div
                   v-if="ymd"
-                  class="relative flex aspect-square w-full max-h-9 cursor-pointer items-center justify-center text-xs transition-colors select-none"
+                  class="relative flex aspect-square max-h-9 w-full cursor-pointer items-center justify-center text-xs transition-colors select-none"
                   :class="[
                     cellState(ymd).isStart || cellState(ymd).isEnd
                       ? 'z-10 rounded-sm bg-teal-500 font-semibold text-white'
                       : cellState(ymd).overLimit
-                        ? 'rounded-sm bg-red-100 text-red-500 font-semibold'
+                        ? 'rounded-sm bg-red-100 font-semibold text-red-500'
                         : cellState(ymd).isHoverEnd
                           ? 'z-10 rounded-sm bg-teal-400 font-semibold text-white'
                           : cellState(ymd).inRange
@@ -414,8 +383,7 @@ watch(
                   ]"
                   @click="selectDay(ymd)"
                   @mouseenter="onHover(ymd)"
-                  @mouseleave="hovered = null"
-                >
+                  @mouseleave="hovered = null">
                   {{ ymd.split("-")[2].replace(/^0/, "") }}
                 </div>
                 <div v-else />
@@ -423,14 +391,14 @@ watch(
             </div>
           </div>
 
-          <div class="hidden sm:block w-px bg-slate-100" />
+          <div class="hidden w-px bg-slate-100 sm:block" />
 
-          <div class="hidden sm:block flex-1 min-w-0">
+          <div class="hidden min-w-0 flex-1 sm:block">
             <div class="mb-2 grid grid-cols-7 text-center">
               <span
                 v-for="d in DAYS"
                 :key="d"
-                class="py-1 text-[10px] font-medium uppercase tracking-wide text-slate-600"
+                class="py-1 text-[10px] font-medium tracking-wide text-slate-600 uppercase"
                 >{{ d }}</span
               >
             </div>
@@ -438,12 +406,12 @@ watch(
               <template v-for="(ymd, i) in rightGrid" :key="i">
                 <div
                   v-if="ymd"
-                  class="relative flex aspect-square w-full max-h-9 cursor-pointer items-center justify-center text-xs transition-colors select-none"
+                  class="relative flex aspect-square max-h-9 w-full cursor-pointer items-center justify-center text-xs transition-colors select-none"
                   :class="[
                     cellState(ymd).isStart || cellState(ymd).isEnd
                       ? 'z-10 rounded-sm bg-teal-500 font-semibold text-white'
                       : cellState(ymd).overLimit
-                        ? 'rounded-sm bg-red-100 text-red-500 font-semibold'
+                        ? 'rounded-sm bg-red-100 font-semibold text-red-500'
                         : cellState(ymd).isHoverEnd
                           ? 'z-10 rounded-sm bg-teal-400 font-semibold text-white'
                           : cellState(ymd).inRange
@@ -452,8 +420,7 @@ watch(
                   ]"
                   @click="selectDay(ymd)"
                   @mouseenter="onHover(ymd)"
-                  @mouseleave="hovered = null"
-                >
+                  @mouseleave="hovered = null">
                   {{ ymd.split("-")[2].replace(/^0/, "") }}
                 </div>
                 <div v-else />
@@ -464,8 +431,7 @@ watch(
 
         <div class="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-600">
           <span v-if="selecting"
-            >Select the end date, the maximum is {{ maxMonths }} months from the
-            start date.</span
+            >Select the end date, the maximum is {{ maxMonths }} months from the start date.</span
           >
           <span v-else>Click the start date to select a range.</span>
         </div>

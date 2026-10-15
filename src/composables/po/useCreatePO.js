@@ -102,14 +102,13 @@ export function useCreatePO() {
   // saat modal itu pertama kali dibuka (lihat openAddItem/openEditItem).
   async function fetchFormOptions() {
     try {
-      const [regionRes, picRes, picClientRes, divisionRes, ppnRes] =
-        await Promise.all([
-          api.get("/regions/select"),
-          api.get("/admins/pic"),
-          api.get("/admins/pic-client"),
-          api.get("/divisions/select"),
-          api.get("/ppn/current"),
-        ]);
+      const [regionRes, picRes, picClientRes, divisionRes, ppnRes] = await Promise.all([
+        api.get("/regions/select"),
+        api.get("/admins/pic"),
+        api.get("/admins/pic-client"),
+        api.get("/divisions/select"),
+        api.get("/ppn/current"),
+      ]);
       regionOptions.value = regionRes.data ?? [];
       picOptions.value = picRes.data ?? [];
       picClientOptions.value = picClientRes.data ?? [];
@@ -147,10 +146,7 @@ export function useCreatePO() {
 
   // ── Kalkulasi total ───────────────────────────────
   const subtotal = computed(() =>
-    items.value.reduce(
-      (sum, item) => sum + (Number(item.qty) || 0) * (Number(item.price) || 0),
-      0,
-    ),
+    items.value.reduce((sum, item) => sum + (Number(item.qty) || 0) * (Number(item.price) || 0), 0),
   );
 
   // Field response GET /api/ppn/current mengikuti konvensi prefix modul (ppn_id, ppn_value),
@@ -159,9 +155,7 @@ export function useCreatePO() {
     Number(currentPpn.value?.ppn_value ?? currentPpn.value?.value ?? 0),
   );
 
-  const ppnAmount = computed(() =>
-    Math.round(subtotal.value * (ppnRate.value / 100)),
-  );
+  const ppnAmount = computed(() => Math.round(subtotal.value * (ppnRate.value / 100)));
 
   const total = computed(() => subtotal.value + ppnAmount.value);
 
@@ -210,8 +204,7 @@ export function useCreatePO() {
       router.push("/po");
       return true;
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Gagal membuat Purchase Order";
+      error.value = err.response?.data?.message || "Gagal membuat Purchase Order";
       return false;
     } finally {
       submitting.value = false;

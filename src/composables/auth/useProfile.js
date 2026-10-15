@@ -83,8 +83,7 @@ export function useAdminProfile() {
       // Ambil gambar tanda tangan dari server
       await fetchSignature();
     } catch (err) {
-      error.value =
-        err.response?.data?.message || "Failed to load profile data";
+      error.value = err.response?.data?.message || "Failed to load profile data";
     } finally {
       loading.value = false;
     }
@@ -109,8 +108,7 @@ export function useAdminProfile() {
 
   // Upload tanda tangan baru ke server via POST /admins/me/signature
   async function saveSignature() {
-    if (!form.signature || !form.signature.startsWith("data:image"))
-      return true;
+    if (!form.signature || !form.signature.startsWith("data:image")) return true;
 
     const file = await dataUrlToFile(form.signature, "signature.png");
     const fd = new FormData();

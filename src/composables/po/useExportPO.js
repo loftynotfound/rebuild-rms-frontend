@@ -89,8 +89,7 @@ export function useExportPO() {
     exportFilters.division = "";
     // Tab default tabel adalah "open", tapi untuk export defaultnya "all"
     // kecuali user memang sedang browsing di tab status selain open.
-    exportFilters.status =
-      prefill.status && prefill.status !== "open" ? prefill.status : "all";
+    exportFilters.status = prefill.status && prefill.status !== "open" ? prefill.status : "all";
     exportFilters.region = prefill.region ?? "";
     clearExportClient();
     fetchExportFormOptions();
@@ -124,8 +123,7 @@ export function useExportPO() {
     exporting.value = true;
     try {
       const params = {};
-      if (exportFilters.start_date)
-        params.start_date = exportFilters.start_date;
+      if (exportFilters.start_date) params.start_date = exportFilters.start_date;
       if (exportFilters.end_date) params.end_date = exportFilters.end_date;
       if (exportFilters.division) params.division = exportFilters.division;
       if (exportFilters.status) params.status = exportFilters.status;
@@ -146,9 +144,7 @@ export function useExportPO() {
         params,
         responseType: "blob",
         withCredentials: true,
-        headers: authStore.accessToken
-          ? { Authorization: `Bearer ${authStore.accessToken}` }
-          : {},
+        headers: authStore.accessToken ? { Authorization: `Bearer ${authStore.accessToken}` } : {},
       });
 
       lastCacheStatus.value = res.headers?.["x-export-cache"] ?? "";
@@ -179,8 +175,7 @@ export function useExportPO() {
       if (err.response?.status === 401) {
         // Request export pakai axios langsung (lihat komentar di atas), jadi
         // tidak melewati interceptor auto-refresh token milik instance `api`.
-        exportError.value =
-          "Sesi login sudah berakhir, silakan muat ulang halaman lalu coba lagi";
+        exportError.value = "Sesi login sudah berakhir, silakan muat ulang halaman lalu coba lagi";
       } else if (err.response?.data instanceof Blob) {
         try {
           const text = await err.response.data.text();
@@ -190,8 +185,7 @@ export function useExportPO() {
           exportError.value = "Gagal membuat file export";
         }
       } else {
-        exportError.value =
-          err.response?.data?.message || "Gagal membuat file export";
+        exportError.value = err.response?.data?.message || "Gagal membuat file export";
       }
       return false;
     } finally {

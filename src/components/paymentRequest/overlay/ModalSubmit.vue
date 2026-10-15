@@ -135,17 +135,14 @@ onBeforeUnmount(() => {
 });
 
 const registerSignature = async () => {
-  if (!adminName.value)
-    throw new Error("Could not load your name. Please reload and try again.");
+  if (!adminName.value) throw new Error("Could not load your name. Please reload and try again.");
 
   let blob;
   let name = "signature.png";
 
   if (mode.value === "draw") {
     if (!hasInk.value) throw new Error("Draw your signature first.");
-    blob = await new Promise((resolve) =>
-      canvas.value.toBlob(resolve, "image/png"),
-    );
+    blob = await new Promise((resolve) => canvas.value.toBlob(resolve, "image/png"));
   } else {
     if (!file.value) throw new Error("Choose a signature image first.");
     blob = file.value;
@@ -159,8 +156,7 @@ const registerSignature = async () => {
 
   signatureId.value = res.data?.signature_id ?? null;
   if (!signatureId.value) await fetchSignature();
-  if (!signatureId.value)
-    throw new Error("Signature uploaded but could not be loaded.");
+  if (!signatureId.value) throw new Error("Signature uploaded but could not be loaded.");
 };
 
 const submit = async () => {
@@ -191,8 +187,7 @@ const submit = async () => {
     });
     emit("done");
   } catch (e) {
-    error.value =
-      e.response?.data?.message ?? e.message ?? "Failed to submit request.";
+    error.value = e.response?.data?.message ?? e.message ?? "Failed to submit request.";
   } finally {
     saving.value = false;
   }
@@ -201,16 +196,9 @@ const submit = async () => {
 
 <template>
   <Modal
-    :title="
-      isBulk
-        ? `submit ${list.length} payment Request`
-        : 'Submit Payment Request'
-    "
-    @close="emit('close')"
-  >
-    <div v-if="loading" class="py-8 text-center text-sm text-slate-400">
-      Loading...
-    </div>
+    :title="isBulk ? `submit ${list.length} payment Request` : 'Submit Payment Request'"
+    @close="emit('close')">
+    <div v-if="loading" class="py-8 text-center text-sm text-slate-400">Loading...</div>
 
     <div v-else class="space-y-4">
       <div v-if="!isBulk" class="rounded-sm bg-slate-50 p-3 text-sm">
@@ -222,9 +210,7 @@ const submit = async () => {
         </p>
       </div>
       <div v-else class="rounded-sm bg-slate-50 p-3 text-sm">
-        <p class="font-semibold text-slate-800">
-          {{ list.length }} requests selected
-        </p>
+        <p class="font-semibold text-slate-800">{{ list.length }} requests selected</p>
         <p class="mt-1 max-h-24 overflow-y-auto text-xs text-slate-500">
           {{ list.map((i) => i.prRfpNumber).join(", ") }}
         </p>
@@ -236,23 +222,19 @@ const submit = async () => {
         </span>
         <select
           v-model="checker"
-          class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none"
-        >
+          class="w-full rounded-sm border border-slate-200 px-3 py-2 text-sm text-slate-600 focus:border-teal-400 focus:outline-none">
           <option value="" disabled>Select checker</option>
           <option v-for="c in checkers" :key="c.value" :value="c.value">
             {{ c.label }}
           </option>
         </select>
-        <span class="text-[11px] text-slate-500">
-          The person who checks this request.
-        </span>
+        <span class="text-[11px] text-slate-500"> The person who checks this request. </span>
       </label>
 
       <!-- signature sudah terdaftar -->
       <div
         v-if="signatureId"
-        class="flex items-center gap-2 rounded-sm border border-teal-100 bg-teal-50 px-3 py-2 text-sm text-teal-800"
-      >
+        class="flex items-center gap-2 rounded-sm border border-teal-100 bg-teal-50 px-3 py-2 text-sm text-teal-800">
         <Icon icon="hugeicons:security-check" class="size-5 shrink-0" />
         Your signature is already registered and will be used.
       </div>
@@ -263,29 +245,23 @@ const submit = async () => {
           Signature <span class="text-red-500">*</span>
         </span>
         <p class="text-xs text-slate-500">
-          You have no signature yet. Sign below or upload an image; it will be
-          saved for your next submissions.
+          You have no signature yet. Sign below or upload an image; it will be saved for your next
+          submissions.
         </p>
 
         <div class="flex gap-1 rounded-sm bg-slate-100 p-1 text-sm font-medium">
           <button
             type="button"
             class="flex-1 rounded-sm py-1.5"
-            :class="
-              mode === 'draw' ? 'bg-white text-teal-600' : 'text-slate-600'
-            "
-            @click="mode = 'draw'"
-          >
+            :class="mode === 'draw' ? 'bg-white text-teal-600' : 'text-slate-600'"
+            @click="mode = 'draw'">
             Draw
           </button>
           <button
             type="button"
             class="flex-1 rounded-sm py-1.5"
-            :class="
-              mode === 'upload' ? 'bg-white text-teal-600' : 'text-slate-600'
-            "
-            @click="mode = 'upload'"
-          >
+            :class="mode === 'upload' ? 'bg-white text-teal-600' : 'text-slate-600'"
+            @click="mode = 'upload'">
             Upload Image
           </button>
         </div>
@@ -299,24 +275,17 @@ const submit = async () => {
             @pointerdown="start"
             @pointermove="move"
             @pointerup="end"
-            @pointerleave="end"
-          />
+            @pointerleave="end" />
           <button
             type="button"
             class="mt-1 text-xs font-medium text-slate-500 hover:text-slate-700"
-            @click="clearCanvas"
-          >
+            @click="clearCanvas">
             Clear
           </button>
         </div>
 
         <div v-show="mode === 'upload'" class="space-y-2">
-          <input
-            type="file"
-            accept="image/png,image/jpeg"
-            class="text-sm"
-            @change="onFile"
-          />
+          <input type="file" accept="image/png,image/jpeg" class="text-sm" @change="onFile" />
           <span class="block text-[11px] text-slate-500">
             PNG or JPG. Maximum file size is 2 MB.
           </span>
@@ -324,8 +293,7 @@ const submit = async () => {
             v-if="filePreview"
             :src="filePreview"
             alt="Signature preview"
-            class="h-20 max-w-full rounded-sm border border-slate-200 bg-white object-contain p-1"
-          />
+            class="h-20 max-w-full rounded-sm border border-slate-200 bg-white object-contain p-1" />
         </div>
       </div>
 
@@ -336,16 +304,14 @@ const submit = async () => {
           type="button"
           class="rounded-sm border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
           :disabled="saving"
-          @click="emit('close')"
-        >
+          @click="emit('close')">
           Cancel
         </button>
         <button
           type="button"
           class="rounded-sm bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600 disabled:opacity-50"
           :disabled="saving"
-          @click="submit"
-        >
+          @click="submit">
           {{ saving ? "Submitting..." : "Submit" }}
         </button>
       </div>
